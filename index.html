@@ -155,6 +155,10 @@ const pill=s=>`<span class="pill ${cls(s)}">${s}</span>`;
 const exTag=k=>`<span class="tag" style="--c:${(EX[k]||{c:'#888'}).c}">${(EX[k]||{n:k}).n}</span>`;
 const topErr=s=>s.errors.length?s.errors.slice().sort((a,b)=>b.count-a.count)[0].name:'Không có lỗi';
 
+/* Tên học sinh (bảng public.students) — nếu chưa có tên thì hiện mã HS */
+let NAMES={};
+const dispName=pid=>NAMES[pid]?`${esc(NAMES[pid])} <span style="color:var(--muted);font-size:12px">(${esc(pid)})</span>`:esc(pid);
+
 /* ===== Lấy dữ liệu thật từ Supabase (bảng public.sessions) ===== */
 async function fetchSessions(){
   const {data,error}=await sb.from('sessions')
@@ -169,6 +173,14 @@ async function fetchSessions(){
     const {day,hm,ms}=vnParts(r.recorded_at);
     return {id:r.uuid,pid:r.profile_id,ex:exKey(r.exercise),score:r.score,errors,day,hm,ms,at:r.recorded_at};
   }).sort((a,b)=>a.ms-b.ms);
+}
+
+async function fetchStudents(){
+  const {data,error}=await sb.from('students').select('profile_id,name');
+  if(error) throw error;
+  const map={};
+  (data||[]).forEach(r=>{map[r.profile_id]=r.name});
+  return map;
 }
 
 let S=[], DATA={profiles:[]}, END=0;
@@ -255,7 +267,7 @@ function viewOverview(){
 }
 function sessionTable(list){
   if(!list.length) return '<div class="empty">Chưa có buổi tập.</div>';
-  return `<div class="tw"><table><thead><tr><th>Thời gian</th><th>HS</th><th>Bài tập</th><th>Điểm</th><th>Lỗi chính</th></tr></thead><tbody>${list.map(s=>`<tr><td>${dm(s.day)} ${s.hm}</td><td>${s.pid}</td><td>${exTag(s.ex)}</td><td>${pill(s.score)}</td><td>${esc(topErr(s))}</td></tr>`).join('')}</tbody></table></div>`;
+  return `<div class="tw"><table><thead><tr><th>Thời gian</th><th>Học sinh</th><th>Bài tập</th><th>Điểm</th><th>Lỗi chính</th></tr></thead><tbody>${list.map(s=>`<tr><td>${dm(s.day)} ${s.hm}</td><td>${dispName(s.pid)}</td><td>${exTag(s.ex)}</td><td>${pill(s.score)}</td><td>${esc(topErr(s))}</td></tr>`).join('')}</tbody></table></div>`;
 }
 function viewStudents(){
   const {cur}=scope();
@@ -268,14 +280,14 @@ function viewStudents(){
     const r=rows.find(x=>x.id===state.student);
     if(r){
       const errs=errAgg(r.m);
-      detail=`<section class="card detail"><h2>${r.id}</h2><p class="hint">Tiến bộ qua từng buổi trong khoảng đã chọn</p>
+      detail=`<section class="card detail"><h2>${dispName(r.id)}</h2><p class="hint">Tiến bộ qua từng buổi trong khoảng đã chọn</p>
       <div class="stats"><div><b>${r.n}</b><span>buổi tập</span></div><div><b>${r.a==null?'—':fmt(r.a)}</b><span>điểm trung bình</span></div><div><b>${r.n?Math.max(...r.m.map(s=>s.score)):'—'}</b><span>điểm cao nhất</span></div><div><b>${r.last?dm(r.last.day):'—'}</b><span>buổi gần nhất</span></div></div>
       ${lineChart(r.m.map(s=>({x:dm(s.day),y:s.score})),'st')}
       <h3 style="font-size:14px;margin:16px 0 10px">Lỗi hay gặp</h3>${hbars(errs.slice(0,5))}</section>`;
     }
   }
   return head('Học sinh',`${rows.filter(r=>r.n).length} học sinh có buổi tập. Chọn một dòng để xem chi tiết.`)+`
-  <section class="card"><div class="tw"><table><thead><tr><th>Mã HS</th><th>Số buổi</th><th>Điểm TB</th><th>Xu hướng</th><th>Buổi gần nhất</th></tr></thead><tbody>${rows.map(r=>`<tr data-student="${r.id}" class="${state.student===r.id?'sel':''}" tabindex="0"><td><b>${r.id}</b></td><td>${r.n}</td><td>${r.a==null?'—':pill(Math.round(r.a))}</td><td>${spark(r.m.slice(-8).map(s=>s.score))}</td><td>${r.last?dm(r.last.day)+' '+r.last.hm:'—'}</td></tr>`).join('')}</tbody></table></div></section>${detail}`+foot();
+  <section class="card"><div class="tw"><table><thead><tr><th>Học sinh</th><th>Số buổi</th><th>Điểm TB</th><th>Xu hướng</th><th>Buổi gần nhất</th></tr></thead><tbody>${rows.map(r=>`<tr data-student="${r.id}" class="${state.student===r.id?'sel':''}" tabindex="0"><td><b>${dispName(r.id)}</b></td><td>${r.n}</td><td>${r.a==null?'—':pill(Math.round(r.a))}</td><td>${spark(r.m.slice(-8).map(s=>s.score))}</td><td>${r.last?dm(r.last.day)+' '+r.last.hm:'—'}</td></tr>`).join('')}</tbody></table></div></section>${detail}`+foot();
 }
 function viewSessions(){
   let list=S.filter(s=>(state.fEx==='all'||s.ex===state.fEx)&&(state.fSt==='all'||s.pid===state.fSt)).sort((a,b)=>b.ms-a.ms);
@@ -283,7 +295,7 @@ function viewSessions(){
   return head('Buổi tập',`${total} buổi khớp bộ lọc${total>100?', hiện 100 buổi mới nhất':''}`)+`
   <section class="card"><div class="filters" style="margin-bottom:14px">
     <label>Bài tập <select id="fEx"><option value="all">Tất cả</option>${Object.keys(EX).map(k=>`<option value="${k}" ${state.fEx===k?'selected':''}>${EX[k].n}</option>`).join('')}</select></label>
-    <label>Học sinh <select id="fSt"><option value="all">Tất cả</option>${DATA.profiles.map(p=>`<option ${state.fSt===p.id?'selected':''}>${p.id}</option>`).join('')}</select></label></div>
+    <label>Học sinh <select id="fSt"><option value="all">Tất cả</option>${DATA.profiles.map(p=>`<option value="${p.id}" ${state.fSt===p.id?'selected':''}>${esc(NAMES[p.id]?`${NAMES[p.id]} (${p.id})`:p.id)}</option>`).join('')}</select></label></div>
   ${sessionTable(list)}</section>`+foot();
 }
 
@@ -347,7 +359,8 @@ function renderLoadError(msg,userEmail){
 async function bootData(userEmail){
   renderLoading();
   try{
-    S=await fetchSessions();
+    const [sessions,names]=await Promise.all([fetchSessions(),fetchStudents().catch(()=>({}))]);
+    S=sessions; NAMES=names;
     rebuildProfiles();
     END=S.reduce((m,s)=>s.ms>m?s.ms:m,0);
     renderApp(userEmail);

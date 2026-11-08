@@ -2,7 +2,13 @@
 <html lang="vi">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#080b13">
+<meta name="description" content="Bảng theo dõi buổi tập PoseAI dành cho giáo viên">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="PoseAI">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>PoseAI Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
@@ -18,8 +24,8 @@
   color-scheme:dark;
 }
 *{box-sizing:border-box}
-html,body{height:100%;margin:0}
-body{background:radial-gradient(1200px 600px at 80% -10%,#0e2a4a55,transparent 60%),var(--bg);color:var(--text);font:400 15px/1.5 var(--body)}
+html,body{height:100%;margin:0;-webkit-text-size-adjust:100%}
+body{background:radial-gradient(1200px 600px at 80% -10%,#0e2a4a55,transparent 60%),var(--bg);color:var(--text);font:400 15px/1.5 var(--body);-webkit-tap-highlight-color:transparent;overflow-x:hidden}
 h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance}
 button{font:inherit;color:inherit;cursor:pointer}
 input{font:inherit;color:inherit}
@@ -72,7 +78,7 @@ th{font-weight:500;color:var(--muted);text-align:left;padding:8px 10px;border-bo
 td{padding:9px 10px;border-bottom:1px solid #1C3D5E66;vertical-align:middle}
 tbody tr:hover{background:#ffffff08}
 tr.sel{background:#1BB4B418}
-tr[data-student]{cursor:pointer}
+tr[data-student],tr[data-ses]{cursor:pointer}
 tr.flash{animation:flashrow 3s ease-out 1}
 @keyframes flashrow{0%{background:#1BB4B444}100%{background:transparent}}
 .tag{display:inline-flex;align-items:center;gap:6px;font-size:12px}
@@ -122,7 +128,7 @@ select{background:var(--bg2);color:var(--text);border:1px solid var(--border);bo
 .rank .nm{font-size:13px;overflow-wrap:anywhere}
 .ringwrap{display:flex;gap:20px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
 /* Màn hình đăng nhập / tải / lỗi */
-.center-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.center-screen{min-height:100vh;min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:24px}
 .login-card{width:100%;max-width:360px;background:linear-gradient(180deg,#0e2a4a88,#0e2a4a44);border:1px solid var(--border);border-radius:16px;padding:32px 28px;backdrop-filter:blur(6px)}
 .login-card .brand{justify-content:center;margin-bottom:22px;font-size:22px}
 .login-card label{display:block;font-size:13px;color:var(--muted);margin:14px 0 6px}
@@ -134,15 +140,100 @@ select{background:var(--bg2);color:var(--text);border:1px solid var(--border);bo
 .login-card .hint{color:var(--muted);font-size:12px;margin-top:16px;text-align:center}
 .spinner{width:28px;height:28px;border-radius:50%;border:3px solid #ffffff22;border-top-color:var(--accent);animation:spin 0.8s linear infinite;margin:0 auto 14px}
 @keyframes spin{to{transform:rotate(360deg)}}
-@media (max-width:900px){
+/* Nút chung / thanh công cụ */
+.btn{background:#ffffff0d;border:1px solid var(--border);border-radius:10px;padding:8px 13px;font-size:13px;color:var(--text);display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
+.btn:hover{background:#ffffff18}
+.btn.pri{background:var(--accent);color:#06141f;border-color:transparent;font-weight:600}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.toolbar label{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--muted)}
+.srch{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:8px 11px;font-size:13px;min-width:170px;flex:1;max-width:260px}
+.srch:focus{border-color:var(--accent);outline:none}
+/* Lệnh gửi xuống máy PoseAI */
+.cmds{display:flex;flex-direction:column;gap:8px}
+.cmd{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:11px;align-items:center;background:#ffffff06;border:1px solid transparent;border-radius:10px;padding:8px 11px;font-size:13px}
+.cmd .ic{width:27px;height:27px;border-radius:8px;display:grid;place-items:center;font-size:13px;flex:none;background:#ffffff0d}
+.cmd .t{min-width:0;overflow-wrap:anywhere}
+.cmd .t span{color:var(--muted);font-size:12px}
+.cmd .st{font-size:11px;color:var(--muted);text-align:right;white-space:nowrap}
+.cmd.wait{background:#F2B54412;border-color:#F2B54433}
+.cmd.wait .ic{background:#F2B54426}
+.cmd.wait .st{color:var(--mid)}
+/* Thanh trên cùng (chỉ hiện trên điện thoại) */
+.mtop{display:none;grid-column:1/-1;position:sticky;top:0;z-index:30;align-items:center;gap:10px;background:#080b13f2;backdrop-filter:blur(10px);border-bottom:1px solid var(--border);padding:calc(9px + env(safe-area-inset-top)) 14px 9px}
+.mtop .brand{font-size:17px;padding:0;flex:1;min-width:0}
+.mtop .ib{background:#ffffff0d;border:1px solid var(--border);border-radius:10px;width:38px;height:38px;display:grid;place-items:center;flex:none;color:var(--text)}
+.mtop .ib:active{background:#ffffff1f}
+.mtop .msync{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:6px;white-space:nowrap}
+.mtop .msync i{width:7px;height:7px;border-radius:50%;background:var(--muted);flex:none}
+.mtop .msync.on i{background:var(--good)}
+.nav button svg{width:18px;height:18px;flex:none}
+/* Bảng chi tiết dạng hộp trượt lên */
+.sheet-bd{position:fixed;inset:0;background:#02060cc4;backdrop-filter:blur(3px);z-index:60;display:flex;align-items:center;justify-content:center;padding:20px}
+.sheet{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:20px;width:100%;max-width:430px;max-height:86vh;overflow-y:auto}
+.sheet h3{font-size:17px}
+.sheet dl{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px 14px;font-size:13px;margin:16px 0 0}
+.sheet dt{color:var(--muted)}
+.sheet dd{margin:0;text-align:right;overflow-wrap:anywhere}
+.sheet .btn{width:100%;justify-content:center;margin-top:18px}
+@media (max-width:980px){.grid2,.grid2.b,.grid2.c{grid-template-columns:1fr}}
+@media (max-width:760px){
   .app{grid-template-columns:1fr}
-  .side{position:static;height:auto;flex-direction:row;align-items:center;gap:12px;padding:12px 16px;overflow-x:auto}
-  .nav{flex-direction:row}.side .note{display:none}
-  .side .acct{display:none}.live{display:none}
-  main{padding:20px 16px 40px}
-  .grid2,.grid2.b,.grid2.c{grid-template-columns:1fr}
+  .mtop{display:flex}
+  /* Menu trái thành thanh tab dưới đáy */
+  .side{position:fixed;left:0;right:0;bottom:0;top:auto;height:auto;z-index:40;flex-direction:row;gap:0;padding:6px 8px calc(6px + env(safe-area-inset-bottom));border-right:0;border-top:1px solid var(--border);background:#0b1220f5;backdrop-filter:blur(12px)}
+  .side .brand,.side .note,.side .acct,.side .live{display:none}
+  .nav{flex-direction:row;flex:1;gap:3px}
+  .nav button{flex:1;flex-direction:column;justify-content:center;align-items:center;gap:3px;font-size:11px;padding:7px 2px;min-height:54px;border-radius:12px;text-align:center}
+  .nav button[aria-current="page"]{box-shadow:none;background:#1BB4B424;color:var(--accent)}
+  main{padding:14px 14px calc(84px + env(safe-area-inset-bottom));max-width:none}
+  .top{align-items:flex-start;gap:10px;margin-bottom:14px}
+  .top h1{font-size:22px}
+  .filters{width:100%;overflow-x:auto;flex-wrap:nowrap;padding-bottom:3px;-webkit-overflow-scrolling:touch}
+  .seg{flex:none}
+  .seg button{padding:8px 13px;min-height:38px}
+  select,.srch,.login-card input{font-size:16px}
+  .srch{max-width:none}
+  .card{padding:14px;border-radius:14px}
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:12px}
+  .kpi .lbl{font-size:12px}
+  .kpi .val{font-size:26px;margin:4px 0 2px}
+  .kpi .val small{font-size:13px}
+  .kpi .dl{font-size:11px}
+  .kpi.wide{grid-column:1/-1}
+  .badges{grid-template-columns:1fr;gap:10px}
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+  .stats b{font-size:19px}
+  .ringwrap{gap:12px;justify-content:center}
+  /* Bảng -> thẻ, không phải kéo ngang */
+  .tw{overflow:visible}
+  table,thead,tbody{display:block}
+  thead{display:none}
+  tbody tr{display:flex;flex-direction:column;border:1px solid var(--border);border-radius:14px;background:#ffffff06;padding:11px 13px;margin-bottom:10px}
+  tbody tr:last-child{margin-bottom:0}
+  tbody tr:hover{background:#ffffff06}
+  td{display:flex;justify-content:space-between;align-items:center;gap:12px;border:0;padding:3px 0;font-size:13px}
+  td::before{content:attr(data-label);color:var(--muted);font-size:12px;flex:none}
+  td.c-name{order:-2;font-size:15px;font-weight:600;padding:0;justify-content:flex-start}
+  td.c-code{order:-1;padding:0 0 7px;justify-content:flex-start}
+  td.c-act{order:9;margin-top:9px;padding-top:10px;border-top:1px solid #1C3D5E66;justify-content:stretch}
+  td.c-name::before,td.c-code::before,td.c-act::before{display:none}
+  td.c-act .act{width:100%}
+  .act{gap:8px}
+  .act button{flex:1;padding:9px 14px;font-size:13px;min-height:40px;justify-content:center;display:inline-flex;align-items:center}
+  .foot{font-size:11px}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+/* In báo cáo trên giấy */
+@media print{
+  body{background:#fff;color:#111}
+  .side,.mtop,.filters,.toolbar,.act,.foot,.sheet-bd,.live{display:none!important}
+  .app{display:block}
+  main{padding:0;max-width:none}
+  .card{background:#fff;border:1px solid #bbb;break-inside:avoid;backdrop-filter:none}
+  .kpi .val,.stats b,h1,h2,h3{color:#111}
+  .sub,.hint,.lbl,.dl,.code,span.nm,th{color:#555!important}
+  svg text{fill:#333!important}
+}
 </style>
 </head>
 <body>
@@ -184,6 +275,11 @@ const cls=s=>s>=80?'good':s>=60?'mid':'low';
 const pill=s=>`<span class="pill ${cls(s)}">${s}</span>`;
 const exTag=k=>`<span class="tag" style="--c:${(EX[k]||{c:'#888'}).c}">${(EX[k]||{n:k}).n}</span>`;
 const topErr=s=>s.errors.length?s.errors.slice().sort((a,b)=>b.count-a.count)[0].name:'Không có lỗi';
+const allErrs=s=>s.errors.slice().sort((a,b)=>b.count-a.count);
+/* Màn hình nhỏ: biểu đồ vẽ hẹp hơn để chữ không bị co nhỏ khó đọc */
+const isMob=()=>window.innerWidth<=760;
+const RANGES=[[7,'7 ngày'],[14,'14 ngày'],[30,'30 ngày'],[3650,'Tất cả']];
+const rangeLabel=r=>{const f=RANGES.find(x=>x[0]===r);return f?f[1]:r+' ngày'};
 
 /* Tên học sinh (bảng public.students) — tên và mã HS ở 2 cột riêng */
 let NAMES={};
@@ -210,6 +306,14 @@ async function fetchStudents(){
   if(error) throw error;
   const map={};(data||[]).forEach(r=>{map[r.profile_id]=r.name});
   return map;
+}
+/* Lệnh đã gửi xuống máy PoseAI — để giáo viên biết lệnh sửa/xoá đã chạy chưa */
+async function fetchCommands(){
+  const {data,error}=await sb.from('commands')
+    .select('id,type,target,payload,created_at,applied_at,result')
+    .order('created_at',{ascending:false}).limit(12);
+  if(error) throw error;
+  return data||[];
 }
 
 /* ===== Sửa / xoá từ xa: ghi lệnh vào public.commands để Pi thi hành ===== */
@@ -250,8 +354,8 @@ async function renStudent(pid){
   await refreshData();
 }
 
-let S=[], DATA={profiles:[]}, END=0, NEW_IDS=new Set(), lastSync=null, liveOn=false;
-const state={view:'tong-quan',range:14,ex:'all',student:null,fEx:'all',fSt:'all'};
+let S=[], CMDS=[], DATA={profiles:[]}, END=0, NEW_IDS=new Set(), lastSync=null, liveOn=false;
+const state={view:'tong-quan',range:14,ex:'all',student:null,fEx:'all',fSt:'all',q:'',sort:'n'};
 let rerender=()=>{};
 
 function rebuildProfiles(){
@@ -266,7 +370,8 @@ function scope(){
 
 /* ===== Biểu đồ ===== */
 function lineChart(pts,id,ref){
-  const w=640,h=230,L=34,R=16,T=16,B=28,iw=w-L-R,ih=h-T-B,n=pts.length;
+  const m=isMob();
+  const w=m?380:640,h=m?205:230,L=m?30:34,R=m?12:16,T=16,B=28,iw=w-L-R,ih=h-T-B,n=pts.length;
   const X=i=>L+(n<=1?iw/2:i*iw/(n-1)), Y=v=>T+ih-v/100*ih;
   let g='';
   for(const t of [0,25,50,75,100]) g+=`<line class="grid" x1="${L}" x2="${w-R}" y1="${Y(t)}" y2="${Y(t)}"/><text class="ax" x="${L-6}" y="${Y(t)+4}" text-anchor="end">${t}</text>`;
@@ -279,7 +384,7 @@ function lineChart(pts,id,ref){
     const rv=ref.map((p,i)=>p.y==null?null:[X(i),Y(p.y)]).filter(Boolean);
     if(rv.length>1) refPath=`<path d="${rv.map((q,i)=>(i?'L':'M')+q[0].toFixed(1)+' '+q[1].toFixed(1)).join(' ')}" fill="none" stroke="#7C93A6" stroke-width="1.8" stroke-dasharray="5 4"/>`;
   }
-  const step=Math.max(1,Math.ceil(n/7));
+  const step=Math.max(1,Math.ceil(n/(m?4:7)));
   let xl='';pts.forEach((p,i)=>{if(i%step===0||i===n-1)xl+=`<text class="ax" x="${X(i)}" y="${h-8}" text-anchor="middle">${p.x}</text>`});
   const last=v[v.length-1];
   const dots=v.map(q=>`<circle cx="${q[0].toFixed(1)}" cy="${q[1].toFixed(1)}" r="${n>40?2:3}" fill="#080b13" stroke="#1BB4B4" stroke-width="1.5"><title>${q[2].x}: ${fmt(q[2].y)} điểm</title></circle>`).join('');
@@ -383,8 +488,98 @@ function rankList(cur){
   return `<div class="rank">${arr.map((r,i)=>`<div class="row"><span class="pos">${i+1}</span><span class="nm">${esc(plainName(r.pid))} <span class="code">${esc(r.pid)}</span></span>${pill(Math.round(r.a))}</div>`).join('')}</div>`;
 }
 
+/* ===== Lệnh đã gửi xuống máy PoseAI ===== */
+const CMD_LABEL={rename_profile:['✏️','Đổi tên học sinh'],delete_session:['🗑','Xoá buổi tập'],delete_profile:['🗑','Xoá học sinh']};
+function cmdList(){
+  if(!CMDS.length) return '';
+  const wait=CMDS.filter(c=>!c.applied_at);
+  const show=wait.length?wait:CMDS.slice(0,4);
+  const rows=show.map(c=>{
+    const L=CMD_LABEL[c.type]||['•',c.type];
+    const who=c.type==='delete_session'?('Mã buổi '+String(c.target||'').slice(0,8))
+      :(plainName(c.target)+' · '+c.target);
+    const extra=(c.type==='rename_profile'&&c.payload)?' → '+esc(String(c.payload)):'';
+    const st=c.applied_at?('Đã áp dụng '+vnParts(c.applied_at).hm):'Đang chờ máy…';
+    return `<div class="cmd ${c.applied_at?'':'wait'}"><span class="ic">${L[0]}</span>
+      <span class="t">${L[1]}<br><span>${esc(who)}${extra}</span></span>
+      <span class="st">${st}</span></div>`;
+  }).join('');
+  const hint=wait.length
+    ?`${wait.length} lệnh đang chờ máy PoseAI áp dụng — máy nhận lệnh mỗi 2 phút`
+    :'Không có lệnh nào đang chờ. Dưới đây là các lệnh gần nhất.';
+  return `<section class="card" style="margin-bottom:16px"><h2>Đồng bộ xuống máy PoseAI</h2><p class="hint">${hint}</p><div class="cmds">${rows}</div></section>`;
+}
+
+/* ===== Học sinh cần chú ý ===== */
+function attention(cur){
+  if(!END) return '';
+  const by={};
+  cur.forEach(s=>{(by[s.pid]=by[s.pid]||[]).push(s)});
+  const items=[];
+  DATA.profiles.forEach(p=>{
+    const m=(by[p.id]||[]).slice().sort((a,b)=>a.sortMs-b.sortMs);
+    if(!m.length) return;
+    const days=Math.round((END-m[m.length-1].ms)/DAY);
+    if(days>=7){ items.push({pid:p.id,why:`Chưa tập ${days} ngày`,sev:2}); return }
+    if(m.length>=4){
+      const half=Math.floor(m.length/2);
+      const d=avg(m.slice(half))-avg(m.slice(0,half));
+      if(d<=-5){ items.push({pid:p.id,why:`Điểm giảm ${fmt(Math.abs(d))} so với đầu kỳ`,sev:1}); return }
+    }
+    const a=avg(m);
+    if(a!=null&&a<60) items.push({pid:p.id,why:`Điểm trung bình ${fmt(a)} — dưới 60`,sev:1});
+  });
+  if(!items.length) return '';
+  items.sort((a,b)=>b.sev-a.sev);
+  return `<section class="card" style="margin-bottom:16px"><h2>Cần chú ý</h2><p class="hint">Học sinh nên nhắc tập lại hoặc xem lại tư thế</p>
+  <div class="cmds">${items.slice(0,5).map(i=>`<div class="cmd"><span class="ic">${i.sev===2?'⏰':'⚠️'}</span>
+    <span class="t">${esc(plainName(i.pid))}<br><span>${esc(i.why)}</span></span>
+    <span class="st"><button class="btn" data-view="hoc-sinh" data-student="${esc(i.pid)}" style="padding:6px 11px;font-size:12px">Xem</button></span></div>`).join('')}</div></section>`;
+}
+
+/* ===== Xuất CSV (mở được bằng Excel, có BOM cho tiếng Việt) ===== */
+function toCSV(list){
+  const q=v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"';
+  const lines=[['Ngày','Giờ','Mã HS','Tên học sinh','Bài tập','Điểm','Rep','Thời lượng (giây)','Lỗi chính','Tất cả lỗi'].map(q).join(',')];
+  list.forEach(s=>lines.push([s.day,s.hm,s.pid,plainName(s.pid),(EX[s.ex]||{n:s.ex}).n,s.score,
+    s.reps==null?'':s.reps,s.dur==null?'':s.dur,topErr(s),
+    allErrs(s).map(e=>e.name+' x'+e.count).join('; ')].map(q).join(',')));
+  return '﻿'+lines.join('\r\n');
+}
+function downloadCSV(list,name){
+  if(!list.length){ alert('Không có buổi tập nào để xuất.'); return }
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([toCSV(list)],{type:'text/csv;charset=utf-8'}));
+  a.download=name;
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);
+}
+
+/* ===== Hộp chi tiết (trượt lên từ đáy trên điện thoại) ===== */
+function closeSheet(){const el=document.getElementById('sheet');if(el)el.remove()}
+function openSheet(html){
+  closeSheet();
+  const d=document.createElement('div');
+  d.className='sheet-bd'; d.id='sheet';
+  d.innerHTML=`<div class="sheet" role="dialog" aria-modal="true">${html}<button class="btn" data-close-sheet type="button">Đóng</button></div>`;
+  d.addEventListener('click',e=>{ if(e.target===d||e.target.closest('[data-close-sheet]')) closeSheet() });
+  document.body.appendChild(d);
+}
+function sessionSheet(id){
+  const s=S.find(x=>x.id===id); if(!s) return;
+  const errs=allErrs(s);
+  openSheet(`<h3>${stuName(s.pid)}</h3>
+    <p class="hint" style="margin:3px 0 0">Mã HS <span class="code">${esc(s.pid)}</span> · ${dm(s.day)} ${s.hm}</p>
+    <dl><dt>Bài tập</dt><dd>${exTag(s.ex)}</dd>
+      <dt>Điểm</dt><dd>${pill(s.score)}</dd>
+      <dt>Số rep</dt><dd>${s.reps==null?'—':s.reps}</dd>
+      <dt>Thời lượng</dt><dd>${dur(s.dur)}</dd></dl>
+    <h3 style="font-size:14px;margin:18px 0 10px">Lỗi ghi nhận trong buổi</h3>
+    ${errs.length?hbars(errs.map(e=>({l:e.name,v:e.count,c:(EX[s.ex]||{c:'#888'}).c}))):'<div class="empty" style="padding:8px 0">Không có lỗi nào.</div>'}`);
+}
+
 const filterBar=()=>`<div class="filters">
-  <div class="seg" role="group" aria-label="Khoảng thời gian">${[7,14,21].map(r=>`<button data-range="${r}" aria-pressed="${state.range===r}">${r} ngày</button>`).join('')}</div>
+  <div class="seg" role="group" aria-label="Khoảng thời gian">${RANGES.map(([r,lb])=>`<button data-range="${r}" aria-pressed="${state.range===r}">${lb}</button>`).join('')}</div>
   <div class="seg" role="group" aria-label="Bài tập"><button data-ex="all" aria-pressed="${state.ex==='all'}">Tất cả</button>${Object.keys(EX).map(k=>`<button data-ex="${k}" aria-pressed="${state.ex===k}">${EX[k].n}</button>`).join('')}</div></div>`;
 const head=(t,sub)=>`<div class="top"><div><h1>${t}</h1><p class="sub">${sub}</p></div>${t==='Buổi tập'?'':filterBar()}</div>`;
 const foot=()=>`<p class="foot">Nguồn: bảng sessions + students trên Supabase, giờ Việt Nam. Màu điểm: ≥80 tốt, 60–79 trung bình, dưới 60 cần cải thiện.</p>`;
@@ -394,27 +589,39 @@ const num=(v,d=0)=>`<span data-count="${v}" data-dec="${d}">0</span>`;
 function viewOverview(){
   const {from,cur,prev}=scope();
   const a=avg(cur),b=avg(prev);
-  const dl=(a!=null&&b!=null)?(()=>{const d=a-b;return `<span class="${d>=0?'up':'down'}">${d>=0?'▲':'▼'} ${fmt(Math.abs(d))}</span> so với ${state.range} ngày trước`})():'Chưa có kỳ trước để so sánh';
+  const dl=(a!=null&&b!=null)?(()=>{const d=a-b;return `<span class="${d>=0?'up':'down'}">${d>=0?'▲':'▼'} ${fmt(Math.abs(d))}</span> so với kỳ trước`})():'Chưa có kỳ trước để so sánh';
   const active=new Set(cur.map(s=>s.pid)).size;
   const errs=errAgg(cur);
+  /* Trục ngày: chỉ vẽ từ buổi đầu tiên có thật; khoảng quá dài thì gộp theo tuần */
+  const start=cur.length?Math.max(from,Math.min(...cur.map(s=>s.ms))):from;
+  const span=Math.round((END-start)/DAY)+1, byWeek=span>45;
   const pts=[];
-  for(let t=from;t<=END;t+=DAY){const day=new Date(t).toISOString().slice(0,10);pts.push({x:dm(day),y:avg(cur.filter(s=>s.day===day))})}
+  if(byWeek){
+    for(let t=start;t<=END;t+=7*DAY){
+      const e=Math.min(END,t+6*DAY);
+      pts.push({x:dm(new Date(t).toISOString().slice(0,10)),y:avg(cur.filter(s=>s.ms>=t&&s.ms<=e))});
+    }
+  }else{
+    for(let t=start;t<=END;t+=DAY){const day=new Date(t).toISOString().slice(0,10);pts.push({x:dm(day),y:avg(cur.filter(s=>s.day===day))})}
+  }
   const byEx=Object.keys(EX).map(k=>({l:EX[k].n,v:cur.filter(s=>s.ex===k).length,c:EX[k].c}));
   const recent=cur.slice().sort((x,y)=>y.sortMs-x.sortMs).slice(0,8);
   const heatList=S.filter(s=>state.ex==='all'||s.ex===state.ex);
   const totDur=sumDur(cur);
-  return head('Tổng quan',`${state.range} ngày gần nhất, đến ${END?dm(new Date(END).toISOString().slice(0,10)):'—'}`)+`
+  return head('Tổng quan',`${rangeLabel(state.range)}, đến ${END?dm(new Date(END).toISOString().slice(0,10)):'—'}`)+`
   <div class="kpis">
     <div class="card kpi"><div class="lbl">Số buổi tập</div><div class="val">${num(cur.length)}</div><div class="dl">${prev.length} buổi ở kỳ trước</div></div>
     <div class="card kpi"><div class="lbl">Điểm trung bình</div><div class="val">${a==null?'—':num(a,1)}<small> /100</small></div><div class="dl">${dl}</div></div>
     <div class="card kpi"><div class="lbl">Học sinh hoạt động</div><div class="val">${num(active)}<small> /${DATA.profiles.length}</small></div><div class="dl">Có ít nhất một buổi trong kỳ</div></div>
     <div class="card kpi"><div class="lbl">Tổng thời lượng tập</div><div class="val">${totDur==null?'—':num(totDur/60,0)}<small> phút</small></div><div class="dl">${totDur==null?'Buổi tập cũ chưa ghi thời lượng':`${cur.filter(s=>s.dur!=null).length} buổi có số liệu`}</div></div>
-    <div class="card kpi"><div class="lbl">Lỗi gặp nhiều nhất</div><div class="val" style="font-size:17px;line-height:1.35;margin-top:10px">${errs.length?esc(errs[0].l):'Không có'}</div><div class="dl">${errs.length?fmt(errs[0].v,0)+' lần ghi nhận':''}</div></div>
+    <div class="card kpi wide"><div class="lbl">Lỗi gặp nhiều nhất</div><div class="val" style="font-size:17px;line-height:1.35;margin-top:10px">${errs.length?esc(errs[0].l):'Không có'}</div><div class="dl">${errs.length?fmt(errs[0].v,0)+' lần ghi nhận':''}</div></div>
   </div>
   <div class="grid2">
-    <section class="card"><h2>Điểm trung bình theo ngày</h2><p class="hint">Trung bình điểm các buổi trong ngày</p>${lineChart(pts,'ov')}</section>
+    <section class="card"><h2>Điểm trung bình theo ${byWeek?'tuần':'ngày'}</h2><p class="hint">${byWeek?'Khoảng dài nên gộp theo tuần cho dễ đọc':'Trung bình điểm các buổi trong ngày'}</p>${lineChart(pts,'ov')}</section>
     <section class="card"><h2>Số buổi theo bài tập</h2><p class="hint">Trong khoảng đã chọn</p>${hbars(byEx)}</section>
   </div>
+  ${attention(cur)}
+  ${cmdList()}
   <section class="card" style="margin-bottom:16px"><h2>Lịch tập của lớp</h2><p class="hint">Mỗi ô là một ngày, càng đậm càng nhiều buổi tập</p>${heatmap(heatList)}</section>
   ${badgeCards(cur)}
   <div class="grid2 c">
@@ -425,14 +632,25 @@ function viewOverview(){
 }
 function sessionTable(list,withActions){
   if(!list.length) return '<div class="empty">Chưa có buổi tập.</div>';
-  return `<div class="tw"><table><thead><tr><th>Thời gian</th><th>Học sinh</th><th>Mã HS</th><th>Bài tập</th><th>Điểm</th><th>Rep</th><th>Thời lượng</th><th>Lỗi chính</th>${withActions?'<th></th>':''}</tr></thead><tbody>${list.map(s=>`<tr class="${NEW_IDS.has(s.id)?'flash':''}"><td>${dm(s.day)} ${s.hm}</td><td>${stuName(s.pid)}</td><td class="code">${esc(s.pid)}</td><td>${exTag(s.ex)}</td><td>${pill(s.score)}</td><td>${s.reps==null?'—':s.reps}</td><td>${dur(s.dur)}</td><td>${esc(topErr(s))}</td>${withActions?`<td><div class="act"><button class="danger" data-del-session="${esc(s.id)}" title="Xoá buổi tập">Xoá</button></div></td>`:''}</tr>`).join('')}</tbody></table></div>`;
+  return `<div class="tw"><table><thead><tr><th>Thời gian</th><th>Học sinh</th><th>Mã HS</th><th>Bài tập</th><th>Điểm</th><th>Rep</th><th>Thời lượng</th><th>Lỗi chính</th>${withActions?'<th></th>':''}</tr></thead><tbody>${list.map(s=>`<tr data-ses="${esc(s.id)}" tabindex="0" class="${NEW_IDS.has(s.id)?'flash':''}"><td data-label="Thời gian">${dm(s.day)} ${s.hm}</td><td class="c-name">${stuName(s.pid)}</td><td class="code c-code" data-label="Mã HS">${esc(s.pid)}</td><td data-label="Bài tập">${exTag(s.ex)}</td><td data-label="Điểm">${pill(s.score)}</td><td data-label="Rep">${s.reps==null?'—':s.reps}</td><td data-label="Thời lượng">${dur(s.dur)}</td><td data-label="Lỗi chính">${esc(topErr(s))}</td>${withActions?`<td class="c-act"><div class="act"><button data-ses-info="${esc(s.id)}" title="Xem chi tiết buổi tập">Chi tiết</button><button class="danger" data-del-session="${esc(s.id)}" title="Xoá buổi tập">Xoá</button></div></td>`:''}</tr>`).join('')}</tbody></table></div>`;
 }
+const SORTS={n:'Số buổi nhiều nhất',a:'Điểm TB cao nhất',name:'Tên A → Z',last:'Buổi gần nhất'};
 function viewStudents(){
   const {cur}=scope();
-  const rows=DATA.profiles.map(p=>{
+  const q=state.q.trim().toLowerCase();
+  let rows=DATA.profiles.map(p=>{
     const m=cur.filter(s=>s.pid===p.id).sort((x,y)=>x.sortMs-y.sortMs);
     return {id:p.id,m,n:m.length,a:avg(m),last:m.length?m[m.length-1]:null};
-  }).sort((x,y)=>y.n-x.n);
+  });
+  const nAll=rows.filter(r=>r.n).length;
+  if(q) rows=rows.filter(r=>(plainName(r.id)+' '+r.id).toLowerCase().includes(q));
+  const cmp={
+    n:(x,y)=>y.n-x.n,
+    a:(x,y)=>(y.a==null?-1:y.a)-(x.a==null?-1:x.a),
+    name:(x,y)=>plainName(x.id).localeCompare(plainName(y.id),'vi'),
+    last:(x,y)=>(y.last?y.last.sortMs:0)-(x.last?x.last.sortMs:0)
+  };
+  rows.sort(cmp[state.sort]||cmp.n);
   let detail='';
   if(state.student){
     const r=rows.find(x=>x.id===state.student);
@@ -452,19 +670,33 @@ function viewStudents(){
       <div class="stats"><div><b>${r.n}</b><span>buổi tập</span></div><div><b>${r.a==null?'—':fmt(r.a)}</b><span>điểm trung bình</span></div><div><b>${r.n?Math.max(...r.m.map(s=>s.score)):'—'}</b><span>điểm cao nhất</span></div><div><b>${sumDur(r.m)==null?'—':fmt(sumDur(r.m)/60,0)+'p'}</b><span>tổng thời lượng</span></div><div><b>${avgReps(r.m)==null?'—':fmt(avgReps(r.m),1)}</b><span>rep trung bình/buổi</span></div><div><b>${r.last?dm(r.last.day):'—'}</b><span>buổi gần nhất</span></div></div>
       ${lineChart(r.m.map(s=>({x:dm(s.day),y:s.score})),'st',refLine)}
       <div class="heatlegend"><span style="color:var(--accent)">━ Học sinh</span><span>┄ Trung bình lớp cùng ngày</span></div>
-      <h3 style="font-size:14px;margin:16px 0 10px">Lỗi hay gặp</h3>${hbars(errs.slice(0,5))}</section>`;
+      <h3 style="font-size:14px;margin:16px 0 10px">Lỗi hay gặp</h3>${hbars(errs.slice(0,5))}
+      <div class="toolbar" style="margin:18px 0 0"><button class="btn" data-print type="button">In báo cáo</button><button class="btn" data-csv-student="${esc(r.id)}" type="button">Xuất CSV học sinh này</button></div></section>`;
     }
   }
-  return head('Học sinh',`${rows.filter(r=>r.n).length} học sinh có buổi tập. Chọn một dòng để xem chi tiết.`)+`
-  <section class="card"><div class="tw"><table><thead><tr><th>Học sinh</th><th>Mã HS</th><th>Số buổi</th><th>Điểm TB</th><th>Xu hướng</th><th>Buổi gần nhất</th><th></th></tr></thead><tbody>${rows.map(r=>`<tr data-student="${r.id}" class="${state.student===r.id?'sel':''}" tabindex="0"><td><b>${stuName(r.id)}</b></td><td class="code">${esc(r.id)}</td><td>${r.n}</td><td>${r.a==null?'—':pill(Math.round(r.a))}</td><td>${spark(r.m.slice(-8).map(s=>s.score))}</td><td>${r.last?dm(r.last.day)+' '+r.last.hm:'—'}</td><td><div class="act"><button data-ren-student="${esc(r.id)}" title="Đổi tên">Sửa tên</button><button class="danger" data-del-student="${esc(r.id)}" title="Xoá học sinh và toàn bộ buổi tập">Xoá</button></div></td></tr>`).join('')}</tbody></table></div></section>${detail}`+foot();
+  const tbl=rows.length
+    ?`<div class="tw"><table><thead><tr><th>Học sinh</th><th>Mã HS</th><th>Số buổi</th><th>Điểm TB</th><th>Xu hướng</th><th>Buổi gần nhất</th><th></th></tr></thead><tbody>${rows.map(r=>`<tr data-student="${esc(r.id)}" class="${state.student===r.id?'sel':''}" tabindex="0"><td class="c-name"><b>${stuName(r.id)}</b></td><td class="code c-code" data-label="Mã HS">${esc(r.id)}</td><td data-label="Số buổi">${r.n}</td><td data-label="Điểm TB">${r.a==null?'—':pill(Math.round(r.a))}</td><td data-label="Xu hướng">${spark(r.m.slice(-8).map(s=>s.score))}</td><td data-label="Buổi gần nhất">${r.last?dm(r.last.day)+' '+r.last.hm:'—'}</td><td class="c-act"><div class="act"><button data-ren-student="${esc(r.id)}" title="Đổi tên">Sửa tên</button><button class="danger" data-del-student="${esc(r.id)}" title="Xoá học sinh và toàn bộ buổi tập">Xoá</button></div></td></tr>`).join('')}</tbody></table></div>`
+    :'<div class="empty">Không tìm thấy học sinh nào khớp từ khoá.</div>';
+  return head('Học sinh',`${nAll} học sinh có buổi tập. Chạm một dòng để xem chi tiết.`)+`
+  <section class="card">
+    <div class="toolbar">
+      <input class="srch" id="qStu" type="search" placeholder="Tìm tên hoặc mã HS…" value="${esc(state.q)}" autocomplete="off">
+      <label>Sắp xếp <select id="sortStu">${Object.keys(SORTS).map(k=>`<option value="${k}" ${state.sort===k?'selected':''}>${SORTS[k]}</option>`).join('')}</select></label>
+    </div>
+    ${tbl}</section>${detail}`+foot();
+}
+function filteredSessions(){
+  return S.filter(s=>(state.fEx==='all'||s.ex===state.fEx)&&(state.fSt==='all'||s.pid===state.fSt))
+          .sort((a,b)=>b.sortMs-a.sortMs);
 }
 function viewSessions(){
-  let list=S.filter(s=>(state.fEx==='all'||s.ex===state.fEx)&&(state.fSt==='all'||s.pid===state.fSt)).sort((a,b)=>b.sortMs-a.sortMs);
-  const total=list.length; list=list.slice(0,100);
+  const all=filteredSessions();
+  const total=all.length, list=all.slice(0,100);
   return head('Buổi tập',`${total} buổi khớp bộ lọc${total>100?', hiện 100 buổi mới nhất':''}`)+`
-  <section class="card"><div class="filters" style="margin-bottom:14px">
+  <section class="card"><div class="toolbar">
     <label>Bài tập <select id="fEx"><option value="all">Tất cả</option>${Object.keys(EX).map(k=>`<option value="${k}" ${state.fEx===k?'selected':''}>${EX[k].n}</option>`).join('')}</select></label>
-    <label>Học sinh <select id="fSt"><option value="all">Tất cả</option>${DATA.profiles.map(p=>`<option value="${p.id}" ${state.fSt===p.id?'selected':''}>${esc(plainName(p.id))}</option>`).join('')}</select></label></div>
+    <label>Học sinh <select id="fSt"><option value="all">Tất cả</option>${DATA.profiles.map(p=>`<option value="${p.id}" ${state.fSt===p.id?'selected':''}>${esc(plainName(p.id))}</option>`).join('')}</select></label>
+    <button class="btn" id="btnCsv" type="button">Xuất CSV (${total} buổi)</button></div>
   ${sessionTable(list,true)}</section>`+foot();
 }
 
@@ -487,25 +719,42 @@ function animateCounts(root){
 /* ===== Khung ứng dụng ===== */
 const VIEWS={'tong-quan':viewOverview,'hoc-sinh':viewStudents,'buoi-tap':viewSessions};
 function syncLabel(){
-  const el=document.getElementById('liveNote');
-  if(!el) return;
-  el.parentElement.className='live'+(liveOn?' on':'');
-  el.textContent=(liveOn?'Đang theo dõi trực tiếp':'Tự làm mới mỗi phút')+(lastSync?' · '+lastSync:'');
+  const txt=(liveOn?'Đang theo dõi trực tiếp':'Tự làm mới mỗi phút')+(lastSync?' · '+lastSync:'');
+  document.querySelectorAll('[data-live]').forEach(el=>{
+    el.textContent=el.dataset.live==='short'?(lastSync?'Cập nhật '+lastSync:'…'):txt;
+    const p=el.closest('.live,.msync');
+    if(p) p.classList.toggle('on',liveOn);
+  });
 }
+const ICO={
+  ov:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg>',
+  stu:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-5.6 6-5.6s6 2.3 6 5.6"/><path d="M16.2 5.6a3 3 0 0 1 0 5.4M18 20c0-2.2-.6-3.8-1.8-5"/></svg>',
+  ses:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M8.5 6H21M8.5 12H21M8.5 18H21M3.6 6h.01M3.6 12h.01M3.6 18h.01"/></svg>',
+  rf:'<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-3-6.7"/><polyline points="21 3.5 21 9.5 15 9.5"/></svg>',
+  out:'<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.5 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4.5"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>'
+};
+const LOGO='<svg width="26" height="26" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="5" r="3" fill="#1BB4B4"/><path d="M14 8v9M14 11l-6 4M14 11l6 4M14 17l-5 7M14 17l5 7" stroke="#F2FAFA" stroke-width="2" stroke-linecap="round" fill="none"/></svg>';
+let globalsBound=false;
 function renderApp(userEmail){
   const outer=document.getElementById('root-outer');
   outer.innerHTML=`<div class="app">
     <aside class="side">
-      <div class="brand"><svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="5" r="3" fill="#1BB4B4"/><path d="M14 8v9M14 11l-6 4M14 11l6 4M14 17l-5 7M14 17l5 7" stroke="#F2FAFA" stroke-width="2" stroke-linecap="round" fill="none"/></svg>PoseAI</div>
+      <div class="brand">${LOGO}PoseAI</div>
       <nav class="nav" aria-label="Điều hướng">
-        <button data-view="tong-quan">Tổng quan</button>
-        <button data-view="hoc-sinh">Học sinh</button>
-        <button data-view="buoi-tap">Buổi tập</button>
+        <button data-view="tong-quan">${ICO.ov}Tổng quan</button>
+        <button data-view="hoc-sinh">${ICO.stu}Học sinh</button>
+        <button data-view="buoi-tap">${ICO.ses}Buổi tập</button>
       </nav>
-      <div class="live"><span class="dot"></span><span id="liveNote">Đang kết nối…</span></div>
+      <div class="live"><span class="dot"></span><span data-live>Đang kết nối…</span></div>
       <div class="note">Chỉ hiển thị dữ liệu buổi tập. Không có video hay keypoints.</div>
-      <div class="acct"><span class="email">${esc(userEmail)}</span><button id="btnLogout">Đăng xuất</button></div>
+      <div class="acct"><span class="email">${esc(userEmail)}</span><button data-logout type="button">Đăng xuất</button></div>
     </aside>
+    <header class="mtop">
+      <div class="brand">${LOGO}PoseAI</div>
+      <span class="msync"><i></i><span data-live="short">…</span></span>
+      <button class="ib" data-refresh type="button" aria-label="Làm mới dữ liệu" title="Làm mới">${ICO.rf}</button>
+      <button class="ib" data-logout type="button" aria-label="Đăng xuất" title="Đăng xuất">${ICO.out}</button>
+    </header>
     <main id="root"></main>
   </div>`;
   rerender=function(){
@@ -518,8 +767,23 @@ function renderApp(userEmail){
     animateCounts(root);
     syncLabel();
   };
-  outer.addEventListener('click',e=>{
-    if(e.target.id==='btnLogout'){ sb.auth.signOut(); return }
+  outer.addEventListener('click',async e=>{
+    if(e.target.closest('[data-logout]')){ sb.auth.signOut(); return }
+    const rf=e.target.closest('[data-refresh]');
+    if(rf){ rf.disabled=true; await refreshData(); rf.disabled=false; return }
+    if(e.target.closest('[data-print]')){ window.print(); return }
+    const csv1=e.target.closest('[data-csv-student]');
+    if(csv1){
+      const pid=csv1.dataset.csvStudent;
+      downloadCSV(S.filter(s=>s.pid===pid).sort((a,b)=>b.sortMs-a.sortMs),`poseai_${pid}.csv`);
+      return;
+    }
+    if(e.target.closest('#btnCsv')){
+      downloadCSV(filteredSessions(),`poseai_buoitap_${new Date().toISOString().slice(0,10)}.csv`);
+      return;
+    }
+    const info=e.target.closest('[data-ses-info]');
+    if(info){ sessionSheet(info.dataset.sesInfo); return }
     const act=e.target.closest('[data-del-session],[data-del-student],[data-ren-student]');
     if(act){
       e.stopPropagation();
@@ -528,20 +792,47 @@ function renderApp(userEmail){
       else renStudent(act.dataset.renStudent);
       return;
     }
-    const t=e.target.closest('[data-view],[data-range],[data-ex],[data-student]');
+    const t=e.target.closest('[data-view],[data-range],[data-ex],[data-student],[data-ses]');
     if(!t) return;
-    if(t.dataset.view){location.hash=t.dataset.view;return}
+    const st=t.dataset.student;
+    if(st) state.student=t.dataset.view?st:(state.student===st?null:st);
+    if(t.dataset.view){
+      const h=t.dataset.view;
+      if(location.hash.replace('#','')===h) rerender(); else location.hash=h;
+      return;
+    }
+    if(t.dataset.ses){ sessionSheet(t.dataset.ses); return }
     if(t.dataset.range) state.range=+t.dataset.range;
     if(t.dataset.ex) state.ex=t.dataset.ex;
-    if(t.dataset.student) state.student=state.student===t.dataset.student?null:t.dataset.student;
     rerender();
   });
-  outer.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches('tr[data-student]'))e.target.click()});
+  outer.addEventListener('keydown',e=>{
+    if(e.key==='Enter'&&e.target.matches('tr[data-student],tr[data-ses]')) e.target.click();
+  });
   outer.addEventListener('change',e=>{
     if(e.target.id==='fEx'){state.fEx=e.target.value;rerender()}
     if(e.target.id==='fSt'){state.fSt=e.target.value;rerender()}
+    if(e.target.id==='sortStu'){state.sort=e.target.value;rerender()}
   });
-  window.addEventListener('hashchange',rerender);
+  /* Tìm kiếm: vẽ lại rồi trả con trỏ về ô tìm để gõ tiếp không bị mất nét */
+  outer.addEventListener('input',e=>{
+    if(e.target.id!=='qStu') return;
+    state.q=e.target.value;
+    rerender();
+    const el=document.getElementById('qStu');
+    if(el){ el.focus(); try{ el.setSelectionRange(el.value.length,el.value.length) }catch(_){} }
+  });
+  if(!globalsBound){
+    globalsBound=true;
+    window.addEventListener('hashchange',()=>rerender());
+    document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeSheet() });
+    /* Đổi chiều màn hình / co giãn cửa sổ: vẽ lại biểu đồ cho đúng cỡ */
+    let wasMob=isMob(), rt=null;
+    window.addEventListener('resize',()=>{
+      clearTimeout(rt);
+      rt=setTimeout(()=>{ if(isMob()!==wasMob){ wasMob=isMob(); rerender() } },200);
+    });
+  }
   rerender();
 }
 
@@ -568,10 +859,14 @@ function startLive(){
 }
 async function refreshData(){
   try{
-    const [sessions,names]=await Promise.all([fetchSessions(),fetchStudents().catch(()=>NAMES)]);
+    const [sessions,names,cmds]=await Promise.all([
+      fetchSessions(),
+      fetchStudents().catch(()=>NAMES),
+      fetchCommands().catch(()=>CMDS)
+    ]);
     const known=new Set(S.map(s=>s.id));
     sessions.forEach(s=>{if(!known.has(s.id)&&S.length){NEW_IDS.add(s.id);setTimeout(()=>NEW_IDS.delete(s.id),30000)}});
-    S=sessions; NAMES=names; rebuildProfiles(); stampSync(); rerender();
+    S=sessions; NAMES=names; CMDS=cmds; rebuildProfiles(); stampSync(); rerender();
   }catch(e){ /* mất mạng tạm thời: giữ nguyên dữ liệu đang hiển thị */ }
 }
 
@@ -593,8 +888,12 @@ function renderLoadError(msg,userEmail){
 async function bootData(userEmail){
   renderLoading();
   try{
-    const [sessions,names]=await Promise.all([fetchSessions(),fetchStudents().catch(()=>({}))]);
-    S=sessions; NAMES=names;
+    const [sessions,names,cmds]=await Promise.all([
+      fetchSessions(),
+      fetchStudents().catch(()=>({})),
+      fetchCommands().catch(()=>[])
+    ]);
+    S=sessions; NAMES=names; CMDS=cmds;
     rebuildProfiles(); stampSync();
     renderApp(userEmail);
     startLive();
@@ -608,10 +907,10 @@ function renderLogin(prefillErr){
   if(channel){sb.removeChannel(channel);channel=null}
   if(pollTimer){clearInterval(pollTimer);pollTimer=null}
   document.getElementById('root-outer').innerHTML=`<div class="center-screen"><div class="login-card">
-    <div class="brand"><svg width="26" height="26" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="5" r="3" fill="#1BB4B4"/><path d="M14 8v9M14 11l-6 4M14 11l6 4M14 17l-5 7M14 17l5 7" stroke="#F2FAFA" stroke-width="2" stroke-linecap="round" fill="none"/></svg>PoseAI</div>
+    <div class="brand">${LOGO}PoseAI</div>
     <form id="loginForm">
       <label for="email">Email giáo viên</label>
-      <input id="email" type="email" required autocomplete="username">
+      <input id="email" type="email" required autocomplete="username" inputmode="email" autocapitalize="none" spellcheck="false">
       <label for="pw">Mật khẩu</label>
       <input id="pw" type="password" required autocomplete="current-password">
       <div class="err" id="loginErr">${prefillErr?esc(prefillErr):''}</div>

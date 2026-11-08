@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PoseAI Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+/* Bố cục: menu trái + vùng nội dung; tông navy/teal lấy từ style.css của kiosk */
+:root{
+  --bg:#080b13; --bg2:#0B1220; --surface:#0e2a4a; --surface2:#133758;
+  --accent:#1BB4B4; --text:#F2FAFA; --muted:#7C93A6; --border:#1C3D5E;
+  --good:#47ce42; --mid:#F2B544; --bad:#eb3a3a;
+  --c-squat:#1BB4B4; --c-plank:#5B9BFF; --c-pushup:#F2B544;
+  --display:'Outfit','Be Vietnam Pro',sans-serif; --body:'Be Vietnam Pro',system-ui,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:radial-gradient(1200px 600px at 80% -10%,#0e2a4a55,transparent 60%),var(--bg);color:var(--text);font:400 15px/1.5 var(--body)}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance}
+button{font:inherit;color:inherit;cursor:pointer}
+input{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.app{display:grid;grid-template-columns:232px 1fr;min-height:100%}
+.side{background:var(--bg2);border-right:1px solid var(--border);padding:24px 16px;display:flex;flex-direction:column;gap:24px;position:sticky;top:0;height:100vh}
+.brand{display:flex;align-items:center;gap:10px;font:700 20px var(--display);padding:0 8px}
+.brand svg{flex:none}
+.nav{display:flex;flex-direction:column;gap:4px}
+.nav button{background:none;border:0;text-align:left;padding:10px 12px;border-radius:10px;color:var(--muted);display:flex;gap:10px;align-items:center}
+.nav button:hover{background:#ffffff0d;color:var(--text)}
+.nav button[aria-current="page"]{background:#1BB4B422;color:var(--text);box-shadow:inset 3px 0 0 var(--accent)}
+.side .acct{margin-top:auto;padding:12px 8px 0;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:8px}
+.side .acct .email{font-size:12px;color:var(--muted);overflow-wrap:anywhere}
+.side .acct button{background:#ffffff0d;border:1px solid var(--border);border-radius:8px;padding:7px 10px;font-size:13px;color:var(--text);text-align:center}
+.side .acct button:hover{background:#ffffff18}
+.side .note{font-size:12px;color:var(--muted);padding:0 8px}
+main{padding:28px 32px 48px;min-width:0;max-width:1280px;width:100%}
+.demo{background:#F2B54418;border:1px solid #F2B54455;color:#f6d28b;border-radius:10px;padding:10px 14px;font-size:13px;margin-bottom:20px}
+.top{display:flex;justify-content:space-between;gap:16px;align-items:flex-end;flex-wrap:wrap;margin-bottom:20px}
+.top h1{font-size:28px}
+.sub{color:var(--muted);font-size:13px;margin:2px 0 0}
+.filters{display:flex;gap:12px;flex-wrap:wrap}
+.seg{display:flex;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:3px}
+.seg button{background:none;border:0;padding:6px 12px;border-radius:7px;color:var(--muted);font-size:13px}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--text)}
+.card{background:linear-gradient(180deg,#0e2a4a88,#0e2a4a44);border:1px solid var(--border);border-radius:16px;padding:18px 20px;min-width:0;backdrop-filter:blur(6px)}
+.card h2{font-size:16px;margin-bottom:2px}
+.card .hint{color:var(--muted);font-size:12px;margin:0 0 14px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px;margin-bottom:16px}
+.kpi .lbl{color:var(--muted);font-size:13px}
+.kpi .val{font:600 34px/1.15 var(--display);margin:6px 0 2px;font-variant-numeric:tabular-nums}
+.kpi .val small{font-size:16px;color:var(--muted);font-weight:500}
+.kpi .dl{font-size:12px;color:var(--muted)}
+.dl .up{color:var(--good)} .dl .down{color:var(--bad)}
+.grid2{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:16px}
+.grid2.b{grid-template-columns:1fr 1.5fr}
+.hbar{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr) auto;gap:6px 12px;align-items:center;font-size:13px;margin-bottom:10px}
+.hbar .nm{overflow-wrap:anywhere}
+.track{height:8px;border-radius:99px;background:#ffffff12;overflow:hidden}
+.track i{display:block;height:100%;border-radius:99px}
+.hbar .n{font-variant-numeric:tabular-nums;color:var(--muted);min-width:2.5em;text-align:right}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
+th{font-weight:500;color:var(--muted);text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:9px 10px;border-bottom:1px solid #1C3D5E66;vertical-align:middle}
+tbody tr:hover{background:#ffffff08}
+tr.sel{background:#1BB4B418}
+tr[data-student]{cursor:pointer}
+.tag{display:inline-flex;align-items:center;gap:6px;font-size:12px}
+.tag::before{content:"";width:8px;height:8px;border-radius:2px;background:var(--c)}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:2px 10px;border-radius:99px;font-weight:600;font-size:12px;border:1px solid}
+.pill::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.pill.good{color:var(--good);border-color:#47ce4255;background:#47ce4214}
+.pill.mid{color:var(--mid);border-color:#F2B54455;background:#F2B54414}
+.pill.low{color:var(--bad);border-color:#eb3a3a55;background:#eb3a3a14}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:10px}
+svg text.ax{fill:var(--muted);font-size:11px;font-family:var(--body)}
+svg .grid{stroke:#ffffff14;stroke-width:1}
+.chart{width:100%;height:auto;display:block}
+.empty{color:var(--muted);padding:24px 0;text-align:center;font-size:13px}
+.detail{margin-top:16px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:16px}
+.stats div{background:#ffffff08;border-radius:10px;padding:10px 12px}
+.stats b{display:block;font:600 22px var(--display)}
+.stats span{font-size:12px;color:var(--muted)}
+select{background:var(--bg2);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:7px 10px;font:inherit;font-size:13px}
+.foot{margin-top:28px;color:var(--muted);font-size:12px}
+/* Màn hình đăng nhập / tải / lỗi */
+.center-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.login-card{width:100%;max-width:360px;background:linear-gradient(180deg,#0e2a4a88,#0e2a4a44);border:1px solid var(--border);border-radius:16px;padding:32px 28px;backdrop-filter:blur(6px)}
+.login-card .brand{justify-content:center;margin-bottom:22px;font-size:22px}
+.login-card label{display:block;font-size:13px;color:var(--muted);margin:14px 0 6px}
+.login-card input{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:14px}
+.login-card input:focus{border-color:var(--accent)}
+.login-card .err{color:var(--bad);font-size:13px;margin-top:12px;min-height:1em}
+.login-card button[type=submit]{width:100%;margin-top:20px;background:var(--accent);color:#06141f;font-weight:600;border:0;border-radius:10px;padding:11px;font-size:14px}
+.login-card button[type=submit]:disabled{opacity:.6;cursor:default}
+.login-card .hint{color:var(--muted);font-size:12px;margin-top:16px;text-align:center}
+.spinner{width:28px;height:28px;border-radius:50%;border:3px solid #ffffff22;border-top-color:var(--accent);animation:spin 0.8s linear infinite;margin:0 auto 14px}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (max-width:900px){
+  .app{grid-template-columns:1fr}
+  .side{position:static;height:auto;flex-direction:row;align-items:center;gap:12px;padding:12px 16px;overflow-x:auto}
+  .nav{flex-direction:row}.side .note{display:none}
+  .side .acct{display:none}
+  main{padding:20px 16px 40px}
+  .grid2,.grid2.b{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div id="root-outer"></div>
+
+<script>
+/* =========================================================================
+   CẤU HÌNH SUPABASE
+   - SUPABASE_URL: lấy từ Supabase > Project Settings > API (đã biết từ bàn giao).
+   - SUPABASE_ANON_KEY: khoá "anon public" / "publishable" (chuỗi bắt đầu
+     bằng sb_publishable_... hoặc eyJ...), nằm trong ~/.poseai_cloud.env trên
+     Pi (biến SUPABASE_ANON_KEY) hoặc Supabase > Project Settings > API Keys.
+     Khoá này AN TOÀN để đặt thẳng trong mã web — nó chỉ cho đọc/ghi theo
+     đúng RLS policy đã cấu hình (device insert / teacher read), không phải
+     khoá service_role / secret.
+   ========================================================================= */
+const SUPABASE_URL = 'https://ghphefcczrkuumerciey.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_xcRyiuFhNOm8dAJ0u8NLpg_QAM4oypE';
+
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth:{persistSession:true, autoRefreshToken:true}
+});
+
+/* ===== Hằng số bài tập / hàm tiện ích chung ===== */
+const EX={squat:{n:'Squat',c:'var(--c-squat)'},plank:{n:'Plank',c:'var(--c-plank)'},pushup:{n:'Push-up',c:'var(--c-pushup)'}};
+const exKey=e=>String(e||'').toLowerCase().replace(/[^a-z]/g,'');
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt=(v,d=1)=>Number(v).toLocaleString('vi-VN',{maximumFractionDigits:d});
+const DAY=864e5;
+const VN_TZ='Asia/Ho_Chi_Minh';
+
+/* Định dạng một mốc thời gian (ISO, có offset) sang ngày/giờ Việt Nam */
+function vnParts(iso){
+  const d=new Date(iso);
+  const day=new Intl.DateTimeFormat('en-CA',{timeZone:VN_TZ,year:'numeric',month:'2-digit',day:'2-digit'}).format(d); // YYYY-MM-DD
+  const hm=new Intl.DateTimeFormat('vi-VN',{timeZone:VN_TZ,hour:'2-digit',minute:'2-digit',hour12:false}).format(d);
+  return {day,hm,ms:d.getTime()};
+}
+const dm=day=>day.slice(8,10)+'/'+day.slice(5,7);
+const avg=a=>a.length?a.reduce((t,s)=>t+s.score,0)/a.length:null;
+const cls=s=>s>=80?'good':s>=60?'mid':'low';
+const pill=s=>`<span class="pill ${cls(s)}">${s}</span>`;
+const exTag=k=>`<span class="tag" style="--c:${(EX[k]||{c:'#888'}).c}">${(EX[k]||{n:k}).n}</span>`;
+const topErr=s=>s.errors.length?s.errors.slice().sort((a,b)=>b.count-a.count)[0].name:'Không có lỗi';
+
+/* ===== Lấy dữ liệu thật từ Supabase (bảng public.sessions) ===== */
+async function fetchSessions(){
+  const {data,error}=await sb.from('sessions')
+    .select('uuid,device_id,profile_id,exercise,score,errors,recorded_at')
+    .order('recorded_at',{ascending:false})
+    .limit(5000);
+  if(error) throw error;
+  return (data||[]).map(r=>{
+    let errors=r.errors;
+    if(typeof errors==='string'){try{errors=JSON.parse(errors)}catch(e){errors=[]}}
+    if(!Array.isArray(errors)) errors=[];
+    const {day,hm,ms}=vnParts(r.recorded_at);
+    return {id:r.uuid,pid:r.profile_id,ex:exKey(r.exercise),score:r.score,errors,day,hm,ms,at:r.recorded_at};
+  }).sort((a,b)=>a.ms-b.ms);
+}
+
+let S=[], DATA={profiles:[]}, END=0;
+const state={view:'tong-quan',range:14,ex:'all',student:null,fEx:'all',fSt:'all'};
+
+function rebuildProfiles(){
+  const ids=[...new Set(S.map(s=>s.pid))].sort();
+  DATA.profiles=ids.map(id=>({id}));
+}
+
+function scope(){
+  const from=END-(state.range-1)*DAY, prevFrom=from-state.range*DAY;
+  const okEx=s=>state.ex==='all'||s.ex===state.ex;
+  return {from,cur:S.filter(s=>s.ms>=from&&okEx(s)),prev:S.filter(s=>s.ms>=prevFrom&&s.ms<from&&okEx(s))};
+}
+
+/* ===== Biểu đồ ===== */
+function lineChart(pts,id){
+  const w=640,h=230,L=34,R=16,T=16,B=28,iw=w-L-R,ih=h-T-B,n=pts.length;
+  const X=i=>L+(n<=1?iw/2:i*iw/(n-1)), Y=v=>T+ih-v/100*ih;
+  let g='';
+  for(const t of [0,25,50,75,100]) g+=`<line class="grid" x1="${L}" x2="${w-R}" y1="${Y(t)}" y2="${Y(t)}"/><text class="ax" x="${L-6}" y="${Y(t)+4}" text-anchor="end">${t}</text>`;
+  const v=pts.map((p,i)=>p.y==null?null:[X(i),Y(p.y),p]).filter(Boolean);
+  if(!v.length) return '<div class="empty">Chưa có buổi tập trong khoảng này.</div>';
+  const d=v.map((q,i)=>(i?'L':'M')+q[0].toFixed(1)+' '+q[1].toFixed(1)).join(' ');
+  const area=`${d} L${v[v.length-1][0].toFixed(1)} ${T+ih} L${v[0][0].toFixed(1)} ${T+ih} Z`;
+  const step=Math.max(1,Math.ceil(n/7));
+  let xl='';pts.forEach((p,i)=>{if(i%step===0||i===n-1)xl+=`<text class="ax" x="${X(i)}" y="${h-8}" text-anchor="middle">${p.x}</text>`});
+  const last=v[v.length-1];
+  const dots=v.map(q=>`<circle cx="${q[0].toFixed(1)}" cy="${q[1].toFixed(1)}" r="${n>40?2:3}" fill="#080b13" stroke="#1BB4B4" stroke-width="1.5"><title>${q[2].x}: ${fmt(q[2].y)} điểm</title></circle>`).join('');
+  return `<svg class="chart" viewBox="0 0 ${w} ${h}" role="img" aria-label="Biểu đồ điểm trung bình">
+    <defs><linearGradient id="g${id}" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#1BB4B4" stop-opacity=".4"/><stop offset="1" stop-color="#1BB4B4" stop-opacity="0"/></linearGradient></defs>
+    ${g}<path d="${area}" fill="url(#g${id})"/><path d="${d}" fill="none" stroke="#1BB4B4" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>${dots}
+    <circle cx="${last[0]}" cy="${last[1]}" r="5" fill="#1BB4B4" stroke="#F2FAFA" stroke-width="2"/>
+    <text x="${Math.min(last[0],w-R-10)}" y="${last[1]-12}" text-anchor="middle" style="fill:#F2FAFA;font:600 13px var(--body)">${fmt(last[2].y)}</text>${xl}</svg>`;
+}
+function spark(vals){
+  if(vals.length<2) return '<span class="sub">—</span>';
+  const w=90,h=24,x=i=>2+i*(w-4)/(vals.length-1),y=v=>h-2-v/100*(h-4);
+  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" aria-hidden="true"><polyline points="${vals.map((v,i)=>x(i).toFixed(1)+','+y(v).toFixed(1)).join(' ')}" fill="none" stroke="#1BB4B4" stroke-width="1.8" stroke-linejoin="round"/><circle cx="${x(vals.length-1)}" cy="${y(vals[vals.length-1])}" r="2.5" fill="#1BB4B4"/></svg>`;
+}
+function hbars(items,max){
+  if(!items.length) return '<div class="empty">Không có dữ liệu.</div>';
+  const m=max||Math.max(...items.map(i=>i.v));
+  return items.map(i=>`<div class="hbar"><span class="nm">${esc(i.l)}</span><span class="track"><i style="width:${(i.v/m*100).toFixed(1)}%;background:${i.c}"></i></span><span class="n">${fmt(i.v,0)}</span></div>`).join('');
+}
+function errAgg(list){
+  const m={};
+  list.forEach(s=>s.errors.forEach(e=>{const o=m[e.name]||(m[e.name]={v:0,ex:s.ex});o.v+=e.count}));
+  return Object.entries(m).map(([l,o])=>({l,v:o.v,c:(EX[o.ex]||{c:'#888'}).c})).sort((a,b)=>b.v-a.v);
+}
+const filterBar=()=>`<div class="filters">
+  <div class="seg" role="group" aria-label="Khoảng thời gian">${[7,14,21].map(r=>`<button data-range="${r}" aria-pressed="${state.range===r}">${r} ngày</button>`).join('')}</div>
+  <div class="seg" role="group" aria-label="Bài tập"><button data-ex="all" aria-pressed="${state.ex==='all'}">Tất cả</button>${Object.keys(EX).map(k=>`<button data-ex="${k}" aria-pressed="${state.ex===k}">${EX[k].n}</button>`).join('')}</div></div>`;
+const head=(t,sub)=>`<div class="top"><div><h1>${t}</h1><p class="sub">${sub}</p></div>${t==='Buổi tập'?'':filterBar()}</div>`;
+const foot=()=>`<p class="foot">Nguồn: bảng sessions trên Supabase (uuid, device_id, profile_id, exercise, score, errors, recorded_at), giờ Việt Nam. Màu điểm: ≥80 tốt, 60–79 trung bình, dưới 60 cần cải thiện.</p>`;
+
+/* ===== Màn hình ===== */
+function viewOverview(){
+  const {from,cur,prev}=scope();
+  const a=avg(cur),b=avg(prev);
+  const dl=(a!=null&&b!=null)?(()=>{const d=a-b;return `<span class="${d>=0?'up':'down'}">${d>=0?'▲':'▼'} ${fmt(Math.abs(d))}</span> so với ${state.range} ngày trước`})():'Chưa có kỳ trước để so sánh';
+  const active=new Set(cur.map(s=>s.pid)).size;
+  const errs=errAgg(cur);
+  const pts=[];
+  for(let t=from;t<=END;t+=DAY){const day=new Date(t).toISOString().slice(0,10);pts.push({x:dm(day),y:avg(cur.filter(s=>s.day===day))})}
+  const byEx=Object.keys(EX).map(k=>({l:EX[k].n,v:cur.filter(s=>s.ex===k).length,c:EX[k].c}));
+  const recent=cur.slice().sort((x,y)=>y.ms-x.ms).slice(0,8);
+  return head('Tổng quan',`${state.range} ngày gần nhất, đến ${END?dm(new Date(END).toISOString().slice(0,10)):'—'}`)+`
+  <div class="kpis">
+    <div class="card kpi"><div class="lbl">Số buổi tập</div><div class="val">${cur.length}</div><div class="dl">${prev.length} buổi ở kỳ trước</div></div>
+    <div class="card kpi"><div class="lbl">Điểm trung bình</div><div class="val">${a==null?'—':fmt(a)}<small> /100</small></div><div class="dl">${dl}</div></div>
+    <div class="card kpi"><div class="lbl">Học sinh hoạt động</div><div class="val">${active}<small> /${DATA.profiles.length}</small></div><div class="dl">Có ít nhất một buổi trong kỳ</div></div>
+    <div class="card kpi"><div class="lbl">Lỗi gặp nhiều nhất</div><div class="val" style="font-size:17px;line-height:1.35;margin-top:10px">${errs.length?esc(errs[0].l):'Không có'}</div><div class="dl">${errs.length?fmt(errs[0].v,0)+' lần ghi nhận':''}</div></div>
+  </div>
+  <div class="grid2">
+    <section class="card"><h2>Điểm trung bình theo ngày</h2><p class="hint">Trung bình điểm các buổi trong ngày</p>${lineChart(pts,'ov')}</section>
+    <section class="card"><h2>Số buổi theo bài tập</h2><p class="hint">Trong khoảng đã chọn</p>${hbars(byEx)}</section>
+  </div>
+  <div class="grid2 b">
+    <section class="card"><h2>Lỗi thường gặp</h2><p class="hint">Tổng số lần ghi nhận, màu theo bài tập</p>${hbars(errs.slice(0,6))}</section>
+    <section class="card"><h2>Buổi tập gần đây</h2><p class="hint">Mới nhất ở trên</p>${sessionTable(recent)}</section>
+  </div>`+foot();
+}
+function sessionTable(list){
+  if(!list.length) return '<div class="empty">Chưa có buổi tập.</div>';
+  return `<div class="tw"><table><thead><tr><th>Thời gian</th><th>HS</th><th>Bài tập</th><th>Điểm</th><th>Lỗi chính</th></tr></thead><tbody>${list.map(s=>`<tr><td>${dm(s.day)} ${s.hm}</td><td>${s.pid}</td><td>${exTag(s.ex)}</td><td>${pill(s.score)}</td><td>${esc(topErr(s))}</td></tr>`).join('')}</tbody></table></div>`;
+}
+function viewStudents(){
+  const {cur}=scope();
+  const rows=DATA.profiles.map(p=>{
+    const m=cur.filter(s=>s.pid===p.id).sort((x,y)=>x.ms-y.ms);
+    return {id:p.id,m,n:m.length,a:avg(m),last:m.length?m[m.length-1]:null};
+  }).sort((x,y)=>y.n-x.n);
+  let detail='';
+  if(state.student){
+    const r=rows.find(x=>x.id===state.student);
+    if(r){
+      const errs=errAgg(r.m);
+      detail=`<section class="card detail"><h2>${r.id}</h2><p class="hint">Tiến bộ qua từng buổi trong khoảng đã chọn</p>
+      <div class="stats"><div><b>${r.n}</b><span>buổi tập</span></div><div><b>${r.a==null?'—':fmt(r.a)}</b><span>điểm trung bình</span></div><div><b>${r.n?Math.max(...r.m.map(s=>s.score)):'—'}</b><span>điểm cao nhất</span></div><div><b>${r.last?dm(r.last.day):'—'}</b><span>buổi gần nhất</span></div></div>
+      ${lineChart(r.m.map(s=>({x:dm(s.day),y:s.score})),'st')}
+      <h3 style="font-size:14px;margin:16px 0 10px">Lỗi hay gặp</h3>${hbars(errs.slice(0,5))}</section>`;
+    }
+  }
+  return head('Học sinh',`${rows.filter(r=>r.n).length} học sinh có buổi tập. Chọn một dòng để xem chi tiết.`)+`
+  <section class="card"><div class="tw"><table><thead><tr><th>Mã HS</th><th>Số buổi</th><th>Điểm TB</th><th>Xu hướng</th><th>Buổi gần nhất</th></tr></thead><tbody>${rows.map(r=>`<tr data-student="${r.id}" class="${state.student===r.id?'sel':''}" tabindex="0"><td><b>${r.id}</b></td><td>${r.n}</td><td>${r.a==null?'—':pill(Math.round(r.a))}</td><td>${spark(r.m.slice(-8).map(s=>s.score))}</td><td>${r.last?dm(r.last.day)+' '+r.last.hm:'—'}</td></tr>`).join('')}</tbody></table></div></section>${detail}`+foot();
+}
+function viewSessions(){
+  let list=S.filter(s=>(state.fEx==='all'||s.ex===state.fEx)&&(state.fSt==='all'||s.pid===state.fSt)).sort((a,b)=>b.ms-a.ms);
+  const total=list.length; list=list.slice(0,100);
+  return head('Buổi tập',`${total} buổi khớp bộ lọc${total>100?', hiện 100 buổi mới nhất':''}`)+`
+  <section class="card"><div class="filters" style="margin-bottom:14px">
+    <label>Bài tập <select id="fEx"><option value="all">Tất cả</option>${Object.keys(EX).map(k=>`<option value="${k}" ${state.fEx===k?'selected':''}>${EX[k].n}</option>`).join('')}</select></label>
+    <label>Học sinh <select id="fSt"><option value="all">Tất cả</option>${DATA.profiles.map(p=>`<option ${state.fSt===p.id?'selected':''}>${p.id}</option>`).join('')}</select></label></div>
+  ${sessionTable(list)}</section>`+foot();
+}
+
+/* ===== Khung ứng dụng (sau khi đăng nhập) ===== */
+const VIEWS={'tong-quan':viewOverview,'hoc-sinh':viewStudents,'buoi-tap':viewSessions};
+function renderApp(userEmail){
+  const outer=document.getElementById('root-outer');
+  outer.innerHTML=`<div class="app">
+    <aside class="side">
+      <div class="brand"><svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="5" r="3" fill="#1BB4B4"/><path d="M14 8v9M14 11l-6 4M14 11l6 4M14 17l-5 7M14 17l5 7" stroke="#F2FAFA" stroke-width="2" stroke-linecap="round" fill="none"/></svg>PoseAI</div>
+      <nav class="nav" aria-label="Điều hướng">
+        <button data-view="tong-quan">Tổng quan</button>
+        <button data-view="hoc-sinh">Học sinh</button>
+        <button data-view="buoi-tap">Buổi tập</button>
+      </nav>
+      <div class="note">Chỉ hiển thị mã học sinh. Không có tên, video hay keypoints.</div>
+      <div class="acct"><span class="email">${esc(userEmail)}</span><button id="btnLogout">Đăng xuất</button></div>
+    </aside>
+    <main id="root"></main>
+  </div>`;
+  function render(){
+    const h=location.hash.replace('#','');
+    state.view=VIEWS[h]?h:'tong-quan';
+    document.getElementById('root').innerHTML=VIEWS[state.view]();
+    document.querySelectorAll('.nav button').forEach(b=>b.setAttribute('aria-current',b.dataset.view===state.view?'page':'false'));
+  }
+  outer.addEventListener('click',e=>{
+    if(e.target.id==='btnLogout'){ sb.auth.signOut(); return }
+    const t=e.target.closest('[data-view],[data-range],[data-ex],[data-student]');
+    if(!t) return;
+    if(t.dataset.view){location.hash=t.dataset.view;return}
+    if(t.dataset.range) state.range=+t.dataset.range;
+    if(t.dataset.ex) state.ex=t.dataset.ex;
+    if(t.dataset.student) state.student=state.student===t.dataset.student?null:t.dataset.student;
+    render();
+  });
+  outer.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches('tr[data-student]'))e.target.click()});
+  outer.addEventListener('change',e=>{
+    if(e.target.id==='fEx'){state.fEx=e.target.value;render()}
+    if(e.target.id==='fSt'){state.fSt=e.target.value;render()}
+  });
+  window.addEventListener('hashchange',render);
+  render();
+}
+
+/* ===== Màn hình tải dữ liệu / lỗi ===== */
+function renderLoading(){
+  document.getElementById('root-outer').innerHTML=`<div class="center-screen"><div style="text-align:center"><div class="spinner"></div><p class="sub">Đang tải dữ liệu buổi tập…</p></div></div>`;
+}
+function renderLoadError(msg,userEmail){
+  document.getElementById('root-outer').innerHTML=`<div class="center-screen"><div class="login-card" style="text-align:center">
+    <div class="brand" style="justify-content:center">PoseAI</div>
+    <p class="sub">Không tải được dữ liệu từ Supabase.</p>
+    <p class="err" style="min-height:auto">${esc(msg)}</p>
+    <button id="btnRetry" type="button" style="width:100%;margin-top:14px;background:var(--accent);color:#06141f;font-weight:600;border:0;border-radius:10px;padding:11px">Thử lại</button>
+    <button id="btnLogout2" type="button" style="width:100%;margin-top:8px;background:#ffffff0d;border:1px solid var(--border);color:var(--text);border-radius:10px;padding:10px">Đăng xuất</button>
+  </div></div>`;
+  document.getElementById('btnRetry').onclick=()=>bootData(userEmail);
+  document.getElementById('btnLogout2').onclick=()=>sb.auth.signOut();
+}
+async function bootData(userEmail){
+  renderLoading();
+  try{
+    S=await fetchSessions();
+    rebuildProfiles();
+    END=S.reduce((m,s)=>s.ms>m?s.ms:m,0);
+    renderApp(userEmail);
+  }catch(err){
+    renderLoadError(err.message||String(err),userEmail);
+  }
+}
+
+/* ===== Màn hình đăng nhập ===== */
+function renderLogin(prefillErr){
+  document.getElementById('root-outer').innerHTML=`<div class="center-screen"><div class="login-card">
+    <div class="brand"><svg width="26" height="26" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="5" r="3" fill="#1BB4B4"/><path d="M14 8v9M14 11l-6 4M14 11l6 4M14 17l-5 7M14 17l5 7" stroke="#F2FAFA" stroke-width="2" stroke-linecap="round" fill="none"/></svg>PoseAI</div>
+    <form id="loginForm">
+      <label for="email">Email giáo viên</label>
+      <input id="email" type="email" required autocomplete="username">
+      <label for="pw">Mật khẩu</label>
+      <input id="pw" type="password" required autocomplete="current-password">
+      <div class="err" id="loginErr">${prefillErr?esc(prefillErr):''}</div>
+      <button type="submit" id="loginBtn">Đăng nhập</button>
+    </form>
+    <p class="hint">Tài khoản do quản trị viên tạo trong Supabase Auth.</p>
+  </div></div>`;
+  document.getElementById('loginForm').addEventListener('submit',async e=>{
+    e.preventDefault();
+    const btn=document.getElementById('loginBtn'), errEl=document.getElementById('loginErr');
+    const email=document.getElementById('email').value.trim();
+    const password=document.getElementById('pw').value;
+    btn.disabled=true; btn.textContent='Đang đăng nhập…'; errEl.textContent='';
+    const {error}=await sb.auth.signInWithPassword({email,password});
+    if(error){ errEl.textContent=error.message==='Invalid login credentials'?'Email hoặc mật khẩu không đúng.':error.message; btn.disabled=false; btn.textContent='Đăng nhập'; }
+    // Nếu thành công, onAuthStateChange ở dưới sẽ tự chuyển sang dashboard.
+  });
+}
+
+/* ===== Điều phối theo trạng thái đăng nhập ===== */
+sb.auth.onAuthStateChange((event,session)=>{
+  if(session && session.user){ bootData(session.user.email); }
+  else{ renderLogin(); }
+});
+sb.auth.getSession().then(({data})=>{
+  if(data && data.session && data.session.user){ bootData(data.session.user.email); }
+  else{ renderLogin(); }
+});
+</script>
+</body>
+</html>

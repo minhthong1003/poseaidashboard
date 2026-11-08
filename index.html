@@ -25,7 +25,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 input{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .app{display:grid;grid-template-columns:232px 1fr;min-height:100%}
-.side{background:var(--bg2);border-right:1px solid var(--border);padding:24px 16px;display:flex;flex-direction:column;gap:24px;position:sticky;top:0;height:100vh}
+.side{background:var(--bg2);border-right:1px solid var(--border);padding:24px 16px;display:flex;flex-direction:column;gap:20px;position:sticky;top:0;height:100vh}
 .brand{display:flex;align-items:center;gap:10px;font:700 20px var(--display);padding:0 8px}
 .brand svg{flex:none}
 .nav{display:flex;flex-direction:column;gap:4px}
@@ -37,8 +37,11 @@ input{font:inherit;color:inherit}
 .side .acct button{background:#ffffff0d;border:1px solid var(--border);border-radius:8px;padding:7px 10px;font-size:13px;color:var(--text);text-align:center}
 .side .acct button:hover{background:#ffffff18}
 .side .note{font-size:12px;color:var(--muted);padding:0 8px}
+.live{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);padding:0 8px}
+.live .dot{width:7px;height:7px;border-radius:50%;background:var(--muted);flex:none}
+.live.on .dot{background:var(--good);box-shadow:0 0 0 0 #47ce4266;animation:pulse 2.4s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 #47ce4255}70%{box-shadow:0 0 0 7px #47ce4200}100%{box-shadow:0 0 0 0 #47ce4200}}
 main{padding:28px 32px 48px;min-width:0;max-width:1280px;width:100%}
-.demo{background:#F2B54418;border:1px solid #F2B54455;color:#f6d28b;border-radius:10px;padding:10px 14px;font-size:13px;margin-bottom:20px}
 .top{display:flex;justify-content:space-between;gap:16px;align-items:flex-end;flex-wrap:wrap;margin-bottom:20px}
 .top h1{font-size:28px}
 .sub{color:var(--muted);font-size:13px;margin:2px 0 0}
@@ -57,6 +60,7 @@ main{padding:28px 32px 48px;min-width:0;max-width:1280px;width:100%}
 .dl .up{color:var(--good)} .dl .down{color:var(--bad)}
 .grid2{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:16px}
 .grid2.b{grid-template-columns:1fr 1.5fr}
+.grid2.c{grid-template-columns:1fr 1fr}
 .hbar{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr) auto;gap:6px 12px;align-items:center;font-size:13px;margin-bottom:10px}
 .hbar .nm{overflow-wrap:anywhere}
 .track{height:8px;border-radius:99px;background:#ffffff12;overflow:hidden}
@@ -69,6 +73,8 @@ td{padding:9px 10px;border-bottom:1px solid #1C3D5E66;vertical-align:middle}
 tbody tr:hover{background:#ffffff08}
 tr.sel{background:#1BB4B418}
 tr[data-student]{cursor:pointer}
+tr.flash{animation:flashrow 3s ease-out 1}
+@keyframes flashrow{0%{background:#1BB4B444}100%{background:transparent}}
 .tag{display:inline-flex;align-items:center;gap:6px;font-size:12px}
 .tag::before{content:"";width:8px;height:8px;border-radius:2px;background:var(--c)}
 .pill{display:inline-flex;align-items:center;gap:6px;padding:2px 10px;border-radius:99px;font-weight:600;font-size:12px;border:1px solid}
@@ -76,7 +82,6 @@ tr[data-student]{cursor:pointer}
 .pill.good{color:var(--good);border-color:#47ce4255;background:#47ce4214}
 .pill.mid{color:var(--mid);border-color:#F2B54455;background:#F2B54414}
 .pill.low{color:var(--bad);border-color:#eb3a3a55;background:#eb3a3a14}
-.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:10px}
 svg text.ax{fill:var(--muted);font-size:11px;font-family:var(--body)}
 svg .grid{stroke:#ffffff14;stroke-width:1}
 .chart{width:100%;height:auto;display:block}
@@ -88,6 +93,30 @@ svg .grid{stroke:#ffffff14;stroke-width:1}
 .stats span{font-size:12px;color:var(--muted)}
 select{background:var(--bg2);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:7px 10px;font:inherit;font-size:13px}
 .foot{margin-top:28px;color:var(--muted);font-size:12px}
+.code{color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums;white-space:nowrap}
+/* Heatmap lịch tập */
+.heat{display:grid;grid-template-rows:repeat(7,13px);grid-auto-flow:column;gap:3px;overflow-x:auto;padding-bottom:4px}
+.heat i{width:13px;height:13px;border-radius:3px;display:block}
+.heatwrap{display:flex;gap:10px;align-items:flex-start}
+.heatdays{display:grid;grid-template-rows:repeat(7,13px);gap:3px;font-size:10px;color:var(--muted);padding-top:1px}
+.heatlegend{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);margin-top:12px}
+.heatlegend i{width:11px;height:11px;border-radius:3px;display:block}
+/* Huy hiệu */
+.badges{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:16px}
+.badge{display:flex;gap:14px;align-items:center}
+.badge .ico{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-size:20px;flex:none}
+.badge .who{font:600 15px var(--display);overflow-wrap:anywhere}
+.badge .lbl{font-size:12px;color:var(--muted)}
+.badge .meta{font-size:12px;color:var(--muted);margin-top:2px}
+/* Bảng xếp hạng */
+.rank{display:flex;flex-direction:column;gap:8px}
+.rank .row{display:grid;grid-template-columns:26px 1fr auto;gap:10px;align-items:center;padding:7px 8px;border-radius:10px;background:#ffffff06}
+.rank .pos{font:600 14px var(--display);color:var(--muted);text-align:center}
+.rank .row:nth-child(1) .pos{color:#F2B544}
+.rank .row:nth-child(2) .pos{color:#cfd8e3}
+.rank .row:nth-child(3) .pos{color:#c98a52}
+.rank .nm{font-size:13px;overflow-wrap:anywhere}
+.ringwrap{display:flex;gap:20px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
 /* Màn hình đăng nhập / tải / lỗi */
 .center-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
 .login-card{width:100%;max-width:360px;background:linear-gradient(180deg,#0e2a4a88,#0e2a4a44);border:1px solid var(--border);border-radius:16px;padding:32px 28px;backdrop-filter:blur(6px)}
@@ -105,11 +134,11 @@ select{background:var(--bg2);color:var(--text);border:1px solid var(--border);bo
   .app{grid-template-columns:1fr}
   .side{position:static;height:auto;flex-direction:row;align-items:center;gap:12px;padding:12px 16px;overflow-x:auto}
   .nav{flex-direction:row}.side .note{display:none}
-  .side .acct{display:none}
+  .side .acct{display:none}.live{display:none}
   main{padding:20px 16px 40px}
-  .grid2,.grid2.b{grid-template-columns:1fr}
+  .grid2,.grid2.b,.grid2.c{grid-template-columns:1fr}
 }
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
@@ -118,13 +147,8 @@ select{background:var(--bg2);color:var(--text);border:1px solid var(--border);bo
 <script>
 /* =========================================================================
    CẤU HÌNH SUPABASE
-   - SUPABASE_URL: lấy từ Supabase > Project Settings > API (đã biết từ bàn giao).
-   - SUPABASE_ANON_KEY: khoá "anon public" / "publishable" (chuỗi bắt đầu
-     bằng sb_publishable_... hoặc eyJ...), nằm trong ~/.poseai_cloud.env trên
-     Pi (biến SUPABASE_ANON_KEY) hoặc Supabase > Project Settings > API Keys.
-     Khoá này AN TOÀN để đặt thẳng trong mã web — nó chỉ cho đọc/ghi theo
-     đúng RLS policy đã cấu hình (device insert / teacher read), không phải
-     khoá service_role / secret.
+   SUPABASE_ANON_KEY là khoá publishable — an toàn để trong mã web, bảo mật
+   dựa vào RLS (device insert / teacher read). Không bao giờ dùng service_role.
    ========================================================================= */
 const SUPABASE_URL = 'https://ghphefcczrkuumerciey.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_xcRyiuFhNOm8dAJ0u8NLpg_QAM4oypE';
@@ -133,20 +157,18 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth:{persistSession:true, autoRefreshToken:true}
 });
 
-/* ===== Hằng số bài tập / hàm tiện ích chung ===== */
-const EX={squat:{n:'Squat',c:'var(--c-squat)'},plank:{n:'Plank',c:'var(--c-plank)'},pushup:{n:'Push-up',c:'var(--c-pushup)'}};
+/* ===== Hằng số / tiện ích ===== */
+const EX={squat:{n:'Squat',c:'var(--c-squat)',hex:'#1BB4B4'},plank:{n:'Plank',c:'var(--c-plank)',hex:'#5B9BFF'},pushup:{n:'Push-up',c:'var(--c-pushup)',hex:'#F2B544'}};
 const exKey=e=>String(e||'').toLowerCase().replace(/[^a-z]/g,'');
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const fmt=(v,d=1)=>Number(v).toLocaleString('vi-VN',{maximumFractionDigits:d});
 const DAY=864e5;
 const VN_TZ='Asia/Ho_Chi_Minh';
-
-/* Định dạng một mốc thời gian (ISO, có offset) sang ngày/giờ Việt Nam */
 function vnParts(iso){
   const d=new Date(iso);
-  const day=new Intl.DateTimeFormat('en-CA',{timeZone:VN_TZ,year:'numeric',month:'2-digit',day:'2-digit'}).format(d); // YYYY-MM-DD
+  const day=new Intl.DateTimeFormat('en-CA',{timeZone:VN_TZ,year:'numeric',month:'2-digit',day:'2-digit'}).format(d);
   const hm=new Intl.DateTimeFormat('vi-VN',{timeZone:VN_TZ,hour:'2-digit',minute:'2-digit',hour12:false}).format(d);
-  return {day,hm,ms:d.getTime()};
+  return {day,hm,ms:Date.parse(day+'T00:00:00Z')};
 }
 const dm=day=>day.slice(8,10)+'/'+day.slice(5,7);
 const avg=a=>a.length?a.reduce((t,s)=>t+s.score,0)/a.length:null;
@@ -155,42 +177,41 @@ const pill=s=>`<span class="pill ${cls(s)}">${s}</span>`;
 const exTag=k=>`<span class="tag" style="--c:${(EX[k]||{c:'#888'}).c}">${(EX[k]||{n:k}).n}</span>`;
 const topErr=s=>s.errors.length?s.errors.slice().sort((a,b)=>b.count-a.count)[0].name:'Không có lỗi';
 
-/* Tên học sinh (bảng public.students) — nếu chưa có tên thì hiện mã HS */
+/* Tên học sinh (bảng public.students) — tên và mã HS ở 2 cột riêng */
 let NAMES={};
-const dispName=pid=>NAMES[pid]?`${esc(NAMES[pid])} <span style="color:var(--muted);font-size:12px">(${esc(pid)})</span>`:esc(pid);
+const stuName=pid=>NAMES[pid]?esc(NAMES[pid]):'<span style="color:var(--muted)">Chưa đặt tên</span>';
+const plainName=pid=>NAMES[pid]||pid;
 
-/* ===== Lấy dữ liệu thật từ Supabase (bảng public.sessions) ===== */
+/* ===== Dữ liệu từ Supabase ===== */
+function mapRow(r){
+  let errors=r.errors;
+  if(typeof errors==='string'){try{errors=JSON.parse(errors)}catch(e){errors=[]}}
+  if(!Array.isArray(errors)) errors=[];
+  const {day,hm,ms}=vnParts(r.recorded_at);
+  return {id:r.uuid,pid:r.profile_id,ex:exKey(r.exercise),score:r.score,errors,day,hm,ms,at:r.recorded_at,sortMs:Date.parse(r.recorded_at)};
+}
 async function fetchSessions(){
   const {data,error}=await sb.from('sessions')
     .select('uuid,device_id,profile_id,exercise,score,errors,recorded_at')
-    .order('recorded_at',{ascending:false})
-    .limit(5000);
+    .order('recorded_at',{ascending:false}).limit(5000);
   if(error) throw error;
-  return (data||[]).map(r=>{
-    let errors=r.errors;
-    if(typeof errors==='string'){try{errors=JSON.parse(errors)}catch(e){errors=[]}}
-    if(!Array.isArray(errors)) errors=[];
-    const {day,hm,ms}=vnParts(r.recorded_at);
-    return {id:r.uuid,pid:r.profile_id,ex:exKey(r.exercise),score:r.score,errors,day,hm,ms,at:r.recorded_at};
-  }).sort((a,b)=>a.ms-b.ms);
+  return (data||[]).map(mapRow).sort((a,b)=>a.sortMs-b.sortMs);
 }
-
 async function fetchStudents(){
   const {data,error}=await sb.from('students').select('profile_id,name');
   if(error) throw error;
-  const map={};
-  (data||[]).forEach(r=>{map[r.profile_id]=r.name});
+  const map={};(data||[]).forEach(r=>{map[r.profile_id]=r.name});
   return map;
 }
 
-let S=[], DATA={profiles:[]}, END=0;
+let S=[], DATA={profiles:[]}, END=0, NEW_IDS=new Set(), lastSync=null, liveOn=false;
 const state={view:'tong-quan',range:14,ex:'all',student:null,fEx:'all',fSt:'all'};
+let rerender=()=>{};
 
 function rebuildProfiles(){
-  const ids=[...new Set(S.map(s=>s.pid))].sort();
-  DATA.profiles=ids.map(id=>({id}));
+  DATA.profiles=[...new Set(S.map(s=>s.pid))].sort().map(id=>({id}));
+  END=S.reduce((m,s)=>s.ms>m?s.ms:m,0);
 }
-
 function scope(){
   const from=END-(state.range-1)*DAY, prevFrom=from-state.range*DAY;
   const okEx=s=>state.ex==='all'||s.ex===state.ex;
@@ -198,7 +219,7 @@ function scope(){
 }
 
 /* ===== Biểu đồ ===== */
-function lineChart(pts,id){
+function lineChart(pts,id,ref){
   const w=640,h=230,L=34,R=16,T=16,B=28,iw=w-L-R,ih=h-T-B,n=pts.length;
   const X=i=>L+(n<=1?iw/2:i*iw/(n-1)), Y=v=>T+ih-v/100*ih;
   let g='';
@@ -207,13 +228,18 @@ function lineChart(pts,id){
   if(!v.length) return '<div class="empty">Chưa có buổi tập trong khoảng này.</div>';
   const d=v.map((q,i)=>(i?'L':'M')+q[0].toFixed(1)+' '+q[1].toFixed(1)).join(' ');
   const area=`${d} L${v[v.length-1][0].toFixed(1)} ${T+ih} L${v[0][0].toFixed(1)} ${T+ih} Z`;
+  let refPath='';
+  if(ref&&ref.length){
+    const rv=ref.map((p,i)=>p.y==null?null:[X(i),Y(p.y)]).filter(Boolean);
+    if(rv.length>1) refPath=`<path d="${rv.map((q,i)=>(i?'L':'M')+q[0].toFixed(1)+' '+q[1].toFixed(1)).join(' ')}" fill="none" stroke="#7C93A6" stroke-width="1.8" stroke-dasharray="5 4"/>`;
+  }
   const step=Math.max(1,Math.ceil(n/7));
   let xl='';pts.forEach((p,i)=>{if(i%step===0||i===n-1)xl+=`<text class="ax" x="${X(i)}" y="${h-8}" text-anchor="middle">${p.x}</text>`});
   const last=v[v.length-1];
   const dots=v.map(q=>`<circle cx="${q[0].toFixed(1)}" cy="${q[1].toFixed(1)}" r="${n>40?2:3}" fill="#080b13" stroke="#1BB4B4" stroke-width="1.5"><title>${q[2].x}: ${fmt(q[2].y)} điểm</title></circle>`).join('');
   return `<svg class="chart" viewBox="0 0 ${w} ${h}" role="img" aria-label="Biểu đồ điểm trung bình">
     <defs><linearGradient id="g${id}" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#1BB4B4" stop-opacity=".4"/><stop offset="1" stop-color="#1BB4B4" stop-opacity="0"/></linearGradient></defs>
-    ${g}<path d="${area}" fill="url(#g${id})"/><path d="${d}" fill="none" stroke="#1BB4B4" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>${dots}
+    ${g}<path d="${area}" fill="url(#g${id})"/>${refPath}<path d="${d}" fill="none" stroke="#1BB4B4" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>${dots}
     <circle cx="${last[0]}" cy="${last[1]}" r="5" fill="#1BB4B4" stroke="#F2FAFA" stroke-width="2"/>
     <text x="${Math.min(last[0],w-R-10)}" y="${last[1]-12}" text-anchor="middle" style="fill:#F2FAFA;font:600 13px var(--body)">${fmt(last[2].y)}</text>${xl}</svg>`;
 }
@@ -232,11 +258,91 @@ function errAgg(list){
   list.forEach(s=>s.errors.forEach(e=>{const o=m[e.name]||(m[e.name]={v:0,ex:s.ex});o.v+=e.count}));
   return Object.entries(m).map(([l,o])=>({l,v:o.v,c:(EX[o.ex]||{c:'#888'}).c})).sort((a,b)=>b.v-a.v);
 }
+/* Vòng tròn tiến độ */
+function ring(v,label){
+  if(v==null) return `<div class="empty" style="width:130px">Chưa có điểm</div>`;
+  const r=46,c=2*Math.PI*r;
+  const col=v>=80?'#47ce42':v>=60?'#F2B544':'#eb3a3a';
+  return `<svg width="130" height="130" viewBox="0 0 120 120" role="img" aria-label="Điểm trung bình ${fmt(v)}">
+    <circle cx="60" cy="60" r="${r}" fill="none" stroke="#ffffff12" stroke-width="10"/>
+    <circle cx="60" cy="60" r="${r}" fill="none" stroke="${col}" stroke-width="10" stroke-linecap="round"
+      stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${(c*(1-Math.max(0,Math.min(100,v))/100)).toFixed(1)}" transform="rotate(-90 60 60)"/>
+    <text x="60" y="60" text-anchor="middle" style="fill:#F2FAFA;font:600 28px var(--display)">${fmt(v,0)}</text>
+    <text x="60" y="80" text-anchor="middle" style="fill:#7C93A6;font:500 11px var(--body)">${esc(label)}</text></svg>`;
+}
+/* Radar 3 bài tập: dữ liệu học sinh (đặc) + trung bình lớp (nét đứt) */
+function radar(vals,ref){
+  const keys=Object.keys(EX), w=270,h=230,cx=135,cy=112,R=78;
+  const ang=i=>-Math.PI/2+i*2*Math.PI/keys.length;
+  const pt=(i,v)=>[cx+Math.cos(ang(i))*R*(v/100),cy+Math.sin(ang(i))*R*(v/100)];
+  let g='';
+  [33,66,100].forEach(t=>{g+=`<polygon points="${keys.map((k,i)=>pt(i,t).map(n=>n.toFixed(1)).join(',')).join(' ')}" fill="none" stroke="#ffffff14"/>`});
+  keys.forEach((k,i)=>{const p=pt(i,100);g+=`<line x1="${cx}" y1="${cy}" x2="${p[0].toFixed(1)}" y2="${p[1].toFixed(1)}" stroke="#ffffff14"/>`});
+  const poly=d=>keys.map((k,i)=>pt(i,d[k]==null?0:d[k]).map(n=>n.toFixed(1)).join(',')).join(' ');
+  const refPoly=ref?`<polygon points="${poly(ref)}" fill="none" stroke="#7C93A6" stroke-width="1.6" stroke-dasharray="5 4"/>`:'';
+  const labels=keys.map((k,i)=>{const p=pt(i,122);return `<text class="ax" x="${p[0].toFixed(1)}" y="${(p[1]+4).toFixed(1)}" text-anchor="middle" style="fill:${EX[k].hex}">${EX[k].n}</text>`}).join('');
+  const dots=keys.map((k,i)=>{const v=vals[k];return v==null?'':`<circle cx="${pt(i,v)[0].toFixed(1)}" cy="${pt(i,v)[1].toFixed(1)}" r="3.5" fill="#1BB4B4"><title>${EX[k].n}: ${fmt(v)} điểm</title></circle>`}).join('');
+  return `<svg class="chart" style="max-width:280px" viewBox="0 0 ${w} ${h}" role="img" aria-label="Biểu đồ radar theo bài tập">
+    ${g}${refPoly}<polygon points="${poly(vals)}" fill="#1BB4B433" stroke="#1BB4B4" stroke-width="2"/>${dots}${labels}</svg>
+    <div class="heatlegend"><span style="color:var(--accent)">━ Học sinh</span><span>┄ Trung bình lớp</span></div>`;
+}
+/* Heatmap lịch tập 12 tuần */
+function heatmap(list){
+  const counts={};
+  list.forEach(s=>{counts[s.day]=(counts[s.day]||0)+1});
+  const base=END||Date.now();
+  const endDow=(new Date(base).getUTCDay()+6)%7;
+  const lastMonday=base-endDow*DAY, firstMonday=lastMonday-11*7*DAY;
+  const max=Math.max(1,...Object.values(counts));
+  let cells='';
+  for(let w=0;w<12;w++)for(let d=0;d<7;d++){
+    const t=firstMonday+(w*7+d)*DAY;
+    const day=new Date(t).toISOString().slice(0,10);
+    const n=counts[day]||0;
+    const a=n?(0.25+0.75*Math.min(1,n/max)):0;
+    cells+=`<i style="background:${n?`rgba(27,180,180,${a.toFixed(2)})`:'#ffffff0d'}" title="${dm(day)}: ${n} buổi"></i>`;
+  }
+  const lg=[0,.25,.5,.75,1].map(a=>`<i style="background:${a?`rgba(27,180,180,${a})`:'#ffffff0d'}"></i>`).join('');
+  return `<div class="heatwrap"><div class="heatdays"><span>T2</span><span></span><span>T4</span><span></span><span>T6</span><span></span><span>CN</span></div>
+    <div class="heat">${cells}</div></div>
+    <div class="heatlegend">Ít ${lg} Nhiều · 12 tuần gần nhất</div>`;
+}
+/* Huy hiệu */
+function badgeCards(cur){
+  const by={};
+  cur.forEach(s=>{(by[s.pid]=by[s.pid]||[]).push(s)});
+  const arr=Object.entries(by).map(([pid,m])=>{
+    m.sort((a,b)=>a.sortMs-b.sortMs);
+    const half=Math.floor(m.length/2);
+    const d=half?avg(m.slice(half))-avg(m.slice(0,half)):null;
+    return {pid,n:m.length,a:avg(m),d};
+  });
+  if(!arr.length) return '';
+  const top=arr.filter(x=>x.n>=2).sort((a,b)=>b.a-a.a)[0];
+  const prog=arr.filter(x=>x.n>=4&&x.d!=null&&x.d>0).sort((a,b)=>b.d-a.d)[0];
+  const busy=arr.slice().sort((a,b)=>b.n-a.n)[0];
+  const card=(ico,bg,lbl,who,meta)=>who?`<div class="card badge"><div class="ico" style="background:${bg}">${ico}</div><div><div class="lbl">${lbl}</div><div class="who">${esc(plainName(who))}</div><div class="meta">${meta}</div></div></div>`:'';
+  return `<div class="badges">
+    ${card('🏆','#F2B54422','Điểm cao nhất',top&&top.pid,top?`${fmt(top.a)} điểm · ${top.n} buổi`:'')}
+    ${card('📈','#47ce4222','Tiến bộ nhất',prog&&prog.pid,prog?`+${fmt(prog.d)} điểm so với đầu kỳ`:'')}
+    ${card('🔥','#1BB4B422','Chăm nhất',busy&&busy.pid,busy?`${busy.n} buổi trong kỳ`:'')}
+  </div>`;
+}
+/* Bảng xếp hạng */
+function rankList(cur){
+  const by={};
+  cur.forEach(s=>{(by[s.pid]=by[s.pid]||[]).push(s)});
+  const arr=Object.entries(by).map(([pid,m])=>({pid,n:m.length,a:avg(m)})).filter(x=>x.n>=1).sort((a,b)=>b.a-a.a).slice(0,6);
+  if(!arr.length) return '<div class="empty">Chưa có dữ liệu.</div>';
+  return `<div class="rank">${arr.map((r,i)=>`<div class="row"><span class="pos">${i+1}</span><span class="nm">${esc(plainName(r.pid))} <span class="code">${esc(r.pid)}</span></span>${pill(Math.round(r.a))}</div>`).join('')}</div>`;
+}
+
 const filterBar=()=>`<div class="filters">
   <div class="seg" role="group" aria-label="Khoảng thời gian">${[7,14,21].map(r=>`<button data-range="${r}" aria-pressed="${state.range===r}">${r} ngày</button>`).join('')}</div>
   <div class="seg" role="group" aria-label="Bài tập"><button data-ex="all" aria-pressed="${state.ex==='all'}">Tất cả</button>${Object.keys(EX).map(k=>`<button data-ex="${k}" aria-pressed="${state.ex===k}">${EX[k].n}</button>`).join('')}</div></div>`;
 const head=(t,sub)=>`<div class="top"><div><h1>${t}</h1><p class="sub">${sub}</p></div>${t==='Buổi tập'?'':filterBar()}</div>`;
-const foot=()=>`<p class="foot">Nguồn: bảng sessions trên Supabase (uuid, device_id, profile_id, exercise, score, errors, recorded_at), giờ Việt Nam. Màu điểm: ≥80 tốt, 60–79 trung bình, dưới 60 cần cải thiện.</p>`;
+const foot=()=>`<p class="foot">Nguồn: bảng sessions + students trên Supabase, giờ Việt Nam. Màu điểm: ≥80 tốt, 60–79 trung bình, dưới 60 cần cải thiện.</p>`;
+const num=(v,d=0)=>`<span data-count="${v}" data-dec="${d}">0</span>`;
 
 /* ===== Màn hình ===== */
 function viewOverview(){
@@ -248,31 +354,35 @@ function viewOverview(){
   const pts=[];
   for(let t=from;t<=END;t+=DAY){const day=new Date(t).toISOString().slice(0,10);pts.push({x:dm(day),y:avg(cur.filter(s=>s.day===day))})}
   const byEx=Object.keys(EX).map(k=>({l:EX[k].n,v:cur.filter(s=>s.ex===k).length,c:EX[k].c}));
-  const recent=cur.slice().sort((x,y)=>y.ms-x.ms).slice(0,8);
+  const recent=cur.slice().sort((x,y)=>y.sortMs-x.sortMs).slice(0,8);
+  const heatList=S.filter(s=>state.ex==='all'||s.ex===state.ex);
   return head('Tổng quan',`${state.range} ngày gần nhất, đến ${END?dm(new Date(END).toISOString().slice(0,10)):'—'}`)+`
   <div class="kpis">
-    <div class="card kpi"><div class="lbl">Số buổi tập</div><div class="val">${cur.length}</div><div class="dl">${prev.length} buổi ở kỳ trước</div></div>
-    <div class="card kpi"><div class="lbl">Điểm trung bình</div><div class="val">${a==null?'—':fmt(a)}<small> /100</small></div><div class="dl">${dl}</div></div>
-    <div class="card kpi"><div class="lbl">Học sinh hoạt động</div><div class="val">${active}<small> /${DATA.profiles.length}</small></div><div class="dl">Có ít nhất một buổi trong kỳ</div></div>
+    <div class="card kpi"><div class="lbl">Số buổi tập</div><div class="val">${num(cur.length)}</div><div class="dl">${prev.length} buổi ở kỳ trước</div></div>
+    <div class="card kpi"><div class="lbl">Điểm trung bình</div><div class="val">${a==null?'—':num(a,1)}<small> /100</small></div><div class="dl">${dl}</div></div>
+    <div class="card kpi"><div class="lbl">Học sinh hoạt động</div><div class="val">${num(active)}<small> /${DATA.profiles.length}</small></div><div class="dl">Có ít nhất một buổi trong kỳ</div></div>
     <div class="card kpi"><div class="lbl">Lỗi gặp nhiều nhất</div><div class="val" style="font-size:17px;line-height:1.35;margin-top:10px">${errs.length?esc(errs[0].l):'Không có'}</div><div class="dl">${errs.length?fmt(errs[0].v,0)+' lần ghi nhận':''}</div></div>
   </div>
   <div class="grid2">
     <section class="card"><h2>Điểm trung bình theo ngày</h2><p class="hint">Trung bình điểm các buổi trong ngày</p>${lineChart(pts,'ov')}</section>
     <section class="card"><h2>Số buổi theo bài tập</h2><p class="hint">Trong khoảng đã chọn</p>${hbars(byEx)}</section>
   </div>
-  <div class="grid2 b">
+  <section class="card" style="margin-bottom:16px"><h2>Lịch tập của lớp</h2><p class="hint">Mỗi ô là một ngày, càng đậm càng nhiều buổi tập</p>${heatmap(heatList)}</section>
+  ${badgeCards(cur)}
+  <div class="grid2 c">
+    <section class="card"><h2>Bảng xếp hạng</h2><p class="hint">Theo điểm trung bình trong kỳ</p>${rankList(cur)}</section>
     <section class="card"><h2>Lỗi thường gặp</h2><p class="hint">Tổng số lần ghi nhận, màu theo bài tập</p>${hbars(errs.slice(0,6))}</section>
-    <section class="card"><h2>Buổi tập gần đây</h2><p class="hint">Mới nhất ở trên</p>${sessionTable(recent)}</section>
-  </div>`+foot();
+  </div>
+  <section class="card"><h2>Buổi tập gần đây</h2><p class="hint">Mới nhất ở trên</p>${sessionTable(recent)}</section>`+foot();
 }
 function sessionTable(list){
   if(!list.length) return '<div class="empty">Chưa có buổi tập.</div>';
-  return `<div class="tw"><table><thead><tr><th>Thời gian</th><th>Học sinh</th><th>Bài tập</th><th>Điểm</th><th>Lỗi chính</th></tr></thead><tbody>${list.map(s=>`<tr><td>${dm(s.day)} ${s.hm}</td><td>${dispName(s.pid)}</td><td>${exTag(s.ex)}</td><td>${pill(s.score)}</td><td>${esc(topErr(s))}</td></tr>`).join('')}</tbody></table></div>`;
+  return `<div class="tw"><table><thead><tr><th>Thời gian</th><th>Học sinh</th><th>Mã HS</th><th>Bài tập</th><th>Điểm</th><th>Lỗi chính</th></tr></thead><tbody>${list.map(s=>`<tr class="${NEW_IDS.has(s.id)?'flash':''}"><td>${dm(s.day)} ${s.hm}</td><td>${stuName(s.pid)}</td><td class="code">${esc(s.pid)}</td><td>${exTag(s.ex)}</td><td>${pill(s.score)}</td><td>${esc(topErr(s))}</td></tr>`).join('')}</tbody></table></div>`;
 }
 function viewStudents(){
   const {cur}=scope();
   const rows=DATA.profiles.map(p=>{
-    const m=cur.filter(s=>s.pid===p.id).sort((x,y)=>x.ms-y.ms);
+    const m=cur.filter(s=>s.pid===p.id).sort((x,y)=>x.sortMs-y.sortMs);
     return {id:p.id,m,n:m.length,a:avg(m),last:m.length?m[m.length-1]:null};
   }).sort((x,y)=>y.n-x.n);
   let detail='';
@@ -280,27 +390,60 @@ function viewStudents(){
     const r=rows.find(x=>x.id===state.student);
     if(r){
       const errs=errAgg(r.m);
-      detail=`<section class="card detail"><h2>${dispName(r.id)}</h2><p class="hint">Tiến bộ qua từng buổi trong khoảng đã chọn</p>
+      const byExS={},byExC={};
+      Object.keys(EX).forEach(k=>{
+        byExS[k]=avg(r.m.filter(s=>s.ex===k));
+        byExC[k]=avg(cur.filter(s=>s.ex===k));
+      });
+      const refLine=r.m.map(s=>({x:dm(s.day),y:avg(cur.filter(c=>c.day===s.day))}));
+      detail=`<section class="card detail"><h2>${stuName(r.id)}</h2><p class="hint">Mã HS: <span class="code">${esc(r.id)}</span> · Tiến bộ qua từng buổi trong khoảng đã chọn</p>
+      <div class="ringwrap">
+        <div>${ring(r.a,'điểm TB')}</div>
+        <div style="flex:1;min-width:240px">${radar(byExS,byExC)}</div>
+      </div>
       <div class="stats"><div><b>${r.n}</b><span>buổi tập</span></div><div><b>${r.a==null?'—':fmt(r.a)}</b><span>điểm trung bình</span></div><div><b>${r.n?Math.max(...r.m.map(s=>s.score)):'—'}</b><span>điểm cao nhất</span></div><div><b>${r.last?dm(r.last.day):'—'}</b><span>buổi gần nhất</span></div></div>
-      ${lineChart(r.m.map(s=>({x:dm(s.day),y:s.score})),'st')}
+      ${lineChart(r.m.map(s=>({x:dm(s.day),y:s.score})),'st',refLine)}
+      <div class="heatlegend"><span style="color:var(--accent)">━ Học sinh</span><span>┄ Trung bình lớp cùng ngày</span></div>
       <h3 style="font-size:14px;margin:16px 0 10px">Lỗi hay gặp</h3>${hbars(errs.slice(0,5))}</section>`;
     }
   }
   return head('Học sinh',`${rows.filter(r=>r.n).length} học sinh có buổi tập. Chọn một dòng để xem chi tiết.`)+`
-  <section class="card"><div class="tw"><table><thead><tr><th>Học sinh</th><th>Số buổi</th><th>Điểm TB</th><th>Xu hướng</th><th>Buổi gần nhất</th></tr></thead><tbody>${rows.map(r=>`<tr data-student="${r.id}" class="${state.student===r.id?'sel':''}" tabindex="0"><td><b>${dispName(r.id)}</b></td><td>${r.n}</td><td>${r.a==null?'—':pill(Math.round(r.a))}</td><td>${spark(r.m.slice(-8).map(s=>s.score))}</td><td>${r.last?dm(r.last.day)+' '+r.last.hm:'—'}</td></tr>`).join('')}</tbody></table></div></section>${detail}`+foot();
+  <section class="card"><div class="tw"><table><thead><tr><th>Học sinh</th><th>Mã HS</th><th>Số buổi</th><th>Điểm TB</th><th>Xu hướng</th><th>Buổi gần nhất</th></tr></thead><tbody>${rows.map(r=>`<tr data-student="${r.id}" class="${state.student===r.id?'sel':''}" tabindex="0"><td><b>${stuName(r.id)}</b></td><td class="code">${esc(r.id)}</td><td>${r.n}</td><td>${r.a==null?'—':pill(Math.round(r.a))}</td><td>${spark(r.m.slice(-8).map(s=>s.score))}</td><td>${r.last?dm(r.last.day)+' '+r.last.hm:'—'}</td></tr>`).join('')}</tbody></table></div></section>${detail}`+foot();
 }
 function viewSessions(){
-  let list=S.filter(s=>(state.fEx==='all'||s.ex===state.fEx)&&(state.fSt==='all'||s.pid===state.fSt)).sort((a,b)=>b.ms-a.ms);
+  let list=S.filter(s=>(state.fEx==='all'||s.ex===state.fEx)&&(state.fSt==='all'||s.pid===state.fSt)).sort((a,b)=>b.sortMs-a.sortMs);
   const total=list.length; list=list.slice(0,100);
   return head('Buổi tập',`${total} buổi khớp bộ lọc${total>100?', hiện 100 buổi mới nhất':''}`)+`
   <section class="card"><div class="filters" style="margin-bottom:14px">
     <label>Bài tập <select id="fEx"><option value="all">Tất cả</option>${Object.keys(EX).map(k=>`<option value="${k}" ${state.fEx===k?'selected':''}>${EX[k].n}</option>`).join('')}</select></label>
-    <label>Học sinh <select id="fSt"><option value="all">Tất cả</option>${DATA.profiles.map(p=>`<option value="${p.id}" ${state.fSt===p.id?'selected':''}>${esc(NAMES[p.id]?`${NAMES[p.id]} (${p.id})`:p.id)}</option>`).join('')}</select></label></div>
+    <label>Học sinh <select id="fSt"><option value="all">Tất cả</option>${DATA.profiles.map(p=>`<option value="${p.id}" ${state.fSt===p.id?'selected':''}>${esc(plainName(p.id))}</option>`).join('')}</select></label></div>
   ${sessionTable(list)}</section>`+foot();
 }
 
-/* ===== Khung ứng dụng (sau khi đăng nhập) ===== */
+/* ===== Hiệu ứng số chạy ===== */
+function animateCounts(root){
+  const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  root.querySelectorAll('[data-count]').forEach(el=>{
+    const target=parseFloat(el.dataset.count); if(isNaN(target)) return;
+    const dec=+(el.dataset.dec||0);
+    if(reduce){el.textContent=fmt(target,dec);return}
+    const t0=performance.now(),dur=650;
+    (function step(t){
+      const k=Math.min(1,(t-t0)/dur), e=1-Math.pow(1-k,3);
+      el.textContent=fmt(target*e,dec);
+      if(k<1) requestAnimationFrame(step); else el.textContent=fmt(target,dec);
+    })(t0);
+  });
+}
+
+/* ===== Khung ứng dụng ===== */
 const VIEWS={'tong-quan':viewOverview,'hoc-sinh':viewStudents,'buoi-tap':viewSessions};
+function syncLabel(){
+  const el=document.getElementById('liveNote');
+  if(!el) return;
+  el.parentElement.className='live'+(liveOn?' on':'');
+  el.textContent=(liveOn?'Đang theo dõi trực tiếp':'Tự làm mới mỗi phút')+(lastSync?' · '+lastSync:'');
+}
 function renderApp(userEmail){
   const outer=document.getElementById('root-outer');
   outer.innerHTML=`<div class="app">
@@ -311,17 +454,22 @@ function renderApp(userEmail){
         <button data-view="hoc-sinh">Học sinh</button>
         <button data-view="buoi-tap">Buổi tập</button>
       </nav>
-      <div class="note">Chỉ hiển thị mã học sinh. Không có tên, video hay keypoints.</div>
+      <div class="live"><span class="dot"></span><span id="liveNote">Đang kết nối…</span></div>
+      <div class="note">Chỉ hiển thị dữ liệu buổi tập. Không có video hay keypoints.</div>
       <div class="acct"><span class="email">${esc(userEmail)}</span><button id="btnLogout">Đăng xuất</button></div>
     </aside>
     <main id="root"></main>
   </div>`;
-  function render(){
+  rerender=function(){
     const h=location.hash.replace('#','');
     state.view=VIEWS[h]?h:'tong-quan';
-    document.getElementById('root').innerHTML=VIEWS[state.view]();
+    const root=document.getElementById('root');
+    if(!root) return;
+    root.innerHTML=VIEWS[state.view]();
     document.querySelectorAll('.nav button').forEach(b=>b.setAttribute('aria-current',b.dataset.view===state.view?'page':'false'));
-  }
+    animateCounts(root);
+    syncLabel();
+  };
   outer.addEventListener('click',e=>{
     if(e.target.id==='btnLogout'){ sb.auth.signOut(); return }
     const t=e.target.closest('[data-view],[data-range],[data-ex],[data-student]');
@@ -330,18 +478,48 @@ function renderApp(userEmail){
     if(t.dataset.range) state.range=+t.dataset.range;
     if(t.dataset.ex) state.ex=t.dataset.ex;
     if(t.dataset.student) state.student=state.student===t.dataset.student?null:t.dataset.student;
-    render();
+    rerender();
   });
   outer.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches('tr[data-student]'))e.target.click()});
   outer.addEventListener('change',e=>{
-    if(e.target.id==='fEx'){state.fEx=e.target.value;render()}
-    if(e.target.id==='fSt'){state.fSt=e.target.value;render()}
+    if(e.target.id==='fEx'){state.fEx=e.target.value;rerender()}
+    if(e.target.id==='fSt'){state.fSt=e.target.value;rerender()}
   });
-  window.addEventListener('hashchange',render);
-  render();
+  window.addEventListener('hashchange',rerender);
+  rerender();
 }
 
-/* ===== Màn hình tải dữ liệu / lỗi ===== */
+/* ===== Realtime + tự làm mới ===== */
+let channel=null, pollTimer=null;
+function stampSync(){
+  lastSync=new Intl.DateTimeFormat('vi-VN',{timeZone:VN_TZ,hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date());
+}
+function startLive(){
+  if(channel) sb.removeChannel(channel);
+  channel=sb.channel('poseai-sessions')
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'sessions'},payload=>{
+      const row=mapRow(payload.new);
+      if(S.some(s=>s.id===row.id)) return;
+      S.push(row); S.sort((a,b)=>a.sortMs-b.sortMs);
+      rebuildProfiles();
+      NEW_IDS.add(row.id);
+      setTimeout(()=>{NEW_IDS.delete(row.id)},30000);
+      stampSync(); rerender();
+    })
+    .subscribe(status=>{ liveOn=(status==='SUBSCRIBED'); syncLabel(); });
+  if(pollTimer) clearInterval(pollTimer);
+  pollTimer=setInterval(refreshData,60000);
+}
+async function refreshData(){
+  try{
+    const [sessions,names]=await Promise.all([fetchSessions(),fetchStudents().catch(()=>NAMES)]);
+    const known=new Set(S.map(s=>s.id));
+    sessions.forEach(s=>{if(!known.has(s.id)&&S.length){NEW_IDS.add(s.id);setTimeout(()=>NEW_IDS.delete(s.id),30000)}});
+    S=sessions; NAMES=names; rebuildProfiles(); stampSync(); rerender();
+  }catch(e){ /* mất mạng tạm thời: giữ nguyên dữ liệu đang hiển thị */ }
+}
+
+/* ===== Tải dữ liệu / lỗi ===== */
 function renderLoading(){
   document.getElementById('root-outer').innerHTML=`<div class="center-screen"><div style="text-align:center"><div class="spinner"></div><p class="sub">Đang tải dữ liệu buổi tập…</p></div></div>`;
 }
@@ -361,16 +539,18 @@ async function bootData(userEmail){
   try{
     const [sessions,names]=await Promise.all([fetchSessions(),fetchStudents().catch(()=>({}))]);
     S=sessions; NAMES=names;
-    rebuildProfiles();
-    END=S.reduce((m,s)=>s.ms>m?s.ms:m,0);
+    rebuildProfiles(); stampSync();
     renderApp(userEmail);
+    startLive();
   }catch(err){
     renderLoadError(err.message||String(err),userEmail);
   }
 }
 
-/* ===== Màn hình đăng nhập ===== */
+/* ===== Đăng nhập ===== */
 function renderLogin(prefillErr){
+  if(channel){sb.removeChannel(channel);channel=null}
+  if(pollTimer){clearInterval(pollTimer);pollTimer=null}
   document.getElementById('root-outer').innerHTML=`<div class="center-screen"><div class="login-card">
     <div class="brand"><svg width="26" height="26" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="5" r="3" fill="#1BB4B4"/><path d="M14 8v9M14 11l-6 4M14 11l6 4M14 17l-5 7M14 17l5 7" stroke="#F2FAFA" stroke-width="2" stroke-linecap="round" fill="none"/></svg>PoseAI</div>
     <form id="loginForm">
@@ -391,17 +571,17 @@ function renderLogin(prefillErr){
     btn.disabled=true; btn.textContent='Đang đăng nhập…'; errEl.textContent='';
     const {error}=await sb.auth.signInWithPassword({email,password});
     if(error){ errEl.textContent=error.message==='Invalid login credentials'?'Email hoặc mật khẩu không đúng.':error.message; btn.disabled=false; btn.textContent='Đăng nhập'; }
-    // Nếu thành công, onAuthStateChange ở dưới sẽ tự chuyển sang dashboard.
   });
 }
 
-/* ===== Điều phối theo trạng thái đăng nhập ===== */
+/* ===== Điều phối ===== */
+let booted=false;
 sb.auth.onAuthStateChange((event,session)=>{
-  if(session && session.user){ bootData(session.user.email); }
-  else{ renderLogin(); }
+  if(session&&session.user){ if(!booted){booted=true;bootData(session.user.email)} }
+  else{ booted=false; renderLogin(); }
 });
 sb.auth.getSession().then(({data})=>{
-  if(data && data.session && data.session.user){ bootData(data.session.user.email); }
+  if(data&&data.session&&data.session.user){ if(!booted){booted=true;bootData(data.session.user.email)} }
   else{ renderLogin(); }
 });
 </script>

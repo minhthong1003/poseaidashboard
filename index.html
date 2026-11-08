@@ -171,6 +171,10 @@ function vnParts(iso){
   return {day,hm,ms:Date.parse(day+'T00:00:00Z')};
 }
 const dm=day=>day.slice(8,10)+'/'+day.slice(5,7);
+/* Thời lượng giây -> "5p30" / "45s"; buổi tập cũ chưa có số liệu thì "—" */
+const dur=s=>(s==null||s==='')?'—':(s>=60?`${Math.floor(s/60)}p${String(s%60).padStart(2,'0')}`:`${s}s`);
+const sumDur=list=>{const v=list.filter(s=>s.dur!=null);return v.length?v.reduce((t,s)=>t+s.dur,0):null};
+const avgReps=list=>{const v=list.filter(s=>s.reps!=null);return v.length?v.reduce((t,s)=>t+s.reps,0)/v.length:null};
 const avg=a=>a.length?a.reduce((t,s)=>t+s.score,0)/a.length:null;
 const cls=s=>s>=80?'good':s>=60?'mid':'low';
 const pill=s=>`<span class="pill ${cls(s)}">${s}</span>`;
@@ -188,11 +192,11 @@ function mapRow(r){
   if(typeof errors==='string'){try{errors=JSON.parse(errors)}catch(e){errors=[]}}
   if(!Array.isArray(errors)) errors=[];
   const {day,hm,ms}=vnParts(r.recorded_at);
-  return {id:r.uuid,pid:r.profile_id,ex:exKey(r.exercise),score:r.score,errors,day,hm,ms,at:r.recorded_at,sortMs:Date.parse(r.recorded_at)};
+  return {id:r.uuid,pid:r.profile_id,ex:exKey(r.exercise),score:r.score,errors,day,hm,ms,at:r.recorded_at,sortMs:Date.parse(r.recorded_at),reps:r.reps,dur:r.duration_s};
 }
 async function fetchSessions(){
   const {data,error}=await sb.from('sessions')
-    .select('uuid,device_id,profile_id,exercise,score,errors,recorded_at')
+    .select('uuid,device_id,profile_id,exercise,score,errors,recorded_at,reps,duration_s')
     .order('recorded_at',{ascending:false}).limit(5000);
   if(error) throw error;
   return (data||[]).map(mapRow).sort((a,b)=>a.sortMs-b.sortMs);
@@ -356,11 +360,13 @@ function viewOverview(){
   const byEx=Object.keys(EX).map(k=>({l:EX[k].n,v:cur.filter(s=>s.ex===k).length,c:EX[k].c}));
   const recent=cur.slice().sort((x,y)=>y.sortMs-x.sortMs).slice(0,8);
   const heatList=S.filter(s=>state.ex==='all'||s.ex===state.ex);
+  const totDur=sumDur(cur);
   return head('Tổng quan',`${state.range} ngày gần nhất, đến ${END?dm(new Date(END).toISOString().slice(0,10)):'—'}`)+`
   <div class="kpis">
     <div class="card kpi"><div class="lbl">Số buổi tập</div><div class="val">${num(cur.length)}</div><div class="dl">${prev.length} buổi ở kỳ trước</div></div>
     <div class="card kpi"><div class="lbl">Điểm trung bình</div><div class="val">${a==null?'—':num(a,1)}<small> /100</small></div><div class="dl">${dl}</div></div>
     <div class="card kpi"><div class="lbl">Học sinh hoạt động</div><div class="val">${num(active)}<small> /${DATA.profiles.length}</small></div><div class="dl">Có ít nhất một buổi trong kỳ</div></div>
+    <div class="card kpi"><div class="lbl">Tổng thời lượng tập</div><div class="val">${totDur==null?'—':num(totDur/60,0)}<small> phút</small></div><div class="dl">${totDur==null?'Buổi tập cũ chưa ghi thời lượng':`${cur.filter(s=>s.dur!=null).length} buổi có số liệu`}</div></div>
     <div class="card kpi"><div class="lbl">Lỗi gặp nhiều nhất</div><div class="val" style="font-size:17px;line-height:1.35;margin-top:10px">${errs.length?esc(errs[0].l):'Không có'}</div><div class="dl">${errs.length?fmt(errs[0].v,0)+' lần ghi nhận':''}</div></div>
   </div>
   <div class="grid2">
@@ -377,7 +383,7 @@ function viewOverview(){
 }
 function sessionTable(list){
   if(!list.length) return '<div class="empty">Chưa có buổi tập.</div>';
-  return `<div class="tw"><table><thead><tr><th>Thời gian</th><th>Học sinh</th><th>Mã HS</th><th>Bài tập</th><th>Điểm</th><th>Lỗi chính</th></tr></thead><tbody>${list.map(s=>`<tr class="${NEW_IDS.has(s.id)?'flash':''}"><td>${dm(s.day)} ${s.hm}</td><td>${stuName(s.pid)}</td><td class="code">${esc(s.pid)}</td><td>${exTag(s.ex)}</td><td>${pill(s.score)}</td><td>${esc(topErr(s))}</td></tr>`).join('')}</tbody></table></div>`;
+  return `<div class="tw"><table><thead><tr><th>Thời gian</th><th>Học sinh</th><th>Mã HS</th><th>Bài tập</th><th>Điểm</th><th>Rep</th><th>Thời lượng</th><th>Lỗi chính</th></tr></thead><tbody>${list.map(s=>`<tr class="${NEW_IDS.has(s.id)?'flash':''}"><td>${dm(s.day)} ${s.hm}</td><td>${stuName(s.pid)}</td><td class="code">${esc(s.pid)}</td><td>${exTag(s.ex)}</td><td>${pill(s.score)}</td><td>${s.reps==null?'—':s.reps}</td><td>${dur(s.dur)}</td><td>${esc(topErr(s))}</td></tr>`).join('')}</tbody></table></div>`;
 }
 function viewStudents(){
   const {cur}=scope();
@@ -401,7 +407,7 @@ function viewStudents(){
         <div>${ring(r.a,'điểm TB')}</div>
         <div style="flex:1;min-width:240px">${radar(byExS,byExC)}</div>
       </div>
-      <div class="stats"><div><b>${r.n}</b><span>buổi tập</span></div><div><b>${r.a==null?'—':fmt(r.a)}</b><span>điểm trung bình</span></div><div><b>${r.n?Math.max(...r.m.map(s=>s.score)):'—'}</b><span>điểm cao nhất</span></div><div><b>${r.last?dm(r.last.day):'—'}</b><span>buổi gần nhất</span></div></div>
+      <div class="stats"><div><b>${r.n}</b><span>buổi tập</span></div><div><b>${r.a==null?'—':fmt(r.a)}</b><span>điểm trung bình</span></div><div><b>${r.n?Math.max(...r.m.map(s=>s.score)):'—'}</b><span>điểm cao nhất</span></div><div><b>${sumDur(r.m)==null?'—':fmt(sumDur(r.m)/60,0)+'p'}</b><span>tổng thời lượng</span></div><div><b>${avgReps(r.m)==null?'—':fmt(avgReps(r.m),1)}</b><span>rep trung bình/buổi</span></div><div><b>${r.last?dm(r.last.day):'—'}</b><span>buổi gần nhất</span></div></div>
       ${lineChart(r.m.map(s=>({x:dm(s.day),y:s.score})),'st',refLine)}
       <div class="heatlegend"><span style="color:var(--accent)">━ Học sinh</span><span>┄ Trung bình lớp cùng ngày</span></div>
       <h3 style="font-size:14px;margin:16px 0 10px">Lỗi hay gặp</h3>${hbars(errs.slice(0,5))}</section>`;

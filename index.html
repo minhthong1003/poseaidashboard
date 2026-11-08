@@ -94,6 +94,10 @@ svg .grid{stroke:#ffffff14;stroke-width:1}
 select{background:var(--bg2);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:7px 10px;font:inherit;font-size:13px}
 .foot{margin-top:28px;color:var(--muted);font-size:12px}
 .code{color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.act{display:flex;gap:6px;white-space:nowrap}
+.act button{background:#ffffff0d;border:1px solid var(--border);border-radius:8px;padding:3px 9px;font-size:12px;color:var(--muted);line-height:1.6}
+.act button:hover{background:#ffffff18;color:var(--text)}
+.act button.danger:hover{background:#eb3a3a22;color:#ff8b8b;border-color:#eb3a3a66}
 /* Heatmap lịch tập */
 .heat{display:grid;grid-template-rows:repeat(7,13px);grid-auto-flow:column;gap:3px;overflow-x:auto;padding-bottom:4px}
 .heat i{width:13px;height:13px;border-radius:3px;display:block}
@@ -206,6 +210,44 @@ async function fetchStudents(){
   if(error) throw error;
   const map={};(data||[]).forEach(r=>{map[r.profile_id]=r.name});
   return map;
+}
+
+/* ===== Sửa / xoá từ xa: ghi lệnh vào public.commands để Pi thi hành ===== */
+async function sendCmd(type,target,payload){
+  const {data}=await sb.auth.getUser();
+  const {error}=await sb.from('commands').insert({
+    type,target,payload:payload||null,created_by:(data&&data.user)?data.user.email:null
+  });
+  if(error) throw error;
+}
+async function delSession(uuid){
+  if(!confirm('Xoá buổi tập này?\n\nSẽ xoá trên web ngay, và xoá trên máy PoseAI ở lần đồng bộ tới (tối đa 2 phút).')) return;
+  const {error}=await sb.from('sessions').delete().eq('uuid',uuid);
+  if(error){ alert('Không xoá được trên web: '+error.message); return }
+  try{ await sendCmd('delete_session',uuid) }
+  catch(e){ alert('Đã xoá trên web, nhưng chưa gửi được lệnh xoá xuống máy PoseAI: '+e.message) }
+  await refreshData();
+}
+async function delStudent(pid){
+  if(!confirm(`Xoá học sinh ${plainName(pid)} (${pid})?\n\nXoá cả hồ sơ và TẤT CẢ buổi tập của học sinh này, trên web lẫn trên máy PoseAI.`)) return;
+  const a=await sb.from('sessions').delete().eq('profile_id',pid);
+  const b=await sb.from('students').delete().eq('profile_id',pid);
+  if(a.error||b.error){ alert('Không xoá được trên web: '+((a.error||b.error).message)); return }
+  try{ await sendCmd('delete_profile',pid) }
+  catch(e){ alert('Đã xoá trên web, nhưng chưa gửi được lệnh xoá xuống máy PoseAI: '+e.message) }
+  if(state.student===pid) state.student=null;
+  await refreshData();
+}
+async function renStudent(pid){
+  const name=prompt('Tên mới cho '+pid+':',NAMES[pid]||'');
+  if(name===null) return;
+  const n=name.trim();
+  if(!n){ alert('Tên không được để trống.'); return }
+  const {error}=await sb.from('students').update({name:n}).eq('profile_id',pid);
+  if(error){ alert('Không đổi được tên trên web: '+error.message); return }
+  try{ await sendCmd('rename_profile',pid,n) }
+  catch(e){ alert('Đã đổi trên web, nhưng chưa gửi được lệnh xuống máy PoseAI: '+e.message) }
+  await refreshData();
 }
 
 let S=[], DATA={profiles:[]}, END=0, NEW_IDS=new Set(), lastSync=null, liveOn=false;
@@ -381,9 +423,9 @@ function viewOverview(){
   </div>
   <section class="card"><h2>Buổi tập gần đây</h2><p class="hint">Mới nhất ở trên</p>${sessionTable(recent)}</section>`+foot();
 }
-function sessionTable(list){
+function sessionTable(list,withActions){
   if(!list.length) return '<div class="empty">Chưa có buổi tập.</div>';
-  return `<div class="tw"><table><thead><tr><th>Thời gian</th><th>Học sinh</th><th>Mã HS</th><th>Bài tập</th><th>Điểm</th><th>Rep</th><th>Thời lượng</th><th>Lỗi chính</th></tr></thead><tbody>${list.map(s=>`<tr class="${NEW_IDS.has(s.id)?'flash':''}"><td>${dm(s.day)} ${s.hm}</td><td>${stuName(s.pid)}</td><td class="code">${esc(s.pid)}</td><td>${exTag(s.ex)}</td><td>${pill(s.score)}</td><td>${s.reps==null?'—':s.reps}</td><td>${dur(s.dur)}</td><td>${esc(topErr(s))}</td></tr>`).join('')}</tbody></table></div>`;
+  return `<div class="tw"><table><thead><tr><th>Thời gian</th><th>Học sinh</th><th>Mã HS</th><th>Bài tập</th><th>Điểm</th><th>Rep</th><th>Thời lượng</th><th>Lỗi chính</th>${withActions?'<th></th>':''}</tr></thead><tbody>${list.map(s=>`<tr class="${NEW_IDS.has(s.id)?'flash':''}"><td>${dm(s.day)} ${s.hm}</td><td>${stuName(s.pid)}</td><td class="code">${esc(s.pid)}</td><td>${exTag(s.ex)}</td><td>${pill(s.score)}</td><td>${s.reps==null?'—':s.reps}</td><td>${dur(s.dur)}</td><td>${esc(topErr(s))}</td>${withActions?`<td><div class="act"><button class="danger" data-del-session="${esc(s.id)}" title="Xoá buổi tập">Xoá</button></div></td>`:''}</tr>`).join('')}</tbody></table></div>`;
 }
 function viewStudents(){
   const {cur}=scope();
@@ -414,7 +456,7 @@ function viewStudents(){
     }
   }
   return head('Học sinh',`${rows.filter(r=>r.n).length} học sinh có buổi tập. Chọn một dòng để xem chi tiết.`)+`
-  <section class="card"><div class="tw"><table><thead><tr><th>Học sinh</th><th>Mã HS</th><th>Số buổi</th><th>Điểm TB</th><th>Xu hướng</th><th>Buổi gần nhất</th></tr></thead><tbody>${rows.map(r=>`<tr data-student="${r.id}" class="${state.student===r.id?'sel':''}" tabindex="0"><td><b>${stuName(r.id)}</b></td><td class="code">${esc(r.id)}</td><td>${r.n}</td><td>${r.a==null?'—':pill(Math.round(r.a))}</td><td>${spark(r.m.slice(-8).map(s=>s.score))}</td><td>${r.last?dm(r.last.day)+' '+r.last.hm:'—'}</td></tr>`).join('')}</tbody></table></div></section>${detail}`+foot();
+  <section class="card"><div class="tw"><table><thead><tr><th>Học sinh</th><th>Mã HS</th><th>Số buổi</th><th>Điểm TB</th><th>Xu hướng</th><th>Buổi gần nhất</th><th></th></tr></thead><tbody>${rows.map(r=>`<tr data-student="${r.id}" class="${state.student===r.id?'sel':''}" tabindex="0"><td><b>${stuName(r.id)}</b></td><td class="code">${esc(r.id)}</td><td>${r.n}</td><td>${r.a==null?'—':pill(Math.round(r.a))}</td><td>${spark(r.m.slice(-8).map(s=>s.score))}</td><td>${r.last?dm(r.last.day)+' '+r.last.hm:'—'}</td><td><div class="act"><button data-ren-student="${esc(r.id)}" title="Đổi tên">Sửa tên</button><button class="danger" data-del-student="${esc(r.id)}" title="Xoá học sinh và toàn bộ buổi tập">Xoá</button></div></td></tr>`).join('')}</tbody></table></div></section>${detail}`+foot();
 }
 function viewSessions(){
   let list=S.filter(s=>(state.fEx==='all'||s.ex===state.fEx)&&(state.fSt==='all'||s.pid===state.fSt)).sort((a,b)=>b.sortMs-a.sortMs);
@@ -423,7 +465,7 @@ function viewSessions(){
   <section class="card"><div class="filters" style="margin-bottom:14px">
     <label>Bài tập <select id="fEx"><option value="all">Tất cả</option>${Object.keys(EX).map(k=>`<option value="${k}" ${state.fEx===k?'selected':''}>${EX[k].n}</option>`).join('')}</select></label>
     <label>Học sinh <select id="fSt"><option value="all">Tất cả</option>${DATA.profiles.map(p=>`<option value="${p.id}" ${state.fSt===p.id?'selected':''}>${esc(plainName(p.id))}</option>`).join('')}</select></label></div>
-  ${sessionTable(list)}</section>`+foot();
+  ${sessionTable(list,true)}</section>`+foot();
 }
 
 /* ===== Hiệu ứng số chạy ===== */
@@ -478,6 +520,14 @@ function renderApp(userEmail){
   };
   outer.addEventListener('click',e=>{
     if(e.target.id==='btnLogout'){ sb.auth.signOut(); return }
+    const act=e.target.closest('[data-del-session],[data-del-student],[data-ren-student]');
+    if(act){
+      e.stopPropagation();
+      if(act.dataset.delSession) delSession(act.dataset.delSession);
+      else if(act.dataset.delStudent) delStudent(act.dataset.delStudent);
+      else renStudent(act.dataset.renStudent);
+      return;
+    }
     const t=e.target.closest('[data-view],[data-range],[data-ex],[data-student]');
     if(!t) return;
     if(t.dataset.view){location.hash=t.dataset.view;return}

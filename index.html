@@ -275,6 +275,50 @@ select{background:var(--bg2);color:var(--text);border:1px solid var(--border);bo
   .sub,.hint,.lbl,.dl,.code,span.nm,th{color:#555!important}
   svg text{fill:#333!important}
 }
+/* ===== Man chao mung / dang nhap (welcome) ===== */
+.wl-aurora{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.wl-aurora i{position:absolute;border-radius:50%;filter:blur(70px);opacity:.42;mix-blend-mode:screen}
+.wl-a1{width:62vmax;height:62vmax;top:-22vmax;left:-14vmax;background:radial-gradient(circle,#1BB4B4,transparent 62%);animation:wlD1 24s ease-in-out infinite alternate}
+.wl-a2{width:52vmax;height:52vmax;top:28vmax;right:-18vmax;background:radial-gradient(circle,#2f6bff,transparent 62%);animation:wlD2 28s ease-in-out infinite alternate}
+.wl-a3{width:40vmax;height:40vmax;bottom:-16vmax;left:16vmax;background:radial-gradient(circle,#13d8c4,transparent 62%);animation:wlD3 20s ease-in-out infinite alternate}
+@keyframes wlD1{to{transform:translate(8vmax,6vmax) scale(1.15)}}
+@keyframes wlD2{to{transform:translate(-7vmax,-8vmax) scale(1.1)}}
+@keyframes wlD3{to{transform:translate(6vmax,-5vmax) scale(1.2)}}
+.wl-grid{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5;background-image:radial-gradient(#ffffff0e 1px,transparent 1px);background-size:26px 26px;-webkit-mask-image:radial-gradient(ellipse 70% 55% at 50% 38%,#000,transparent);mask-image:radial-gradient(ellipse 70% 55% at 50% 38%,#000,transparent)}
+.wl-wrap{position:relative;z-index:1;min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:calc(28px + env(safe-area-inset-top)) 22px calc(28px + env(safe-area-inset-bottom));max-width:460px;margin:0 auto;text-align:center}
+.wl-hero{position:relative;width:148px;height:168px;margin-bottom:6px}
+.wl-glow{position:absolute;inset:-26%;border-radius:50%;filter:blur(30px);opacity:.4;background:conic-gradient(from 0deg,#1BB4B4,#5B9BFF,#13d8c4,#1BB4B4);animation:wlSpin 9s linear infinite}
+.wl-ring{position:absolute;inset:4%;border-radius:50%;border:1px solid #1BB4B433;box-shadow:inset 0 0 40px #1BB4B41f}
+.wl-figure{position:relative;width:100%;height:100%;display:block;filter:drop-shadow(0 6px 20px #1bb4b44d)}
+.wl-bone{stroke:url(#wlbg);stroke-width:5.5;stroke-linecap:round;stroke-linejoin:round;fill:none}
+.wl-j{fill:#D1FAE5;transform-box:fill-box;transform-origin:center;animation:wlPulse 2.6s ease-in-out infinite}
+@keyframes wlPulse{0%,100%{opacity:.78;transform:scale(1)}50%{opacity:1;transform:scale(1.22)}}
+@keyframes wlSpin{to{transform:rotate(360deg)}}
+.wl-word{font:800 40px/1 var(--display);letter-spacing:-.5px;margin-top:2px;background:linear-gradient(180deg,#ffffff,#bfeee9);-webkit-background-clip:text;background-clip:text;color:transparent}
+.wl-badge{display:inline-flex;align-items:center;gap:7px;margin-top:14px;padding:5px 12px;border-radius:99px;background:#1BB4B414;border:1px solid #1BB4B433;color:#9fe9e2;font-size:12.5px;font-weight:600}
+.wl-bdot{width:7px;height:7px;border-radius:50%;background:#1BB4B4;box-shadow:0 0 0 0 #1bb4b4aa;animation:wlBeat 2s infinite}
+@keyframes wlBeat{0%{box-shadow:0 0 0 0 #1bb4b4aa}70%{box-shadow:0 0 0 8px #1bb4b400}100%{box-shadow:0 0 0 0 #1bb4b400}}
+.wl-tag{color:var(--muted);font-size:14px;margin:12px 4px 0;line-height:1.55}
+.wl-installwrap{margin-top:4px}
+.wl-install{margin:22px auto 0;display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:15px 30px;border:0;border-radius:16px;cursor:pointer;font:700 16px var(--display);color:#04121a;background:linear-gradient(135deg,#2ee6cf,#1BB4B4 55%,#149e9e);box-shadow:0 10px 30px #1bb4b455,inset 0 1px 0 #ffffff66;animation:wlCta 3s ease-in-out infinite}
+.wl-install:active{transform:translateY(1px) scale(.99)}
+.wl-install svg{width:21px;height:21px;color:#04121a}
+@keyframes wlCta{0%,100%{box-shadow:0 10px 30px #1bb4b544,inset 0 1px 0 #ffffff66}50%{box-shadow:0 12px 40px #1bb4b477,inset 0 1px 0 #ffffff66}}
+.wl-subcta{color:var(--muted);font-size:12.5px;margin:12px 0 0}
+.wl-enter{margin-top:14px;background:none;border:0;color:#9fe9e2;font:600 14px var(--body);cursor:pointer;padding:10px;text-decoration:underline;text-underline-offset:3px}
+.wl-login{width:100%;max-width:360px;margin:20px auto 0;text-align:left;background:linear-gradient(180deg,#0e2a4aaa,#0e2a4a55);border:1px solid var(--border);border-radius:18px;padding:24px 22px;backdrop-filter:blur(8px);display:none}
+.wl-login.wl-show{display:block;animation:wlRise .5s cubic-bezier(.2,.7,.2,1) both}
+.wl-login label{display:block;font-size:13px;color:var(--muted);margin:14px 0 6px}
+.wl-login input{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:11px;padding:12px 13px;font-size:16px;color:var(--text)}
+.wl-login input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px #1bb4b426}
+.wl-login .err{color:var(--bad);font-size:13px;margin-top:12px;min-height:1em}
+.wl-go{width:100%;margin-top:18px;padding:13px;border:0;border-radius:11px;background:var(--accent);color:#04121a;font:700 15px var(--display);cursor:pointer}
+.wl-go:disabled{opacity:.6;cursor:default}
+.wl-hint{color:var(--muted);font-size:12px;margin-top:14px;text-align:center}
+.wl-rise{opacity:0;animation:wlRise .8s cubic-bezier(.2,.7,.2,1) forwards}
+@keyframes wlRise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.wl-d1{animation-delay:.05s}.wl-d2{animation-delay:.18s}.wl-d3{animation-delay:.31s}.wl-d4{animation-delay:.44s}.wl-d5{animation-delay:.57s}
+@media (prefers-reduced-motion:reduce){.wl-rise{opacity:1}}
 </style>
 <link rel="manifest" href="/manifest.json">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -1151,19 +1195,35 @@ async function bootData(userEmail){
 function renderLogin(prefillErr){
   if(channel){sb.removeChannel(channel);channel=null}
   if(pollTimer){clearInterval(pollTimer);pollTimer=null}
-  document.getElementById('root-outer').innerHTML=`<div class="center-screen"><div class="login-card">
-    <div class="brand">${LOGO}PoseAI</div>
-    <form id="loginForm">
-      <label for="email">Email giáo viên</label>
-      <input id="email" type="email" required autocomplete="username" inputmode="email" autocapitalize="none" spellcheck="false">
-      <label for="pw">Mật khẩu</label>
-      <input id="pw" type="password" required autocomplete="current-password">
-      <div class="err" id="loginErr">${prefillErr?esc(prefillErr):''}</div>
-      <button type="submit" id="loginBtn">Đăng nhập</button>
-    </form>
-    <p class="hint">Tài khoản do quản trị viên tạo trong Supabase Auth.</p>
-  </div></div>`;
-  document.getElementById('loginForm').addEventListener('submit',async e=>{
+  document.getElementById('root-outer').innerHTML=`
+    <div class="wl-aurora"><i class="wl-a1"></i><i class="wl-a2"></i><i class="wl-a3"></i></div>
+    <div class="wl-grid"></div>
+    <main class="wl-wrap">
+      <div class="wl-hero wl-rise wl-d1"><div class="wl-glow"></div><div class="wl-ring"></div><svg class="wl-figure" viewBox="0 0 200 232" xmlns="http://www.w3.org/2000/svg" aria-label="PoseAI"><defs><linearGradient id="wlbg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5EEAD4"/><stop offset="1" stop-color="#1BB4B4"/></linearGradient></defs><path class="wl-bone" d="M100 52 L100 78"/><path class="wl-bone" d="M100 78 L100 134"/><path class="wl-bone" d="M70 80 L130 80"/><path class="wl-bone" d="M70 80 L58 112 L64 142"/><path class="wl-bone" d="M130 80 L142 112 L136 142"/><path class="wl-bone" d="M82 134 L118 134"/><path class="wl-bone" d="M84 134 L78 182 L74 216"/><path class="wl-bone" d="M116 134 L122 182 L126 216"/><circle class="wl-j" cx="100" cy="36" r="15" style="animation-delay:0s"/><circle class="wl-j" cx="70" cy="80" r="6" style="animation-delay:.2s"/><circle class="wl-j" cx="130" cy="80" r="6" style="animation-delay:.35s"/><circle class="wl-j" cx="58" cy="112" r="5.5" style="animation-delay:.5s"/><circle class="wl-j" cx="142" cy="112" r="5.5" style="animation-delay:.65s"/><circle class="wl-j" cx="64" cy="142" r="5.5" style="animation-delay:.8s"/><circle class="wl-j" cx="136" cy="142" r="5.5" style="animation-delay:.95s"/><circle class="wl-j" cx="84" cy="134" r="6" style="animation-delay:.3s"/><circle class="wl-j" cx="116" cy="134" r="6" style="animation-delay:.45s"/><circle class="wl-j" cx="78" cy="182" r="5.5" style="animation-delay:1.05s"/><circle class="wl-j" cx="122" cy="182" r="5.5" style="animation-delay:1.2s"/><circle class="wl-j" cx="74" cy="216" r="5.5" style="animation-delay:1.35s"/><circle class="wl-j" cx="126" cy="216" r="5.5" style="animation-delay:1.5s"/></svg></div>
+      <h1 class="wl-word wl-rise wl-d2">PoseAI</h1>
+      <div class="wl-badge wl-rise wl-d2"><span class="wl-bdot"></span> Huấn luyện tư thế thông minh</div>
+      <p class="wl-tag wl-rise wl-d3">Bảng theo dõi buổi tập dành cho giáo viên.<br>Cài về máy để mở nhanh như một ứng dụng.</p>
+      <div class="wl-installwrap wl-rise wl-d4" data-install hidden>
+        <button class="wl-install" id="wlInstall" type="button">${IC.install} Cài đặt ứng dụng</button>
+        <p class="wl-subcta">Miễn phí · không chiếm bộ nhớ · gỡ lúc nào cũng được</p>
+      </div>
+      <button class="wl-enter wl-rise wl-d5" id="wlEnter" type="button">Hoặc đăng nhập để vào ngay →</button>
+      <form class="wl-login wl-rise wl-d5" id="loginForm">
+        <label for="email">Email giáo viên</label>
+        <input id="email" type="email" required autocomplete="username" inputmode="email" autocapitalize="none" spellcheck="false">
+        <label for="pw">Mật khẩu</label>
+        <input id="pw" type="password" required autocomplete="current-password">
+        <div class="err" id="loginErr">${prefillErr?esc(prefillErr):''}</div>
+        <button class="wl-go" type="submit" id="loginBtn">Đăng nhập</button>
+        <p class="wl-hint">Tài khoản do quản trị viên tạo trong Supabase Auth.</p>
+      </form>
+    </main>`;
+  const enterBtn=document.getElementById('wlEnter'), card=document.getElementById('loginForm');
+  function openForm(){ card.classList.add('wl-show'); enterBtn.style.display='none'; const i=document.getElementById('email'); if(i) i.focus(); try{ card.scrollIntoView({behavior:'smooth',block:'center'}) }catch(_){} }
+  enterBtn.addEventListener('click',openForm);
+  const wi=document.getElementById('wlInstall'); if(wi) wi.addEventListener('click',doInstall);
+  if(prefillErr) openForm();
+  card.addEventListener('submit',async e=>{
     e.preventDefault();
     const btn=document.getElementById('loginBtn'), errEl=document.getElementById('loginErr');
     const email=document.getElementById('email').value.trim();
@@ -1172,6 +1232,7 @@ function renderLogin(prefillErr){
     const {error}=await sb.auth.signInWithPassword({email,password});
     if(error){ errEl.textContent=error.message==='Invalid login credentials'?'Email hoặc mật khẩu không đúng.':error.message; btn.disabled=false; btn.textContent='Đăng nhập'; }
   });
+  updateInstallUI();
 }
 
 /* ===== Điều phối ===== */

@@ -269,6 +269,8 @@ select{background:var(--bg2);color:var(--text);border:1px solid var(--border);bo
   svg text{fill:#333!important}
 }
 </style>
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 </head>
 <body>
 <div id="root-outer"></div>
@@ -1142,6 +1144,13 @@ sb.auth.getSession().then(({data})=>{
   if(data&&data.session&&data.session.user){ if(!booted){booted=true;bootData(data.session.user.email)} }
   else{ renderLogin(); }
 });
+</script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('/sw.js').catch(function () {});
+    });
+  }
 </script>
 </body>
 </html>

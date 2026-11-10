@@ -6,6 +6,8 @@
 <title>PoseAI Dashboard</title>
 <link rel="icon" type="image/svg+xml" href="img/favicon.svg" media="(prefers-color-scheme: dark)">
 <link rel="icon" type="image/svg+xml" href="img/favicon-light.svg" media="(prefers-color-scheme: light)">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#080b13">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -184,8 +186,8 @@ th.sortable[data-active="true"] .arrow{opacity:1}
 .btn-outline svg{width:14px;height:14px;fill:currentColor}
 .btn-outline:hover{border-color:var(--accent);color:var(--accent)}
 .btn-outline:active{transform:scale(.95)}
-.name-edit-btn{background:none;border:0;color:var(--muted);width:22px;height:22px;display:inline-grid;place-items:center;border-radius:6px;vertical-align:middle;margin-left:4px;transition:color .15s,background-color .15s}
-.name-edit-btn svg{width:13px;height:13px;fill:currentColor}
+.name-edit-btn{background:none;border:0;color:var(--muted);width:40px;height:40px;display:inline-grid;place-items:center;border-radius:6px;vertical-align:middle;margin-left:2px;transition:color .15s,background-color .15s}
+.name-edit-btn svg{width:18px;height:18px;fill:currentColor}
 .name-edit-btn:hover{color:var(--accent);background:var(--ov-06)}
 .name-edit-btn.danger:hover{color:var(--bad);background:color-mix(in srgb,var(--bad) 14%,transparent)}
 .name-edit-row{display:flex;align-items:center;gap:4px}
@@ -195,10 +197,89 @@ th.sortable[data-active="true"] .arrow{opacity:1}
 .field-msg{font-size:12px;margin-top:6px;min-height:1em}
 .field-msg.ok{color:var(--good)}
 .field-msg.bad{color:var(--bad)}
+/* Thông báo nổi góc màn hình — thay cho alert() của trình duyệt */
+#toastWrap{position:fixed;left:50%;transform:translateX(-50%);bottom:24px;z-index:100;display:flex;flex-direction:column;gap:10px;width:min(380px,calc(100vw - 32px))}
+@media (max-width:900px){#toastWrap{bottom:calc(100px + env(safe-area-inset-bottom,0px))}}
+.toast{display:flex;align-items:flex-start;gap:10px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:12px 14px;box-shadow:var(--shadow);font-size:13px;line-height:1.45;animation:toastIn .22s ease}
+.toast.out{animation:toastOut .18s ease forwards}
+@keyframes toastIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes toastOut{to{opacity:0;transform:translateY(6px)}}
+.toast .ic{width:20px;height:20px;flex:none;border-radius:50%;display:grid;place-items:center;margin-top:1px}
+.toast .ic svg{width:13px;height:13px}
+.toast.ok .ic{background:color-mix(in srgb,var(--good) 20%,transparent);color:var(--good)}
+.toast.error .ic{background:color-mix(in srgb,var(--bad) 20%,transparent);color:var(--bad)}
+.toast.warn .ic{background:color-mix(in srgb,var(--mid) 20%,transparent);color:var(--mid)}
+.toast .msg{flex:1;min-width:0;overflow-wrap:anywhere;padding-top:2px}
+.toast .x{background:none;border:0;color:var(--muted);flex:none;padding:0;width:18px;height:18px;display:grid;place-items:center;border-radius:5px}
+.toast .x svg{width:11px;height:11px;fill:currentColor}
+.toast .x:hover{color:var(--text);background:var(--ov-06)}
+/* Dải cảnh báo mất kết nối — hiện ngay dưới thanh điều hướng khi tự làm mới bị lỗi liên tục */
+.offline-banner{background:color-mix(in srgb,var(--bad) 14%,var(--bg2));color:var(--text);border-bottom:1px solid color-mix(in srgb,var(--bad) 35%,transparent);padding:9px 20px;font-size:13px;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px 10px;text-align:center}
+.offline-banner.hidden{display:none}
+.offline-banner .link-btn{white-space:nowrap}
+/* Thanh thao tác hàng loạt khi chọn nhiều dòng trong bảng */
+.bulkbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:var(--ov-08);border:1px solid var(--border);border-radius:10px;padding:9px 12px;margin-bottom:12px;font-size:13px;color:var(--muted)}
+.bulkbar b{color:var(--text)}
+.btn-outline.danger-outline{color:var(--bad);border-color:color-mix(in srgb,var(--bad) 40%,transparent)}
+.btn-outline.danger-outline:hover{border-color:var(--bad);color:var(--bad);background:color-mix(in srgb,var(--bad) 10%,transparent)}
+.btn-primary.danger{background:var(--bad);color:#fff}
+.btn-primary.danger:hover:not(:disabled){filter:brightness(1.08);box-shadow:0 8px 22px -6px color-mix(in srgb,var(--bad) 60%,transparent)}
+td.sel-cell,th.sel-cell{width:1%;padding-right:2px}
+td.sel-cell input,th.sel-cell input{width:17px;height:17px;cursor:pointer;accent-color:var(--accent)}
+/* Lời chào cá nhân hoá ở Tổng quan */
+.greeting{color:var(--accent);font:600 13px var(--display);letter-spacing:.02em;margin:0 0 6px}
+/* Danh sách lệnh đồng bộ xuống máy PoseAI + học sinh cần chú ý — dùng chung bố cục dòng */
+.cmds{display:flex;flex-direction:column;gap:8px}
+.cmd{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:11px;align-items:center;background:var(--ov-06);border:1px solid transparent;border-radius:10px;padding:8px 11px;font-size:13px}
+.cmd .ic{width:27px;height:27px;border-radius:8px;display:grid;place-items:center;flex:none;background:var(--ov-08)}
+.cmd .ic svg{width:15px;height:15px;display:block;fill:currentColor}
+.cmd .t{min-width:0;overflow-wrap:anywhere}
+.cmd .t span{color:var(--muted);font-size:12px}
+.cmd .st{font-size:11px;color:var(--muted);text-align:right;white-space:nowrap}
+.cmd.wait{background:color-mix(in srgb,var(--mid) 12%,transparent);border-color:color-mix(in srgb,var(--mid) 30%,transparent)}
+.cmd.wait .ic{background:color-mix(in srgb,var(--mid) 20%,transparent)}
+.cmd.wait .st{color:var(--mid)}
+/* Hộp chọn học sinh gõ tìm được (dùng ở bộ lọc Buổi tập, thay cho <select> cuộn dài) */
+.cbwrap{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);min-width:0}
+.combo{position:relative;display:inline-flex}
+.cbbtn{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:7px 11px;font-size:13px;color:var(--text);display:inline-flex;align-items:center;gap:9px;min-width:185px;justify-content:space-between;text-align:left}
+.cbbtn[aria-expanded="true"]{border-color:var(--accent)}
+.cbbtn svg{width:13px;height:13px;flex:none;color:var(--muted)}
+.cbbtn .cur{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cbpop{position:absolute;z-index:50;top:calc(100% + 6px);left:0;width:min(320px,80vw);background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:10px;box-shadow:var(--shadow)}
+.cbpop .searchbox{width:100%;max-width:none;margin-bottom:8px}
+.cblist{display:flex;flex-direction:column;gap:2px;max-height:46vh;overflow-y:auto}
+.cblist button{background:none;border:0;text-align:left;padding:8px 10px;border-radius:9px;color:var(--text);font-size:13px;display:flex;justify-content:space-between;gap:10px;align-items:center;min-height:38px;width:100%}
+.cblist button[hidden]{display:none}
+.cblist button:hover{background:var(--ov-08)}
+.cblist button[aria-selected="true"]{background:color-mix(in srgb,var(--accent) 18%,transparent);color:var(--accent)}
+.cblist .n{color:var(--muted);font-size:11px;white-space:nowrap;flex:none}
+.cbempty{color:var(--muted);font-size:12px;padding:9px 10px;text-align:center}
+.cbhint{color:var(--muted);font-size:11px;padding:7px 2px 0;border-top:1px solid var(--border);margin-top:8px}
+@media (max-width:900px){
+  .cbwrap{flex:1 1 100%}
+  .combo{display:flex;flex:1}
+  .cbbtn{width:100%;min-width:0}
+  .cbpop{position:fixed;left:0;right:0;bottom:0;top:auto;width:auto;border-radius:16px 16px 0 0;padding:14px 14px calc(14px + env(safe-area-inset-bottom));max-height:74vh;box-shadow:0 -10px 40px #000000aa}
+}
+/* Nút icon tròn dùng chung: làm mới, cài app */
+.icon-btn{background:var(--bg2);border:1px solid var(--border);border-radius:10px;width:40px;height:40px;display:grid;place-items:center;color:var(--muted);flex:none;transition:border-color .15s,color .15s,transform .1s}
+.icon-btn svg{width:18px;height:18px;fill:currentColor}
+.icon-btn:hover{border-color:var(--accent);color:var(--accent)}
+.icon-btn:active{transform:scale(.92)}
+.icon-btn[disabled]{opacity:.5;cursor:default}
+.icon-btn.spin svg{animation:spin .8s linear infinite}
+/* Danh sách mô tả (chi tiết buổi tập) */
+.modal-box dl{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px 14px;font-size:13px;margin:14px 0 0}
+.modal-box dt{color:var(--muted)}
+.modal-box dd{margin:0;text-align:right;overflow-wrap:anywhere}
+.modal-box.wide{max-width:420px}
+.steps{margin:14px 0 0;padding-left:20px;font-size:14px;line-height:1.7}
+.steps li{margin-bottom:6px}
 /* Modal cài đặt tài khoản */
 .modal-overlay{position:fixed;inset:0;background:rgba(5,7,12,.55);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;z-index:80;padding:20px}
 .modal-overlay.hidden{display:none}
-.modal-box{width:100%;max-width:360px;background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:24px;box-shadow:var(--shadow)}
+.modal-box{width:100%;max-width:360px;max-height:calc(100vh - 40px);overflow-y:auto;background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:24px;box-shadow:var(--shadow)}
 .modal-box h3{font-size:18px;margin-bottom:4px}
 .modal-box .sub{margin-bottom:14px}
 .modal-box label{display:block;font-size:13px;color:var(--muted);margin:12px 0 6px}
@@ -324,10 +405,32 @@ select{background:var(--bg2);color:var(--text);border:1px solid var(--border);bo
   .bottom-pill-wrap .pill-btn:active{transform:scale(.9)}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+/* In báo cáo học sinh trên giấy */
+@media print{
+  body{background:#fff;color:#111}
+  #topbar,.bottom-pill-wrap,.filters,.foot,.pager,.icon-btn,.name-edit-btn,.live,.acct-wrap,.print-hide,.bulkbar,.sel-cell,.offline-banner,#toastWrap{display:none!important}
+  .app{display:block}
+  main{padding:0;max-width:none}
+  .card{background:#fff;border:1px solid #bbb;break-inside:avoid;box-shadow:none}
+  .kpi .val,.stats b,h1,h2,h3{color:#111;text-shadow:none}
+  .sub,.hint,.lbl,.dl,.code,span.nm,th{color:#555!important}
+  svg text{fill:#333!important}
+}
 </style>
 </head>
 <body>
 <div id="root-outer"></div>
+<div id="toastWrap" aria-live="polite"></div>
+<div id="confirmModal" class="modal-overlay hidden">
+  <div class="modal-box">
+    <h3></h3>
+    <p class="sub confirm-body"></p>
+    <div class="modal-actions">
+      <button type="button" class="btn-ghost" id="confirmCancel">Huỷ</button>
+      <button type="button" class="btn-primary" id="confirmOk">Xác nhận</button>
+    </div>
+  </div>
+</div>
 
 <script>
 /* =========================================================================
@@ -337,6 +440,8 @@ select{background:var(--bg2);color:var(--text);border:1px solid var(--border);bo
    ========================================================================= */
 const SUPABASE_URL = 'https://ghphefcczrkuumerciey.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_xcRyiuFhNOm8dAJ0u8NLpg_QAM4oypE';
+/* Hiện chỉ có một kiosk. Thêm máy thứ hai thì sửa chỗ này (và cho chọn máy). */
+const DEVICE_ID = 'poseai-01';
 
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth:{persistSession:true, autoRefreshToken:true}
@@ -373,7 +478,69 @@ const icoEdit='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21
 const icoCheck='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.2L4.8 12L3.4 13.4L9 19L21 7L19.6 5.6L9 16.2Z"/></svg>';
 const icoX='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.3 5.71L12 12.01L5.7 5.71L4.29 7.12L10.59 13.42L4.29 19.72L5.7 21.13L12 14.83L18.3 21.13L19.71 19.72L13.41 13.42L19.71 7.12Z"/></svg>';
 const icoChevL='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 4.5L8 12L15.5 19.5L17 18L11 12L17 6Z"/></svg>';
+const icoInfo='<svg viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Zm0 2a7 7 0 1 1 0 14 7 7 0 0 1 0-14Z"/><circle cx="12" cy="8.3" r="1.15"/><rect x="10.9" y="10.7" width="2.2" height="6.3" rx="1.1"/></svg>';
+const icoRefresh='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 5a7 7 0 1 0 6.33 4H21l-3-5-3 5h2.1A5 5 0 1 1 12 7V5Z"/></svg>';
+const icoPrint='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 3H18V8H6V3Z"/><path d="M4 8H20A2 2 0 0 1 22 10V16A2 2 0 0 1 20 18H18V21H6V18H4A2 2 0 0 1 2 16V10A2 2 0 0 1 4 8ZM8 15V19H16V15H8Z"/></svg>';
+const icoInstall='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 3H13V13.2L16.6 9.6L18 11L12 17L6 11L7.4 9.6L11 13.2V3Z"/><rect x="4" y="19" width="16" height="2" rx="1"/></svg>';
+const icoCaret='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M5.8 9.1L12 15.3L18.2 9.1L16.8 7.7L12 12.5L7.2 7.7Z"/></svg>';
 const icoChevR='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8.5 4.5L16 12L8.5 19.5L7 18L13 12L7 6Z"/></svg>';
+const icoClock='<svg viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Zm0 2a7 7 0 1 1 0 14 7 7 0 0 1 0-14Z"/><path d="M12 7A1 1 0 0 1 13 8V11.6L15.5 13.2A1 1 0 0 1 14.4 14.9L11.4 13A1 1 0 0 1 11 12.2V8A1 1 0 0 1 12 7Z"/></svg>';
+const icoDown='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 6L10 12L13 9L20 16"/><path d="M4 6L10 12L13 9L20 16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 16H20V11Z"/></svg>';
+const icoAlert='<svg viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Zm0 2a7 7 0 1 1 0 14 7 7 0 0 1 0-14Z"/><rect x="10.9" y="6.5" width="2.2" height="7.3" rx="1.1"/><circle cx="12" cy="16.8" r="1.3"/></svg>';
+
+/* ===== Thông báo nổi (toast) — thay cho alert() của trình duyệt để không chặn thao tác
+   và hợp giao diện tối/sáng của trang. type: 'ok' | 'error' | 'warn' ===== */
+let toastSeq=0;
+function toast(msg,type){
+  type=type||'ok';
+  const wrap=document.getElementById('toastWrap');
+  if(!wrap) return;
+  const id='toast'+(++toastSeq);
+  const el=document.createElement('div');
+  el.className='toast '+type;
+  el.id=id;
+  el.innerHTML=`<span class="ic">${type==='ok'?icoCheck:icoAlert}</span><span class="msg">${esc(msg)}</span><button type="button" class="x" aria-label="Đóng">${icoX}</button>`;
+  el.querySelector('.x').addEventListener('click',()=>dismissToast(id));
+  wrap.appendChild(el);
+  setTimeout(()=>dismissToast(id), type==='ok'?3800:6000);
+}
+function dismissToast(id){
+  const el=document.getElementById(id);
+  if(!el||el.classList.contains('out')) return;
+  el.classList.add('out');
+  setTimeout(()=>el.remove(),200);
+}
+/* ===== Hộp xác nhận tuỳ chỉnh — thay cho confirm()/alert() chặn luồng của trình duyệt.
+   Trả Promise<boolean>: true nếu bấm nút chính, false nếu huỷ/bấm ra ngoài/Esc.
+   cancelText:null -> chỉ hiện 1 nút (dùng để thay alert() thông thường). ===== */
+function openConfirm({title,body,okText,cancelText,danger}){
+  okText=okText||'Xác nhận'; cancelText=cancelText===null?null:(cancelText||'Huỷ');
+  return new Promise(resolve=>{
+    const modal=document.getElementById('confirmModal');
+    modal.querySelector('h3').textContent=title||'';
+    modal.querySelector('.confirm-body').innerHTML=esc(body||'').replace(/\n/g,'<br>');
+    const okBtn=modal.querySelector('#confirmOk'), cancelBtn=modal.querySelector('#confirmCancel');
+    okBtn.textContent=okText;
+    okBtn.className='btn-primary'+(danger?' danger':'');
+    if(cancelText===null){ cancelBtn.hidden=true; } else { cancelBtn.hidden=false; cancelBtn.textContent=cancelText; }
+    modal.classList.remove('hidden');
+    function cleanup(result){
+      modal.classList.add('hidden');
+      okBtn.removeEventListener('click',onOk);
+      cancelBtn.removeEventListener('click',onCancel);
+      modal.removeEventListener('click',onOverlay);
+      resolve(result);
+    }
+    function onOk(){ cleanup(true) }
+    function onCancel(){ cleanup(false) }
+    function onOverlay(e){ if(e.target===modal) cleanup(false) }
+    okBtn.addEventListener('click',onOk);
+    cancelBtn.addEventListener('click',onCancel);
+    modal.addEventListener('click',onOverlay);
+    modal._confirmCancel=onCancel;
+    (cancelText===null?okBtn:cancelBtn).focus();
+  });
+}
 /* Sắp xếp danh sách theo cột bấm được trên tiêu đề bảng (vd state.sortStu/{col,dir}) */
 function applySort(arr,sortState,getters){
   const g=getters[sortState&&sortState.col];
@@ -423,6 +590,7 @@ const cls=s=>s>=80?'good':s>=60?'mid':'low';
 const pill=s=>`<span class="pill ${cls(s)}">${s}</span>`;
 const exTag=k=>`<span class="tag" style="--c:${(EX[k]||{c:'#888'}).c}">${(EX[k]||{n:k}).n}</span>`;
 const topErr=s=>s.errors.length?s.errors.slice().sort((a,b)=>b.count-a.count)[0].name:'Không có lỗi';
+const allErrs=s=>s.errors.slice().sort((a,b)=>b.count-a.count);
 
 /* Tên học sinh (bảng public.students) — tên và mã HS ở 2 cột riêng */
 let NAMES={};
@@ -450,11 +618,33 @@ async function fetchStudents(){
   const map={};(data||[]).forEach(r=>{map[r.profile_id]=r.name});
   return map;
 }
+/* Lệnh đã gửi xuống máy PoseAI — để giáo viên biết lệnh sửa/xoá đã chạy chưa.
+   Bảng commands không có thì fetchCommands ném lỗi — nơi gọi luôn .catch() về rỗng
+   nên dashboard vẫn chạy được trên Supabase project chưa tạo bảng này. */
+async function fetchCommands(){
+  const {data,error}=await sb.from('commands')
+    .select('id,type,target,payload,created_at,applied_at,result')
+    .order('created_at',{ascending:false}).limit(12);
+  if(error) throw error;
+  return data||[];
+}
+/* Ghi lệnh vào public.commands để app.py trên Pi đọc và áp dụng ở lần đồng bộ tới.
+   Chỉ GHI lệnh — không throw ra ngoài UI chính, nơi gọi tự quyết định báo lỗi kiểu gì
+   (thường là: đã đổi trên web rồi, nhưng chưa chắc gửi được lệnh xuống máy). */
+async function sendCmd(type,target,payload){
+  const {data:ures}=await sb.auth.getUser();
+  const {error}=await sb.from('commands').insert({
+    type,target,payload:payload==null?null:String(payload),device_id:DEVICE_ID,
+    created_by:(ures&&ures.user)?ures.user.email:null
+  });
+  if(error) throw error;
+}
 
-/* ===== Thêm / xoá học sinh, xoá buổi tập — ghi thẳng vào Supabase.
-   LƯU Ý: chỉ đổi dữ liệu trên web (Supabase). Máy PoseAI hiện CHƯA có cơ chế đồng bộ
-   ngược (app.py trên Pi không đọc Supabase), nên xoá/thêm ở đây không ảnh hưởng dữ liệu
-   cục bộ trên máy — cần thao tác thêm trên màn hình kiosk nếu muốn đồng bộ 2 chiều. ===== */
+/* ===== Thêm / xoá / đổi tên học sinh, xoá buổi tập — ghi vào Supabase rồi gửi thêm
+   lệnh vào bảng commands để máy PoseAI (app.py) tự đồng bộ xuống dữ liệu cục bộ ở lần
+   quét tiếp theo (tối đa vài phút, tuỳ chu kỳ polling trên Pi). Nếu gửi lệnh thất bại
+   (mất mạng, bảng commands chưa có RLS cho phép insert…) thì dữ liệu trên web vẫn đã
+   đổi đúng — chỉ báo thêm cho giáo viên biết là máy có thể chưa nhận được lệnh. ===== */
 function newPid(){
   const used=new Set(DATA.profiles.map(p=>p.id).concat(Object.keys(NAMES)));
   const H='0123456789ABCDEF';
@@ -469,27 +659,69 @@ function newPid(){
    nếu RLS chặn, Supabase trả về error:null nhưng 0 dòng thực sự bị đổi (silent fail).
    Phải kèm .select() rồi kiểm tra data trả về có rỗng không mới biết chắc đã xoá/thêm thật. */
 async function delSession(uuid){
-  if(!confirm('Xoá buổi tập này?\n\nSẽ xoá khỏi Supabase (web). Không ảnh hưởng dữ liệu trên máy PoseAI.')) return;
+  const ok=await openConfirm({title:'Xoá buổi tập này?',body:'Buổi tập sẽ được xoá ngay trên hệ thống, và xoá trên máy PoseAI ở lần đồng bộ tới.',okText:'Xoá',danger:true});
+  if(!ok) return;
   const {data,error}=await sb.from('sessions').delete().eq('uuid',uuid).select();
-  if(error){ alert('Không xoá được: '+error.message); return }
-  if(!data||!data.length){ alert('Không xoá được — có thể thiếu quyền xoá (RLS) trên bảng sessions.'); return }
+  if(error){ toast('Không xoá được: '+error.message,'error'); return }
+  if(!data||!data.length){ toast('Không xoá được — tài khoản của bạn có thể chưa được cấp quyền xoá.','error'); return }
+  try{ await sendCmd('delete_session',uuid) }
+  catch(e){ toast('Đã xoá trên hệ thống, nhưng chưa gửi được lệnh xuống máy PoseAI.','warn') }
+  toast('Đã xoá buổi tập.','ok');
   await refreshData();
 }
 async function delStudent(pid){
-  if(!confirm(`Xoá học sinh ${plainName(pid)} (${pid})?\n\nSẽ xoá hồ sơ và TẤT CẢ buổi tập của học sinh này trên Supabase (web). Không ảnh hưởng dữ liệu trên máy PoseAI.`)) return;
+  const ok=await openConfirm({title:'Xoá học sinh này?',body:`Xoá ${plainName(pid)} (${pid}) sẽ xoá cả hồ sơ và TẤT CẢ buổi tập của em, trên hệ thống và trên máy PoseAI ở lần đồng bộ tới.`,okText:'Xoá',danger:true});
+  if(!ok) return;
   const a=await sb.from('sessions').delete().eq('profile_id',pid).select();
   const b=await sb.from('students').delete().eq('profile_id',pid).select();
-  if(a.error||b.error){ alert('Không xoá được: '+((a.error||b.error).message)); return }
-  if(!b.data||!b.data.length){ alert('Không xoá được — có thể thiếu quyền xoá (RLS) trên bảng students.'); return }
+  if(a.error||b.error){ toast('Không xoá được: '+((a.error||b.error).message),'error'); return }
+  if(!b.data||!b.data.length){ toast('Không xoá được — tài khoản của bạn có thể chưa được cấp quyền xoá.','error'); return }
+  try{ await sendCmd('delete_profile',pid) }
+  catch(e){ toast('Đã xoá trên hệ thống, nhưng chưa gửi được lệnh xuống máy PoseAI.','warn') }
+  toast('Đã xoá học sinh.','ok');
   if(state.student===pid) location.hash='hoc-sinh';
   await refreshData();
 }
+/* Xoá nhiều buổi tập / nhiều học sinh cùng lúc (chọn hàng loạt) */
+async function bulkDeleteSessions(ids){
+  if(!ids.length) return;
+  const ok=await openConfirm({title:'Xoá các buổi tập đã chọn?',body:`Xoá ${ids.length} buổi tập trên hệ thống, và trên máy PoseAI ở lần đồng bộ tới.`,okText:'Xoá',danger:true});
+  if(!ok) return;
+  const {data,error}=await sb.from('sessions').delete().in('uuid',ids).select();
+  if(error){ toast('Không xoá được: '+error.message,'error'); return }
+  const n=data?data.length:0;
+  toast(n<ids.length?`Chỉ xoá được ${n}/${ids.length} buổi tập — có thể thiếu quyền cho một số dòng.`:`Đã xoá ${n} buổi tập.`, n<ids.length?'warn':'ok');
+  for(const id of ids){ try{ await sendCmd('delete_session',id) }catch(e){} }
+  state.selSe.clear();
+  await refreshData();
+}
+async function bulkDeleteStudents(ids){
+  if(!ids.length) return;
+  const ok=await openConfirm({title:'Xoá các học sinh đã chọn?',body:`Xoá ${ids.length} học sinh và TẤT CẢ buổi tập của các em, trên hệ thống và trên máy PoseAI ở lần đồng bộ tới.`,okText:'Xoá',danger:true});
+  if(!ok) return;
+  const a=await sb.from('sessions').delete().in('profile_id',ids).select();
+  const b=await sb.from('students').delete().in('profile_id',ids).select();
+  if(a.error||b.error){ toast('Không xoá được: '+((a.error||b.error).message),'error'); return }
+  const n=b.data?b.data.length:0;
+  toast(n<ids.length?`Chỉ xoá được ${n}/${ids.length} học sinh — có thể thiếu quyền cho một số dòng.`:`Đã xoá ${n} học sinh.`, n<ids.length?'warn':'ok');
+  for(const id of ids){ try{ await sendCmd('delete_profile',id) }catch(e){} }
+  if(ids.includes(state.student)) state.student=null;
+  state.selStu.clear();
+  await refreshData();
+}
 
-let S=[], DATA={profiles:[]}, END=0, NEW_IDS=new Set(), lastSync=null, liveOn=false;
+let S=[], CMDS=[], DATA={profiles:[]}, END=0, NEW_IDS=new Set(), lastSync=null, liveOn=false;
+let TEACHER_NAME='', netOffline=false;
 const state={view:'tong-quan',range:14,ex:'all',student:null,fEx:'all',fSt:'all',qStu:'',qSe:'',
   sortStu:{col:'n',dir:-1}, sortSe:{col:'sortMs',dir:-1}, pageSe:1,
-  useCustom:false, custom:{from:null,to:null}, editId:null};
+  useCustom:false, custom:{from:null,to:null}, editId:null,
+  selStu:new Set(), selSe:new Set()};
 let rerender=()=>{};
+function greeting(){
+  const h=new Date().getHours();
+  const part=h<11?'sáng':h<13?'trưa':h<18?'chiều':'tối';
+  return `Chào buổi ${part}${TEACHER_NAME?', '+esc(TEACHER_NAME):''}!`;
+}
 
 function rebuildProfiles(){
   DATA.profiles=[...new Set(S.map(s=>s.pid))].sort().map(id=>({id}));
@@ -500,6 +732,8 @@ function scope(){
   if(state.useCustom&&state.custom.from&&state.custom.to){
     from=Date.parse(state.custom.from+'T00:00:00Z');
     to=Date.parse(state.custom.to+'T23:59:59Z');
+  }else if(state.range==='all'){
+    from=S.reduce((m,s)=>s.ms<m?s.ms:m,END||Date.now()); to=END;
   }else{
     from=END-(state.range-1)*DAY; to=END;
   }
@@ -621,6 +855,15 @@ function badgeCards(cur){
     ${card(icoFlame,'#1BB4B422','var(--accent)','Chăm nhất',busy&&busy.pid,busy?`${busy.n} buổi trong kỳ`:'')}
   </div>`;
 }
+/* Thanh thao tác khi chọn nhiều dòng (bulk) */
+function bulkBar(kind,count){
+  if(!count) return '';
+  const label=kind==='stu'?'học sinh':'buổi tập';
+  return `<div class="bulkbar"><b>${count}</b> ${label} đã chọn
+    <button type="button" class="btn-outline" data-bulk-csv="${kind}">${icoDownload}Xuất CSV</button>
+    <button type="button" class="btn-outline danger-outline" data-bulk-del="${kind}">${icoTrash}Xoá đã chọn</button>
+    <button type="button" class="link-btn" data-bulk-clear="${kind}">Bỏ chọn</button></div>`;
+}
 /* Bảng xếp hạng */
 function rankList(cur){
   const by={};
@@ -630,12 +873,66 @@ function rankList(cur){
   return `<div class="rank">${arr.map((r,i)=>`<div class="row"><span class="pos">${i+1}</span><span class="nm">${esc(plainName(r.pid))} <span class="code">${esc(r.pid)}</span></span>${pill(Math.round(r.a))}</div>`).join('')}</div>`;
 }
 
+/* ===== Lệnh đã gửi xuống máy PoseAI ===== */
+const CMD_LABEL={
+  create_profile:[icoPlus,'Thêm học sinh','var(--good)'],
+  rename_profile:[icoEdit,'Đổi tên học sinh','var(--accent)'],
+  delete_session:[icoTrash,'Xoá buổi tập','var(--bad)'],
+  delete_profile:[icoTrash,'Xoá học sinh','var(--bad)']
+};
+function cmdList(){
+  if(!CMDS.length) return '';
+  const wait=CMDS.filter(c=>!c.applied_at);
+  const show=wait.length?wait:CMDS.slice(0,4);
+  const rows=show.map(c=>{
+    const L=CMD_LABEL[c.type]||[icoCheck,c.type,'var(--muted)'];
+    const who=c.type==='delete_session'?('Mã buổi '+String(c.target||'').slice(0,8))
+      :(plainName(c.target)+' · '+esc(c.target||''));
+    const extra=(c.type==='rename_profile'&&c.payload)?' → '+esc(String(c.payload)):'';
+    const st=c.applied_at?('Đã áp dụng '+vnParts(c.applied_at).hm):'Đang chờ máy…';
+    return `<div class="cmd ${c.applied_at?'':'wait'}"><span class="ic" style="color:${L[2]}">${L[0]}</span>
+      <span class="t">${esc(L[1])}<br><span>${who}${extra}</span></span>
+      <span class="st">${esc(st)}</span></div>`;
+  }).join('');
+  const hint=wait.length
+    ?`${wait.length} lệnh đang chờ máy PoseAI áp dụng.`
+    :'Không có lệnh nào đang chờ. Dưới đây là các lệnh gần nhất.';
+  return `<section class="card" style="margin-bottom:16px"><h2>Đồng bộ xuống máy PoseAI</h2><p class="hint">${hint}</p><div class="cmds">${rows}</div></section>`;
+}
+
+/* ===== Học sinh cần chú ý ===== */
+function attention(cur){
+  if(!END) return '';
+  const by={};
+  cur.forEach(s=>{(by[s.pid]=by[s.pid]||[]).push(s)});
+  const items=[];
+  DATA.profiles.forEach(p=>{
+    const m=(by[p.id]||[]).slice().sort((a,b)=>a.sortMs-b.sortMs);
+    if(!m.length) return;
+    const days=Math.round((END-m[m.length-1].ms)/DAY);
+    if(days>=7){ items.push({pid:p.id,why:`Chưa tập ${days} ngày`,sev:2}); return }
+    if(m.length>=4){
+      const half=Math.floor(m.length/2);
+      const d=avg(m.slice(half))-avg(m.slice(0,half));
+      if(d<=-5){ items.push({pid:p.id,why:`Điểm giảm ${fmt(Math.abs(d))} so với đầu kỳ`,sev:1}); return }
+    }
+    const a=avg(m);
+    if(a!=null&&a<60) items.push({pid:p.id,why:`Điểm trung bình ${fmt(a)} — dưới 60`,sev:1});
+  });
+  if(!items.length) return '';
+  items.sort((a,b)=>b.sev-a.sev);
+  return `<section class="card" style="margin-bottom:16px"><h2>Cần chú ý</h2><p class="hint">Học sinh nên nhắc tập lại hoặc xem lại tư thế</p>
+  <div class="cmds">${items.slice(0,5).map(i=>`<div class="cmd"><span class="ic" style="color:${i.sev===2?'var(--mid)':'var(--bad)'}">${i.sev===2?icoClock:icoDown}</span>
+    <span class="t">${esc(plainName(i.pid))}<br><span>${esc(i.why)}</span></span>
+    <span class="st"><button type="button" class="btn-outline" data-student="${esc(i.pid)}" style="padding:6px 11px;font-size:12px">Xem</button></span></div>`).join('')}</div></section>`;
+}
+
 const filterBar=()=>`<div class="filters">
-  <div class="seg" role="group" aria-label="Khoảng thời gian">${[7,14,21].map(r=>`<button data-range="${r}" aria-pressed="${!state.useCustom&&state.range===r}">${r} ngày</button>`).join('')}<button data-range="custom" aria-pressed="${state.useCustom}">Tuỳ chỉnh</button></div>
+  <div class="seg" role="group" aria-label="Khoảng thời gian">${[7,14,21,30].map(r=>`<button data-range="${r}" aria-pressed="${!state.useCustom&&state.range===r}">${r} ngày</button>`).join('')}<button data-range="all" aria-pressed="${!state.useCustom&&state.range==='all'}">Tất cả</button><button data-range="custom" aria-pressed="${state.useCustom}">Tuỳ chỉnh</button></div>
   ${state.useCustom?`<div class="daterange"><input type="date" id="dFrom" value="${state.custom.from||''}" max="${state.custom.to||todayStr()}"><span>–</span><input type="date" id="dTo" value="${state.custom.to||''}" min="${state.custom.from||''}" max="${todayStr()}"></div>`:''}
   <div class="seg" role="group" aria-label="Bài tập"><button data-ex="all" aria-pressed="${state.ex==='all'}">Tất cả</button>${Object.keys(EX).map(k=>`<button data-ex="${k}" aria-pressed="${state.ex===k}">${EX[k].n}</button>`).join('')}</div></div>`;
 const head=(t,sub)=>`<div class="top"><div><h1>${t}</h1><p class="sub">${sub}</p></div>${t==='Buổi tập'?'':filterBar()}</div>`;
-const foot=()=>`<p class="foot">Nguồn: bảng sessions + students trên Supabase, giờ Việt Nam. Màu điểm: ≥80 tốt, 60–79 trung bình, dưới 60 cần cải thiện.</p>`;
+const foot=()=>`<p class="foot">Dữ liệu buổi tập và học sinh hiển thị theo giờ Việt Nam. Màu điểm: ≥80 tốt, 60–79 trung bình, dưới 60 cần cải thiện.</p>`;
 const num=(v,d=0)=>`<span data-count="${v}" data-dec="${d}">0</span>`;
 
 /* ===== Màn hình ===== */
@@ -645,16 +942,27 @@ function viewOverview(){
   const dl=(a!=null&&b!=null)?(()=>{const d=a-b;return `<span class="${d>=0?'up':'down'}">${d>=0?'▲':'▼'} ${fmt(Math.abs(d))}</span> so với kỳ trước`})():'Chưa có kỳ trước để so sánh';
   const active=new Set(cur.map(s=>s.pid)).size;
   const errs=errAgg(cur);
+  /* Khoảng quá dài (vd. "Tất cả") thì gộp theo tuần cho biểu đồ đỡ rối */
+  const byWeek=(to-from)/DAY>45;
   const pts=[];
-  for(let t=from;t<=to;t+=DAY){const day=new Date(t).toISOString().slice(0,10);pts.push({x:dm(day),y:avg(cur.filter(s=>s.day===day))})}
+  if(byWeek){
+    for(let t=from;t<=to;t+=7*DAY){
+      const e=Math.min(to,t+6*DAY);
+      pts.push({x:dm(new Date(t).toISOString().slice(0,10)),y:avg(cur.filter(s=>s.ms>=t&&s.ms<=e))});
+    }
+  }else{
+    for(let t=from;t<=to;t+=DAY){const day=new Date(t).toISOString().slice(0,10);pts.push({x:dm(day),y:avg(cur.filter(s=>s.day===day))})}
+  }
   const byEx=Object.keys(EX).map(k=>({l:EX[k].n,v:cur.filter(s=>s.ex===k).length,c:EX[k].c}));
   const recent=cur.slice().sort((x,y)=>y.sortMs-x.sortMs).slice(0,8);
   const heatList=S.filter(s=>state.ex==='all'||s.ex===state.ex);
   const totDur=sumDur(cur);
   const subTxt=state.useCustom&&state.custom.from&&state.custom.to
     ? `Từ ${dm(state.custom.from)} đến ${dm(state.custom.to)}`
+    : state.range==='all'
+    ? `Toàn bộ dữ liệu, đến ${END?dm(new Date(END).toISOString().slice(0,10)):'—'}`
     : `${state.range} ngày gần nhất, đến ${END?dm(new Date(END).toISOString().slice(0,10)):'—'}`;
-  return head('Tổng quan',subTxt)+`
+  return `<p class="greeting">${greeting()}</p>`+head('Tổng quan',subTxt)+`
   <div class="kpis">
     <div class="card kpi"><div class="lbl">Số buổi tập</div><div class="val">${num(cur.length)}</div><div class="dl">${prev.length} buổi ở kỳ trước</div></div>
     <div class="card kpi"><div class="lbl">Điểm trung bình</div><div class="val">${a==null?'—':num(a,1)}<small> /100</small></div><div class="dl">${dl}</div></div>
@@ -663,9 +971,11 @@ function viewOverview(){
     <div class="card kpi"><div class="lbl">Lỗi gặp nhiều nhất</div><div class="val" style="font-size:17px;line-height:1.35;margin-top:10px">${errs.length?esc(errs[0].l):'Không có'}</div><div class="dl">${errs.length?fmt(errs[0].v,0)+' lần ghi nhận':''}</div></div>
   </div>
   <div class="grid2">
-    <section class="card"><h2>Điểm trung bình theo ngày</h2><p class="hint">Trung bình điểm các buổi trong ngày</p>${lineChart(pts,'ov')}</section>
+    <section class="card"><h2>Điểm trung bình theo ${byWeek?'tuần':'ngày'}</h2><p class="hint">${byWeek?'Khoảng dài nên gộp theo tuần cho dễ đọc':'Trung bình điểm các buổi trong ngày'}</p>${lineChart(pts,'ov')}</section>
     <section class="card"><h2>Số buổi theo bài tập</h2><p class="hint">Trong khoảng đã chọn</p>${hbars(byEx)}</section>
   </div>
+  ${attention(cur)}
+  ${cmdList()}
   ${badgeCards(cur)}
   <div class="grid3">
     <section class="card"><h2>Lịch tập của lớp</h2><p class="hint">Càng đậm càng nhiều buổi tập · 12 tuần</p>${heatmap(heatList)}</section>
@@ -679,14 +989,29 @@ function sessionTable(list,opts){
   opts=opts||{};
   if(!list.length) return '<div class="empty">Chưa có buổi tập.</div>';
   const cols=[['Thời gian','sortMs'],['Học sinh','name'],['Mã HS','pid'],['Bài tập','ex'],['Điểm','score'],['Rep','reps'],['Thời lượng','dur'],['Lỗi chính',null]];
-  const thead=cols.map(([label,key])=>opts.sortable&&key?sortTh(label,key,opts.sortState):`<th>${esc(label)}</th>`).join('')+(opts.actions?'<th></th>':'');
-  const rows=list.map(s=>`<tr class="${NEW_IDS.has(s.id)?'flash':''}"><td>${dm(s.day)} ${s.hm}</td><td>${stuName(s.pid)}</td><td class="code">${esc(s.pid)}</td><td>${exTag(s.ex)}</td><td>${pill(s.score)}</td><td>${s.reps==null?'—':s.reps}</td><td>${dur(s.dur)}</td><td>${esc(topErr(s))}</td>${opts.actions?`<td><button class="name-edit-btn danger" data-del-session="${esc(s.id)}" title="Xoá buổi tập">${icoTrash}</button></td>`:''}</tr>`).join('');
+  const selHead=opts.selectable?`<th class="sel-cell"><input type="checkbox" id="selAllSe" data-ids="${list.map(s=>esc(s.id)).join(',')}" ${list.length&&list.every(s=>state.selSe.has(s.id))?'checked':''}></th>`:'';
+  const thead=selHead+cols.map(([label,key])=>opts.sortable&&key?sortTh(label,key,opts.sortState):`<th>${esc(label)}</th>`).join('')+(opts.actions?'<th></th>':'');
+  const rows=list.map(s=>`<tr class="${NEW_IDS.has(s.id)?'flash':''}">${opts.selectable?`<td class="sel-cell"><input type="checkbox" data-sel-se="${esc(s.id)}" ${state.selSe.has(s.id)?'checked':''}></td>`:''}<td>${dm(s.day)} ${s.hm}</td><td>${stuName(s.pid)}</td><td class="code">${esc(s.pid)}</td><td>${exTag(s.ex)}</td><td>${pill(s.score)}</td><td>${s.reps==null?'—':s.reps}</td><td>${dur(s.dur)}</td><td>${esc(topErr(s))}</td>${opts.actions?`<td><button class="name-edit-btn" data-ses-info="${esc(s.id)}" title="Xem chi tiết buổi tập">${icoInfo}</button><button class="name-edit-btn danger" data-del-session="${esc(s.id)}" title="Xoá buổi tập">${icoTrash}</button></td>`:''}</tr>`).join('');
   let pager='';
   if(opts.pager){
     const {page,totalPages}=opts.pager;
     pager=`<div class="pager"><span>Trang ${page}/${totalPages}</span><button data-page="prev" ${page<=1?'disabled':''}>${icoChevL}</button><button data-page="next" ${page>=totalPages?'disabled':''}>${icoChevR}</button></div>`;
   }
   return `<div class="tw"><table><thead><tr>${thead}</tr></thead><tbody>${rows}</tbody></table></div>${pager}`;
+}
+/* Chi tiết một buổi tập (mở trong modal dùng chung #sessionModal) */
+function sessionDetailHTML(id){
+  const s=S.find(x=>x.id===id);
+  if(!s) return '<p class="sub">Không tìm thấy buổi tập này.</p>';
+  const errs=allErrs(s);
+  return `<h3>${stuName(s.pid)}</h3>
+    <p class="sub">Mã HS <span class="code">${esc(s.pid)}</span> · ${dm(s.day)} ${s.hm}</p>
+    <dl><dt>Bài tập</dt><dd>${exTag(s.ex)}</dd>
+      <dt>Điểm</dt><dd>${pill(s.score)}</dd>
+      <dt>Số rep</dt><dd>${s.reps==null?'—':s.reps}</dd>
+      <dt>Thời lượng</dt><dd>${dur(s.dur)}</dd></dl>
+    <h3 style="font-size:14px;margin:18px 0 10px">Lỗi ghi nhận trong buổi</h3>
+    ${errs.length?hbars(errs.map(e=>({l:e.name,v:e.count,c:(EX[s.ex]||{c:'#888'}).c}))):'<div class="empty" style="padding:8px 0">Không có lỗi nào.</div>'}`;
 }
 const STU_GETTERS={name:r=>normVN(plainName(r.id)),id:r=>r.id,n:r=>r.n,a:r=>r.a==null?-1:r.a,last:r=>r.last?r.last.sortMs:-1};
 function studentRows(cur){
@@ -708,6 +1033,8 @@ function sessionList(){
 function viewStudents(){
   const {cur}=scope();
   let rows=studentRows(cur);
+  const allStuIds=new Set(DATA.profiles.map(p=>p.id));
+  [...state.selStu].forEach(id=>{ if(!allStuIds.has(id)) state.selStu.delete(id) });
   let detail='';
   if(state.student){
     const r=rows.find(x=>x.id===state.student);
@@ -727,20 +1054,64 @@ function viewStudents(){
       <div class="stats"><div><b>${r.n}</b><span>buổi tập</span></div><div><b>${r.a==null?'—':fmt(r.a)}</b><span>điểm trung bình</span></div><div><b>${r.n?Math.max(...r.m.map(s=>s.score)):'—'}</b><span>điểm cao nhất</span></div><div><b>${sumDur(r.m)==null?'—':fmt(sumDur(r.m)/60,0)+'p'}</b><span>tổng thời lượng</span></div><div><b>${avgReps(r.m)==null?'—':fmt(avgReps(r.m),1)}</b><span>rep trung bình/buổi</span></div><div><b>${r.last?dm(r.last.day):'—'}</b><span>buổi gần nhất</span></div></div>
       ${lineChart(r.m.map(s=>({x:dm(s.day),y:s.score})),'st',refLine)}
       <div class="heatlegend"><span style="color:var(--accent)">━ Học sinh</span><span>┄ Trung bình lớp cùng ngày</span></div>
-      <h3 style="font-size:14px;margin:16px 0 10px">Lỗi hay gặp</h3>${hbars(errs.slice(0,5))}</section>`;
+      <h3 style="font-size:14px;margin:16px 0 10px">Lỗi hay gặp</h3>${hbars(errs.slice(0,5))}
+      <div class="print-hide" style="display:flex;gap:10px;margin-top:18px"><button type="button" class="btn-outline" data-print>${icoPrint}In báo cáo</button>${S.some(s=>s.pid===r.id)?`<button type="button" class="btn-outline" data-csv-student="${esc(r.id)}">${icoDownload}Xuất CSV học sinh này</button>`:''}</div></section>`;
     }
   }
-  const theadStu=`${sortTh('Học sinh','name',state.sortStu)}${sortTh('Mã HS','id',state.sortStu)}${sortTh('Số buổi','n',state.sortStu)}${sortTh('Điểm TB','a',state.sortStu)}<th>Xu hướng</th>${sortTh('Buổi gần nhất','last',state.sortStu)}`;
+  const selAllHead=`<th class="sel-cell"><input type="checkbox" id="selAllStu" data-ids="${rows.map(r=>esc(r.id)).join(',')}" ${rows.length&&rows.every(r=>state.selStu.has(r.id))?'checked':''}></th>`;
+  const theadStu=selAllHead+`${sortTh('Học sinh','name',state.sortStu)}<th></th>${sortTh('Mã HS','id',state.sortStu)}${sortTh('Số buổi','n',state.sortStu)}${sortTh('Điểm TB','a',state.sortStu)}<th>Xu hướng</th>${sortTh('Buổi gần nhất','last',state.sortStu)}`;
   const nameCell=r=>state.editId===r.id
     ? `<div class="name-edit-row"><input type="text" id="editNameInput" value="${esc(plainName(r.id))}" maxlength="60"><button class="name-edit-btn" data-save-name="${esc(r.id)}" title="Lưu">${icoCheck}</button><button class="name-edit-btn" data-cancel-name title="Huỷ">${icoX}</button></div>`
-    : `<b>${stuName(r.id)}</b><button class="name-edit-btn" data-edit-name="${esc(r.id)}" title="Sửa tên">${icoEdit}</button><button class="name-edit-btn danger" data-del-student="${esc(r.id)}" title="Xoá học sinh">${icoTrash}</button>`;
+    : `<b>${stuName(r.id)}</b>`;
+  const actCell=r=>state.editId===r.id?'':`<button class="name-edit-btn" data-edit-name="${esc(r.id)}" title="Sửa tên">${icoEdit}</button><button class="name-edit-btn danger" data-del-student="${esc(r.id)}" title="Xoá học sinh">${icoTrash}</button>`;
   return head('Học sinh',`${rows.filter(r=>r.n).length} học sinh có buổi tập. Chọn một dòng để xem chi tiết, bấm biểu tượng bút để sửa tên.`)+`
   <section class="card"><div class="filters" style="margin-bottom:14px">${searchBox('qStu','Tìm theo tên hoặc mã HS…',state.qStu)}<button type="button" id="btnExportStu" class="btn-outline">${icoDownload}Xuất CSV</button><button type="button" id="btnAddStudent" class="btn-outline">${icoPlus}Thêm học sinh</button></div>
   <div id="stuSaveErr" class="field-msg bad"></div>
-  ${rows.length?`<div class="tw"><table><thead><tr>${theadStu}</tr></thead><tbody>${rows.map(r=>`<tr data-student="${r.id}" class="${state.student===r.id?'sel':''}" tabindex="0"><td>${nameCell(r)}</td><td class="code">${esc(r.id)}</td><td>${r.n}</td><td>${r.a==null?'—':pill(Math.round(r.a))}</td><td>${spark(r.m.slice(-8).map(s=>s.score))}</td><td>${r.last?dm(r.last.day)+' '+r.last.hm:'—'}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Không tìm thấy học sinh phù hợp.</div>'}</section>${detail}`+foot();
+  ${bulkBar('stu',state.selStu.size)}
+  ${rows.length?`<div class="tw"><table><thead><tr>${theadStu}</tr></thead><tbody>${rows.map(r=>`<tr data-student="${r.id}" class="${state.student===r.id?'sel':''}" tabindex="0"><td class="sel-cell"><input type="checkbox" data-sel-stu="${esc(r.id)}" ${state.selStu.has(r.id)?'checked':''}></td><td>${nameCell(r)}</td><td style="text-align:right">${actCell(r)}</td><td class="code">${esc(r.id)}</td><td>${r.n}</td><td>${r.a==null?'—':pill(Math.round(r.a))}</td><td>${spark(r.m.slice(-8).map(s=>s.score))}</td><td>${r.last?dm(r.last.day)+' '+r.last.hm:'—'}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Không tìm thấy học sinh phù hợp.</div>'}</section>${detail}`+foot();
+}
+/* ===== Hộp chọn học sinh gõ tìm được — thay cho <select> cuộn dài khi lớp nhiều học sinh ===== */
+function studentCombo(){
+  const cnt={};
+  S.forEach(s=>{cnt[s.pid]=(cnt[s.pid]||0)+1});
+  const cur=state.fSt==='all'?'Tất cả học sinh':plainName(state.fSt);
+  const rows=[`<button type="button" role="option" data-pick="all" data-always aria-selected="${state.fSt==='all'}" data-search=""><span>Tất cả học sinh</span><span class="n">${S.length} buổi</span></button>`]
+    .concat(DATA.profiles.map(p=>`<button type="button" role="option" data-pick="${esc(p.id)}" aria-selected="${state.fSt===p.id}" data-search="${esc(normVN(plainName(p.id)+' '+p.id))}"><span>${stuName(p.id)} <span class="code">${esc(p.id)}</span></span><span class="n">${cnt[p.id]||0} buổi</span></button>`));
+  return `<div class="combo">
+    <button class="cbbtn" type="button" data-combo-open aria-expanded="false" aria-haspopup="listbox"><span class="cur">${esc(cur)}</span>${icoCaret}</button>
+    <div class="cbpop" hidden>
+      ${searchBox('cbq','Gõ tên hoặc mã HS…','')}
+      <div class="cblist" role="listbox">${rows.join('')}</div>
+      <div class="cbempty" hidden>Không tìm thấy học sinh nào.</div>
+      <div class="cbhint">Gõ không dấu vẫn tìm được · Enter chọn kết quả đầu</div>
+    </div></div>`;
+}
+function comboEls(){
+  const c=document.querySelector('.combo');
+  return c?{c,btn:c.querySelector('.cbbtn'),pop:c.querySelector('.cbpop'),q:c.querySelector('#cbq'),
+            list:c.querySelector('.cblist'),empty:c.querySelector('.cbempty')}:null;
+}
+function comboFilter(){
+  const e=comboEls(); if(!e) return;
+  const q=normVN(e.q.value).trim();
+  let n=0;
+  e.list.querySelectorAll('button').forEach(b=>{
+    const keep=b.hasAttribute('data-always')||!q||b.dataset.search.includes(q);
+    b.hidden=!keep;
+    if(keep&&!b.hasAttribute('data-always')) n++;
+  });
+  e.empty.hidden=!(q&&n===0);
+}
+function setCombo(open){
+  const e=comboEls(); if(!e) return;
+  e.pop.hidden=!open;
+  e.btn.setAttribute('aria-expanded',open?'true':'false');
+  if(open){ e.q.value=''; comboFilter(); e.q.focus() }
 }
 const SE_PAGE_SIZE=50;
 function viewSessions(){
+  const allSeIds=new Set(S.map(s=>s.id));
+  [...state.selSe].forEach(id=>{ if(!allSeIds.has(id)) state.selSe.delete(id) });
   let list=sessionList();
   const total=list.length;
   const totalPages=Math.max(1,Math.ceil(total/SE_PAGE_SIZE));
@@ -750,10 +1121,11 @@ function viewSessions(){
   return head('Buổi tập',`${total} buổi khớp bộ lọc`)+`
   <section class="card"><div class="filters" style="margin-bottom:14px">
     <label>Bài tập <select id="fEx"><option value="all">Tất cả</option>${Object.keys(EX).map(k=>`<option value="${k}" ${state.fEx===k?'selected':''}>${EX[k].n}</option>`).join('')}</select></label>
-    <label>Học sinh <select id="fSt"><option value="all">Tất cả</option>${DATA.profiles.map(p=>`<option value="${p.id}" ${state.fSt===p.id?'selected':''}>${esc(plainName(p.id))}</option>`).join('')}</select></label>
+    <div class="cbwrap">Học sinh ${studentCombo()}</div>
     ${searchBox('qSe','Tìm theo tên, mã HS, lỗi…',state.qSe)}
     <button type="button" id="btnExportSe" class="btn-outline">${icoDownload}Xuất CSV</button></div>
-  ${sessionTable(pageList,{sortable:true,sortState:state.sortSe,actions:true,pager:total>SE_PAGE_SIZE?{page:state.pageSe,totalPages}:null})}</section>`+foot();
+  ${bulkBar('se',state.selSe.size)}
+  ${sessionTable(pageList,{sortable:true,sortState:state.sortSe,actions:true,selectable:true,pager:total>SE_PAGE_SIZE?{page:state.pageSe,totalPages}:null})}</section>`+foot();
 }
 
 /* ===== Hiệu ứng số chạy ===== */
@@ -784,9 +1156,36 @@ function closeAcctDropdown(){
   const dd=document.getElementById('acctDropdown');
   if(dd) dd.classList.remove('open');
 }
+
+/* ===== Cài app lên máy (PWA) ===== */
+let deferredInstall=null;
+const isStandalone=()=>(window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true;
+const isIOS=()=>/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+function updateInstallUI(){
+  const show=!isStandalone()&&(!!deferredInstall||isIOS());
+  document.querySelectorAll('[data-install]').forEach(b=>{b.hidden=!show});
+}
+window.addEventListener('beforeinstallprompt',e=>{ e.preventDefault(); deferredInstall=e; updateInstallUI(); });
+window.addEventListener('appinstalled',()=>{ deferredInstall=null; updateInstallUI(); });
+async function doInstall(){
+  if(deferredInstall){
+    const p=deferredInstall; deferredInstall=null;
+    try{ p.prompt(); await p.userChoice }catch(_){}
+    updateInstallUI();
+    return;
+  }
+  if(isIOS()){
+    openConfirm({title:'Cài PoseAI lên iPhone/iPad',
+      body:'1. Bấm nút Chia sẻ (hình ô vuông có mũi tên lên) ở thanh dưới của Safari.\n2. Kéo xuống chọn "Thêm vào MH chính", rồi bấm Thêm.\n\nNếu không thấy nút Chia sẻ, hãy mở trang này bằng Safari.',
+      okText:'Đã hiểu',cancelText:null});
+  }
+}
 const outer=document.getElementById('root-outer');
-function renderApp(userEmail){
-  const initial=esc((userEmail||'?').trim().charAt(0).toUpperCase());
+function renderApp(user){
+  const userEmail=user.email;
+  const dispName=(user.user_metadata&&user.user_metadata.full_name)||'';
+  TEACHER_NAME=dispName;
+  const initial=esc((dispName||userEmail||'?').trim().charAt(0).toUpperCase());
   const navBtns=`<button class="pill-btn" data-view="tong-quan" style="--pc:var(--c-squat)"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg><span>Tổng quan</span></button>
     <button class="pill-btn" data-view="hoc-sinh" style="--pc:var(--c-plank)"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="8" r="3.2"/><path d="M9 12.5c-3.5 0-6.5 2.1-6.5 5.3V19h13v-1.2c0-3.2-3-5.3-6.5-5.3Z"/><circle cx="17.5" cy="7.5" r="2.3"/><path d="M17.5 12.2c-.6 0-1.2.07-1.8.2 1.6 1.1 2.6 2.7 2.7 4.6H22v-.8c0-2.4-2-4-4.5-4Z"/></svg><span>Học sinh</span></button>
     <button class="pill-btn" data-view="buoi-tap" style="--pc:var(--c-pushup)"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg><span>Buổi tập</span></button>`;
@@ -795,42 +1194,56 @@ function renderApp(userEmail){
       <button class="brand" data-view="tong-quan" aria-label="Về Tổng quan">
         <img class="brand-mark brand-mark-dark" src="img/logo.svg" alt="">
         <img class="brand-mark brand-mark-light" src="img/logo-light.svg" alt="">
+        <img class="brand-word brand-word-dark" src="img/logo-text.svg" alt="PoseAI">
+        <img class="brand-word brand-word-light" src="img/logo-text-light.svg" alt="PoseAI">
       </button>
       <nav class="pill-wrap top-pill-wrap" aria-label="Điều hướng">
         <div class="nav-pill">${navBtns}</div>
       </nav>
       <div class="top-right">
         <div class="live"><span class="dot"></span><span id="liveNote">Đang kết nối…</span></div>
+        <button type="button" id="btnRefresh" class="icon-btn" title="Làm mới dữ liệu" aria-label="Làm mới dữ liệu">${icoRefresh}</button>
         <div class="acct-wrap">
           <button id="avatarBtn" title="Tài khoản" aria-haspopup="true" aria-expanded="false">${initial}</button>
           <div id="acctDropdown" role="menu">
-            <div class="acct-user"><span class="nm">Giáo viên</span><span class="em">${esc(userEmail)}</span></div>
+            <div class="acct-user"><span class="nm" id="acctName">${esc(dispName||'Giáo viên')}</span><span class="em">${esc(userEmail)}</span></div>
             <div class="theme-switch" role="group" aria-label="Giao diện">
               <button class="theme-opt" data-theme="light" title="Sáng" aria-label="Sáng"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="4.5"/><rect x="11" y="1" width="2" height="4" rx="1"/><rect x="11" y="1" width="2" height="4" rx="1" transform="rotate(45 12 12)"/><rect x="11" y="1" width="2" height="4" rx="1" transform="rotate(90 12 12)"/><rect x="11" y="1" width="2" height="4" rx="1" transform="rotate(135 12 12)"/><rect x="11" y="1" width="2" height="4" rx="1" transform="rotate(180 12 12)"/><rect x="11" y="1" width="2" height="4" rx="1" transform="rotate(225 12 12)"/><rect x="11" y="1" width="2" height="4" rx="1" transform="rotate(270 12 12)"/><rect x="11" y="1" width="2" height="4" rx="1" transform="rotate(315 12 12)"/></svg></button>
               <button class="theme-opt" data-theme="dark" title="Tối" aria-label="Tối"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
               <button class="theme-opt" data-theme="system" title="Theo hệ thống" aria-label="Theo hệ thống"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="2" y="3" width="20" height="14" rx="2"/><rect x="9" y="19" width="6" height="2" rx="1"/></svg></button>
             </div>
+            <button class="dd-item" data-install hidden><svg viewBox="0 0 24 24" fill="currentColor" width="15" height="15">${icoInstall.replace(/<svg[^>]*>|<\/svg>/g,'')}</svg>Cài đặt ứng dụng</button>
             <button class="dd-item" id="btnSettings"><svg viewBox="0 0 24 24" fill="currentColor" width="15" height="15"><circle cx="12" cy="12" r="3.5"/><rect x="11" y="2" width="2" height="4" rx="1"/><rect x="11" y="2" width="2" height="4" rx="1" transform="rotate(45 12 12)"/><rect x="11" y="2" width="2" height="4" rx="1" transform="rotate(90 12 12)"/><rect x="11" y="2" width="2" height="4" rx="1" transform="rotate(135 12 12)"/><rect x="11" y="2" width="2" height="4" rx="1" transform="rotate(180 12 12)"/><rect x="11" y="2" width="2" height="4" rx="1" transform="rotate(225 12 12)"/><rect x="11" y="2" width="2" height="4" rx="1" transform="rotate(270 12 12)"/><rect x="11" y="2" width="2" height="4" rx="1" transform="rotate(315 12 12)"/></svg>Cài đặt tài khoản</button>
             <button class="dd-item" id="btnLogout"><svg viewBox="0 0 24 24" fill="currentColor" width="15" height="15"><path d="M4 4H11V6H6V18H11V20H4Z"/><path d="M9 11V13H16V16L21 12L16 8V11Z"/></svg>Đăng xuất</button>
           </div>
         </div>
       </div>
     </header>
+    <div id="offlineBanner" class="offline-banner hidden"><span style="width:16px;height:16px;display:inline-flex;flex:none">${icoAlert}</span>Mất kết nối mạng — dữ liệu đang hiển thị có thể chưa phải mới nhất.<button type="button" id="bannerRetry" class="link-btn">Thử lại</button></div>
     <nav class="pill-wrap bottom-pill-wrap" aria-label="Điều hướng (di động)">
       <div class="nav-pill">${navBtns}</div>
     </nav>
     <main id="root"></main>
-    <div id="settingsModal" class="modal-overlay hidden">
+    <div id="settingsModal" class="modal-overlay hidden" data-email="${esc(userEmail)}" data-name="${esc(dispName)}">
       <div class="modal-box">
-        <h3>Đổi mật khẩu</h3>
-        <p class="sub">Áp dụng cho tài khoản ${esc(userEmail)}</p>
+        <h3>Cài đặt tài khoản</h3>
+        <p class="sub">Tài khoản ${esc(userEmail)}</p>
+        <label for="dispNameInput">Tên hiển thị</label>
+        <input type="text" id="dispNameInput" maxlength="60" placeholder="Ví dụ: Nguyễn Văn A" value="${esc(dispName)}">
+        <div class="field-msg" id="nameMsg"></div>
+        <div class="modal-actions" style="margin-top:4px">
+          <button type="button" class="btn-primary" id="nameSave" style="width:100%">Lưu tên hiển thị</button>
+        </div>
+        <hr style="border:0;border-top:1px solid var(--border);margin:20px 0">
+        <label for="curPw">Mật khẩu hiện tại</label>
+        <input type="password" id="curPw" autocomplete="current-password">
         <label for="newPw1">Mật khẩu mới</label>
         <input type="password" id="newPw1" autocomplete="new-password">
         <label for="newPw2">Nhập lại mật khẩu mới</label>
         <input type="password" id="newPw2" autocomplete="new-password">
         <div class="field-msg" id="pwMsg"></div>
         <div class="modal-actions">
-          <button type="button" class="btn-ghost" id="pwCancel">Huỷ</button>
+          <button type="button" class="btn-ghost" id="pwCancel">Đóng</button>
           <button type="button" class="btn-primary" id="pwSave">Lưu mật khẩu</button>
         </div>
       </div>
@@ -838,7 +1251,7 @@ function renderApp(userEmail){
     <div id="addStuModal" class="modal-overlay hidden">
       <div class="modal-box">
         <h3>Thêm học sinh</h3>
-        <p class="sub">Tạo hồ sơ mới trên Supabase (web). Máy PoseAI chưa tự nhận học sinh này — cần thêm thủ công trên màn hình máy nếu muốn em tập ngay.</p>
+        <p class="sub">Thêm học sinh mới vào hệ thống. Máy PoseAI chưa tự nhận được học sinh này — cần thêm thủ công trên màn hình máy nếu muốn em tập ngay.</p>
         <label for="adName">Tên học sinh</label>
         <input type="text" id="adName" maxlength="60" placeholder="Ví dụ: Nguyễn Văn An">
         <label for="adPid">Mã HS</label>
@@ -849,6 +1262,9 @@ function renderApp(userEmail){
           <button type="button" class="btn-primary" id="adSave">Thêm học sinh</button>
         </div>
       </div>
+    </div>
+    <div id="sessionModal" class="modal-overlay hidden">
+      <div class="modal-box wide" id="sessionModalBody"></div>
     </div>
   </div>`;
   Theme.apply(Theme.get());
@@ -874,38 +1290,88 @@ function renderApp(userEmail){
     }
   };
   rerender();
+  updateInstallUI();
 }
 
 /* ===== Gắn sự kiện — CHỈ MỘT LẦN ở top-level, KHÔNG đặt trong renderApp().
    renderApp() có thể chạy lại nhiều lần trong cùng 1 tab (vd. đăng xuất rồi đăng nhập lại
    không tải lại trang) — nếu addEventListener nằm trong đó, mỗi lần gọi sẽ cộng dồn thêm
    1 listener, khiến các thao tác "đảo chiều" như sort bị xử lý 2 lần → tự triệt tiêu nhau. ===== */
-outer.addEventListener('click',e=>{
+outer.addEventListener('click',async e=>{
+  /* Bấm vào checkbox chọn dòng không được nổi lên thành chọn/điều hướng cả dòng */
+  if(e.target.matches('input[type=checkbox]')) return;
+  if(e.target.closest('#bannerRetry')){ refreshData(); return }
+  const rfBtn=e.target.closest('#btnRefresh');
+  if(rfBtn){
+    if(rfBtn.disabled) return;
+    rfBtn.disabled=true; rfBtn.classList.add('spin');
+    await refreshData();
+    rfBtn.disabled=false; rfBtn.classList.remove('spin');
+    return;
+  }
   if(e.target.closest('#btnLogout')){ sb.auth.signOut(); return }
+  if(e.target.closest('[data-install]')){ closeAcctDropdown(); doInstall(); return }
   if(e.target.closest('#btnSettings')){
     closeAcctDropdown();
+    const modal=document.getElementById('settingsModal');
+    document.getElementById('nameMsg').textContent=''; document.getElementById('nameMsg').className='field-msg';
+    document.getElementById('dispNameInput').value=modal.dataset.name||'';
     document.getElementById('pwMsg').textContent='';
     document.getElementById('pwMsg').className='field-msg';
+    document.getElementById('curPw').value='';
     document.getElementById('newPw1').value=''; document.getElementById('newPw2').value='';
-    document.getElementById('settingsModal').classList.remove('hidden');
+    modal.classList.remove('hidden');
     return;
   }
   if(e.target.closest('#pwCancel')||e.target.id==='settingsModal'){
     document.getElementById('settingsModal').classList.add('hidden');
     return;
   }
+  if(e.target.closest('#nameSave')){
+    const btn=document.getElementById('nameSave');
+    const modal=document.getElementById('settingsModal');
+    const inp=document.getElementById('dispNameInput');
+    const name=inp.value.trim();
+    const msg=document.getElementById('nameMsg');
+    btn.disabled=true; btn.textContent='Đang lưu…';
+    sb.auth.updateUser({data:{full_name:name}}).then(({error})=>{
+      btn.disabled=false; btn.textContent='Lưu tên hiển thị';
+      if(error){ msg.textContent=error.message; msg.className='field-msg bad'; return }
+      modal.dataset.name=name;
+      TEACHER_NAME=name;
+      const nm=document.getElementById('acctName'); if(nm) nm.textContent=name||'Giáo viên';
+      const ab=document.getElementById('avatarBtn');
+      if(ab) ab.textContent=(name||modal.dataset.email||'?').trim().charAt(0).toUpperCase();
+      msg.textContent='Đã lưu tên hiển thị!'; msg.className='field-msg ok';
+    });
+    return;
+  }
   if(e.target.closest('#pwSave')){
     const btn=document.getElementById('pwSave');
+    const modal=document.getElementById('settingsModal');
+    const p0=document.getElementById('curPw').value;
     const p1=document.getElementById('newPw1').value, p2=document.getElementById('newPw2').value;
     const msg=document.getElementById('pwMsg');
-    if(p1.length<6){ msg.textContent='Mật khẩu cần ít nhất 6 ký tự.'; msg.className='field-msg bad'; return }
-    if(p1!==p2){ msg.textContent='Hai mật khẩu không khớp.'; msg.className='field-msg bad'; return }
-    btn.disabled=true; btn.textContent='Đang lưu…';
-    sb.auth.updateUser({password:p1}).then(({error})=>{
-      btn.disabled=false; btn.textContent='Lưu mật khẩu';
-      if(error){ msg.textContent=error.message; msg.className='field-msg bad'; return }
-      msg.textContent='Đã đổi mật khẩu thành công!'; msg.className='field-msg ok';
-      setTimeout(()=>{const m=document.getElementById('settingsModal'); if(m)m.classList.add('hidden')},1200);
+    if(!p0){ msg.textContent='Nhập mật khẩu hiện tại để xác nhận.'; msg.className='field-msg bad'; return }
+    if(p1.length<6){ msg.textContent='Mật khẩu mới cần ít nhất 6 ký tự.'; msg.className='field-msg bad'; return }
+    if(p1!==p2){ msg.textContent='Hai mật khẩu mới không khớp.'; msg.className='field-msg bad'; return }
+    btn.disabled=true; btn.textContent='Đang kiểm tra…';
+    /* Supabase updateUser() không tự đòi mật khẩu cũ — tự xác thực lại bằng
+       signInWithPassword() với mật khẩu hiện tại trước khi cho đổi, để tránh
+       trường hợp máy/trình duyệt bị bỏ quên phiên đăng nhập mà người khác đổi được mật khẩu. */
+    sb.auth.signInWithPassword({email:modal.dataset.email,password:p0}).then(({error:authErr})=>{
+      if(authErr){
+        btn.disabled=false; btn.textContent='Lưu mật khẩu';
+        msg.textContent='Mật khẩu hiện tại không đúng.'; msg.className='field-msg bad';
+        return;
+      }
+      btn.textContent='Đang lưu…';
+      sb.auth.updateUser({password:p1}).then(({error})=>{
+        btn.disabled=false; btn.textContent='Lưu mật khẩu';
+        if(error){ msg.textContent=error.message; msg.className='field-msg bad'; return }
+        msg.textContent='Đã đổi mật khẩu thành công!'; msg.className='field-msg ok';
+        setTimeout(()=>{const m=document.getElementById('settingsModal'); if(m)m.classList.add('hidden')},1200);
+      });
     });
     return;
   }
@@ -932,12 +1398,16 @@ outer.addEventListener('click',e=>{
     if(!/^[A-Z0-9]{3,12}$/.test(id)){ errEl.textContent='Mã HS chỉ gồm chữ in và số, 3–12 ký tự.'; return }
     if(NAMES[id]||DATA.profiles.some(p=>p.id===id)){ errEl.textContent='Mã HS này đã có rồi. Đổi mã khác.'; return }
     btn.disabled=true; btn.textContent='Đang thêm…';
-    sb.from('students').insert({profile_id:id,name}).select().then(({data,error})=>{
+    sb.from('students').insert({profile_id:id,name}).select().then(async({data,error})=>{
       btn.disabled=false; btn.textContent='Thêm học sinh';
       if(error){ errEl.textContent='Không thêm được: '+error.message; return }
-      if(!data||!data.length){ errEl.textContent='Không thêm được — có thể thiếu quyền ghi (RLS) trên bảng students.'; return }
+      if(!data||!data.length){ errEl.textContent='Không thêm được — tài khoản của bạn có thể chưa được cấp quyền thêm học sinh.'; return }
       document.getElementById('addStuModal').classList.add('hidden');
-      refreshData();
+      let warn=false;
+      try{ await sendCmd('create_profile',id,name) }
+      catch(e){ warn=true }
+      await refreshData();
+      toast(warn?'Đã thêm học sinh, nhưng chưa gửi được lệnh xuống máy PoseAI.':'Đã thêm học sinh.', warn?'warn':'ok');
     });
     return;
   }
@@ -945,8 +1415,23 @@ outer.addEventListener('click',e=>{
   if(delStuBtn){ delStudent(delStuBtn.dataset.delStudent); return }
   const delSeBtn=e.target.closest('[data-del-session]');
   if(delSeBtn){ delSession(delSeBtn.dataset.delSession); return }
+  const infoBtn=e.target.closest('[data-ses-info]');
+  if(infoBtn){
+    document.getElementById('sessionModalBody').innerHTML=sessionDetailHTML(infoBtn.dataset.sesInfo);
+    document.getElementById('sessionModal').classList.remove('hidden');
+    return;
+  }
+  if(e.target.id==='sessionModal'){ document.getElementById('sessionModal').classList.add('hidden'); return }
   const themeBtn=e.target.closest('.theme-opt');
   if(themeBtn){ Theme.set(themeBtn.dataset.theme); return }
+  if(e.target.closest('[data-combo-open]')){
+    const el=comboEls();
+    setCombo(el?el.pop.hidden:true);
+    return;
+  }
+  const pickBtn=e.target.closest('[data-pick]');
+  if(pickBtn){ state.fSt=pickBtn.dataset.pick; state.pageSe=1; rerender(); return }
+  if(!e.target.closest('.combo')) setCombo(false);
   if(e.target.closest('#avatarBtn')){
     const dd=document.getElementById('acctDropdown');
     const open=dd.classList.toggle('open');
@@ -973,11 +1458,13 @@ outer.addEventListener('click',e=>{
     const errEl=document.getElementById('stuSaveErr');
     if(!name){ if(errEl) errEl.textContent='Tên không được để trống.'; return }
     saveBtn.disabled=true;
-    sb.from('students').upsert({profile_id:id,name}).select().then(({data,error})=>{
+    sb.from('students').upsert({profile_id:id,name}).select().then(async({data,error})=>{
       saveBtn.disabled=false;
-      if(error){ if(errEl) errEl.textContent='Không lưu được — có thể thiếu quyền ghi (RLS) trên bảng students: '+error.message; return }
-      if(!data||!data.length){ if(errEl) errEl.textContent='Không lưu được — có thể thiếu quyền ghi (RLS) trên bảng students.'; return }
+      if(error){ if(errEl) errEl.textContent='Không lưu được — '+error.message; return }
+      if(!data||!data.length){ if(errEl) errEl.textContent='Không lưu được — tài khoản của bạn có thể chưa được cấp quyền sửa.'; return }
       NAMES[id]=name; state.editId=null; rerender();
+      try{ await sendCmd('rename_profile',id,name); toast('Đã đổi tên học sinh.','ok') }
+      catch(e){ toast('Đã đổi tên trên hệ thống, nhưng chưa gửi được lệnh xuống máy PoseAI.','warn') }
     });
     return;
   }
@@ -991,8 +1478,43 @@ outer.addEventListener('click',e=>{
   }
   if(e.target.closest('#btnExportSe')){
     const list=sessionList();
-    exportCSV('poseai-buoi-tap.csv',['Thời gian','Học sinh','Mã HS','Bài tập','Điểm','Rep','Thời lượng (giây)','Lỗi chính'],
-      list.map(s=>[dm(s.day)+' '+s.hm,plainName(s.pid),s.pid,EX[s.ex]?EX[s.ex].n:s.ex,s.score,s.reps==null?'':s.reps,s.dur==null?'':s.dur,topErr(s)]));
+    exportCSV('poseai-buoi-tap.csv',['Thời gian','Học sinh','Mã HS','Bài tập','Điểm','Rep','Thời lượng (giây)','Lỗi chính','Tất cả lỗi'],
+      list.map(s=>[dm(s.day)+' '+s.hm,plainName(s.pid),s.pid,EX[s.ex]?EX[s.ex].n:s.ex,s.score,s.reps==null?'':s.reps,s.dur==null?'':s.dur,topErr(s),allErrs(s).map(e=>e.name+' x'+e.count).join('; ')]));
+    return;
+  }
+  const csvStuBtn=e.target.closest('[data-csv-student]');
+  if(csvStuBtn){
+    const pid=csvStuBtn.dataset.csvStudent;
+    const list=S.filter(s=>s.pid===pid).sort((a,b)=>b.sortMs-a.sortMs);
+    exportCSV(`poseai_${pid}.csv`,['Thời gian','Học sinh','Mã HS','Bài tập','Điểm','Rep','Thời lượng (giây)','Lỗi chính','Tất cả lỗi'],
+      list.map(s=>[dm(s.day)+' '+s.hm,plainName(s.pid),s.pid,EX[s.ex]?EX[s.ex].n:s.ex,s.score,s.reps==null?'':s.reps,s.dur==null?'':s.dur,topErr(s),allErrs(s).map(e=>e.name+' x'+e.count).join('; ')]));
+    return;
+  }
+  if(e.target.closest('[data-print]')){ window.print(); return }
+
+  /* Thao tác hàng loạt trên dòng đã chọn */
+  const bulkClear=e.target.closest('[data-bulk-clear]');
+  if(bulkClear){
+    (bulkClear.dataset.bulkClear==='stu'?state.selStu:state.selSe).clear();
+    rerender(); return;
+  }
+  const bulkCsv=e.target.closest('[data-bulk-csv]');
+  if(bulkCsv){
+    if(bulkCsv.dataset.bulkCsv==='stu'){
+      const rows=studentRows(scope().cur).filter(r=>state.selStu.has(r.id));
+      exportCSV('poseai-hoc-sinh-da-chon.csv',['Học sinh','Mã HS','Số buổi','Điểm TB','Buổi gần nhất'],
+        rows.map(r=>[plainName(r.id),r.id,r.n,r.a==null?'':fmt(r.a),r.last?(dm(r.last.day)+' '+r.last.hm):'']));
+    }else{
+      const list=sessionList().filter(s=>state.selSe.has(s.id));
+      exportCSV('poseai-buoi-tap-da-chon.csv',['Thời gian','Học sinh','Mã HS','Bài tập','Điểm','Rep','Thời lượng (giây)','Lỗi chính','Tất cả lỗi'],
+        list.map(s=>[dm(s.day)+' '+s.hm,plainName(s.pid),s.pid,EX[s.ex]?EX[s.ex].n:s.ex,s.score,s.reps==null?'':s.reps,s.dur==null?'':s.dur,topErr(s),allErrs(s).map(e=>e.name+' x'+e.count).join('; ')]));
+    }
+    return;
+  }
+  const bulkDel=e.target.closest('[data-bulk-del]');
+  if(bulkDel){
+    if(bulkDel.dataset.bulkDel==='stu') bulkDeleteStudents([...state.selStu]);
+    else bulkDeleteSessions([...state.selSe]);
     return;
   }
 
@@ -1021,6 +1543,7 @@ outer.addEventListener('click',e=>{
   if(t.dataset.view){location.hash=t.dataset.view;return}
   if(t.dataset.range){
     if(t.dataset.range==='custom'){ state.useCustom=true; }
+    else if(t.dataset.range==='all'){ state.useCustom=false; state.range='all'; }
     else{ state.useCustom=false; state.range=+t.dataset.range; }
   }
   if(t.dataset.ex) state.ex=t.dataset.ex;
@@ -1034,23 +1557,56 @@ outer.addEventListener('click',e=>{
 });
 outer.addEventListener('keydown',e=>{
   if(e.key==='Enter'&&e.target.matches('tr[data-student]'))e.target.click();
-  if(e.key==='Enter'&&(e.target.id==='newPw1'||e.target.id==='newPw2')){ const b=document.getElementById('pwSave'); if(b)b.click(); }
+  if(e.key==='Enter'&&(e.target.id==='curPw'||e.target.id==='newPw1'||e.target.id==='newPw2')){ const b=document.getElementById('pwSave'); if(b)b.click(); }
+  if(e.key==='Enter'&&e.target.id==='dispNameInput'){ e.preventDefault(); const b=document.getElementById('nameSave'); if(b)b.click(); }
   if(e.key==='Enter'&&e.target.id==='editNameInput'){ e.preventDefault(); const b=document.querySelector('[data-save-name]'); if(b)b.click(); }
   if(e.key==='Enter'&&(e.target.id==='adName'||e.target.id==='adPid')){ e.preventDefault(); const b=document.getElementById('adSave'); if(b)b.click(); }
+  if(e.target.id==='cbq'){
+    if(e.key==='Escape'){ e.stopPropagation(); setCombo(false); return }
+    if(e.key==='Enter'){
+      e.preventDefault();
+      const el=comboEls(); if(!el) return;
+      const first=[...el.list.querySelectorAll('button')].find(b=>!b.hidden&&!b.hasAttribute('data-always'));
+      if(first) first.click();
+    }
+    return;
+  }
   if(e.key==='Escape'){
     closeAcctDropdown();
     const m=document.getElementById('settingsModal'); if(m)m.classList.add('hidden');
     const m2=document.getElementById('addStuModal'); if(m2)m2.classList.add('hidden');
+    const m3=document.getElementById('sessionModal'); if(m3)m3.classList.add('hidden');
+    setCombo(false);
     if(state.editId){ state.editId=null; rerender(); }
   }
 });
 outer.addEventListener('change',e=>{
   if(e.target.id==='fEx'){state.fEx=e.target.value;state.pageSe=1;rerender()}
-  if(e.target.id==='fSt'){state.fSt=e.target.value;state.pageSe=1;rerender()}
   if(e.target.id==='dFrom'){state.custom.from=e.target.value;rerender()}
   if(e.target.id==='dTo'){state.custom.to=e.target.value;rerender()}
+  if(e.target.id==='selAllStu'){
+    const ids=(e.target.dataset.ids||'').split(',').filter(Boolean);
+    ids.forEach(id=>e.target.checked?state.selStu.add(id):state.selStu.delete(id));
+    rerender(); return;
+  }
+  if(e.target.matches('[data-sel-stu]')){
+    const id=e.target.dataset.selStu;
+    e.target.checked?state.selStu.add(id):state.selStu.delete(id);
+    rerender(); return;
+  }
+  if(e.target.id==='selAllSe'){
+    const ids=(e.target.dataset.ids||'').split(',').filter(Boolean);
+    ids.forEach(id=>e.target.checked?state.selSe.add(id):state.selSe.delete(id));
+    rerender(); return;
+  }
+  if(e.target.matches('[data-sel-se]')){
+    const id=e.target.dataset.selSe;
+    e.target.checked?state.selSe.add(id):state.selSe.delete(id);
+    rerender(); return;
+  }
 });
 outer.addEventListener('input',e=>{
+  if(e.target.id==='cbq'){ comboFilter(); return }
   if(e.target.id==='qStu'){state.qStu=e.target.value;rerender()}
   if(e.target.id==='qSe'){state.qSe=e.target.value;state.pageSe=1;rerender()}
 });
@@ -1059,9 +1615,22 @@ outer.addEventListener('input',e=>{
    chạy lần nào), truyền thẳng sẽ mãi mãi gọi vào bản rỗng đó dù sau này rerender được gán
    lại hàm thật. Bọc arrow function để mỗi lần hashchange sẽ đọc giá trị MỚI NHẤT của biến. */
 window.addEventListener('hashchange',()=>rerender());
+/* #confirmModal nằm ngoài #root-outer (để dùng được cả ở màn đăng nhập) nên phải
+   lắng nghe Esc ở cấp document — nếu gắn vào outer thì sự kiện sẽ không bao giờ
+   nổi bọt qua được vì confirmModal không phải là con cháu của outer. */
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Escape') return;
+  const m=document.getElementById('confirmModal');
+  if(m&&!m.classList.contains('hidden')&&m._confirmCancel) m._confirmCancel();
+});
 
 /* ===== Realtime + tự làm mới ===== */
 let channel=null, pollTimer=null;
+function showOfflineBanner(show){
+  netOffline=show;
+  const el=document.getElementById('offlineBanner');
+  if(el) el.classList.toggle('hidden',!show);
+}
 function stampSync(){
   lastSync=new Intl.DateTimeFormat('vi-VN',{timeZone:VN_TZ,hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date());
 }
@@ -1083,18 +1652,21 @@ function startLive(){
 }
 async function refreshData(){
   try{
-    const [sessions,names]=await Promise.all([fetchSessions(),fetchStudents().catch(()=>NAMES)]);
+    const [sessions,names,cmds]=await Promise.all([
+      fetchSessions(),fetchStudents().catch(()=>NAMES),fetchCommands().catch(()=>CMDS)
+    ]);
     const known=new Set(S.map(s=>s.id));
     sessions.forEach(s=>{if(!known.has(s.id)&&S.length){NEW_IDS.add(s.id);setTimeout(()=>NEW_IDS.delete(s.id),30000)}});
-    S=sessions; NAMES=names; rebuildProfiles(); stampSync(); rerender();
-  }catch(e){ /* mất mạng tạm thời: giữ nguyên dữ liệu đang hiển thị */ }
+    S=sessions; NAMES=names; CMDS=cmds; rebuildProfiles(); stampSync(); rerender();
+    if(netOffline) showOfflineBanner(false);
+  }catch(e){ showOfflineBanner(true); }
 }
 
 /* ===== Tải dữ liệu / lỗi ===== */
 function renderLoading(){
   document.getElementById('root-outer').innerHTML=`<div class="center-screen"><div style="text-align:center"><div class="spinner"></div><p class="sub">Đang tải dữ liệu buổi tập…</p></div></div>`;
 }
-function renderLoadError(msg,userEmail){
+function renderLoadError(msg,user){
   document.getElementById('root-outer').innerHTML=`<div class="center-screen"><div class="login-card" style="text-align:center">
     <div class="brand" style="justify-content:center">
       <img class="brand-mark brand-mark-dark" src="img/logo.svg" alt="">
@@ -1102,24 +1674,26 @@ function renderLoadError(msg,userEmail){
       <img class="brand-word brand-word-dark" src="img/logo-text.svg" alt="PoseAI">
       <img class="brand-word brand-word-light" src="img/logo-text-light.svg" alt="PoseAI">
     </div>
-    <p class="sub">Không tải được dữ liệu từ Supabase.</p>
+    <p class="sub">Không tải được dữ liệu buổi tập. Vui lòng kiểm tra kết nối mạng và thử lại.</p>
     <p class="err" style="min-height:auto">${esc(msg)}</p>
     <button id="btnRetry" type="button" class="btn-primary" style="margin-top:14px">Thử lại</button>
     <button id="btnLogout2" type="button" class="btn-ghost" style="margin-top:8px">Đăng xuất</button>
   </div></div>`;
-  document.getElementById('btnRetry').onclick=()=>bootData(userEmail);
+  document.getElementById('btnRetry').onclick=()=>bootData(user);
   document.getElementById('btnLogout2').onclick=()=>sb.auth.signOut();
 }
-async function bootData(userEmail){
+async function bootData(user){
   renderLoading();
   try{
-    const [sessions,names]=await Promise.all([fetchSessions(),fetchStudents().catch(()=>({}))]);
-    S=sessions; NAMES=names;
+    const [sessions,names,cmds]=await Promise.all([
+      fetchSessions(),fetchStudents().catch(()=>({})),fetchCommands().catch(()=>[])
+    ]);
+    S=sessions; NAMES=names; CMDS=cmds;
     rebuildProfiles(); stampSync();
-    renderApp(userEmail);
+    renderApp(user);
     startLive();
   }catch(err){
-    renderLoadError(err.message||String(err),userEmail);
+    renderLoadError(err.message||String(err),user);
   }
 }
 
@@ -1131,8 +1705,6 @@ function renderLogin(prefillErr){
     <div class="brand">
       <img class="brand-mark brand-mark-dark" src="img/logo.svg" alt="">
       <img class="brand-mark brand-mark-light" src="img/logo-light.svg" alt="">
-      <img class="brand-word brand-word-dark" src="img/logo-text.svg" alt="PoseAI">
-      <img class="brand-word brand-word-light" src="img/logo-text-light.svg" alt="PoseAI">
     </div>
     <form id="loginForm">
       <label for="email">Email giáo viên</label>
@@ -1144,8 +1716,11 @@ function renderLogin(prefillErr){
       <div style="text-align:right;margin-top:10px"><button type="button" id="forgotBtn" class="link-btn">Quên mật khẩu?</button></div>
       <div class="field-msg" id="forgotMsg"></div>
     </form>
-    <p class="hint">Tài khoản do quản trị viên tạo trong Supabase Auth.</p>
+    <p class="hint">Tài khoản do quản trị viên cấp — liên hệ quản trị viên nếu bạn cần tài khoản mới.</p>
+    <button type="button" class="btn-ghost" data-install hidden style="margin-top:10px;display:flex;align-items:center;justify-content:center;gap:8px"><svg viewBox="0 0 24 24" fill="currentColor" width="15" height="15">${icoInstall.replace(/<svg[^>]*>|<\/svg>/g,'')}</svg>Cài đặt ứng dụng</button>
   </div></div>`;
+  document.querySelector('[data-install]').addEventListener('click',doInstall);
+  updateInstallUI();
   document.getElementById('loginForm').addEventListener('submit',async e=>{
     e.preventDefault();
     const btn=document.getElementById('loginBtn'), errEl=document.getElementById('loginErr');
@@ -1171,13 +1746,20 @@ function renderLogin(prefillErr){
 /* ===== Điều phối ===== */
 let booted=false;
 sb.auth.onAuthStateChange((event,session)=>{
-  if(session&&session.user){ if(!booted){booted=true;bootData(session.user.email)} }
+  if(session&&session.user){ if(!booted){booted=true;bootData(session.user)} }
   else{ booted=false; renderLogin(); }
 });
 sb.auth.getSession().then(({data})=>{
-  if(data&&data.session&&data.session.user){ if(!booted){booted=true;bootData(data.session.user.email)} }
+  if(data&&data.session&&data.session.user){ if(!booted){booted=true;bootData(data.session.user)} }
   else{ renderLogin(); }
 });
+</script>
+<script>
+  if('serviceWorker' in navigator){
+    window.addEventListener('load',function(){
+      navigator.serviceWorker.register('sw.js',{scope:'./'}).catch(function(){});
+    });
+  }
 </script>
 </body>
 </html>

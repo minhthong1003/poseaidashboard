@@ -389,6 +389,127 @@ select{background:var(--bg2);color:var(--text);border:1px solid var(--border);bo
 .login-card .hint{color:var(--muted);font-size:12px;margin-top:16px;text-align:center}
 .spinner{width:28px;height:28px;border-radius:50%;border:3px solid var(--ov-18);border-top-color:var(--accent);animation:spin 0.8s linear infinite;margin:0 auto 14px}
 @keyframes spin{to{transform:rotate(360deg)}}
+
+/* =========================================================================
+   TRANG GIỚI THIỆU (landing) — thay cho màn đăng nhập trống trước đây.
+   Bố cục theo mẫu trang giới thiệu sản phẩm hiện đại: header dính mờ nền,
+   hero hai cột, dải số liệu, "cách hoạt động" 3 bước, nhóm bài tập, phần
+   dành cho giáo viên, rồi mới tới khung đăng nhập ở cuối trang.
+   Dùng toàn biến --* nên tự chạy đúng ở cả giao diện tối lẫn sáng.
+   ========================================================================= */
+.lp{min-height:100vh;display:flex;flex-direction:column}
+/* Gỡ bỏ phần định dạng <main> của bảng điều khiển (lề, chiều rộng tối đa, chỗ chừa
+   cho thanh điều hướng đáy) — trang giới thiệu cần các dải nền chạy hết chiều ngang,
+   phần giới hạn bề rộng do .lp-wrap đảm nhiệm. */
+.lp-main{flex:1;padding:0;max-width:none;margin:0}
+.lp-wrap{max-width:1120px;margin:0 auto;padding:0 24px;width:100%}
+.lp [id]{scroll-margin-top:86px}
+.lp-head{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:18px;padding:11px 24px;background:color-mix(in srgb,var(--bg2) 86%,transparent);backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}
+.lp-head .brand{flex:none}
+.lp-nav{display:flex;gap:2px;margin-left:auto}
+.lp-nav a{color:var(--muted);text-decoration:none;font:600 13px var(--display);padding:8px 13px;border-radius:999px;transition:color .15s,background-color .15s}
+.lp-nav a:hover{color:var(--text);background:var(--ov-06)}
+.btn-pill{background:var(--accent);color:#06141f;border:0;border-radius:999px;padding:10px 20px;font:600 13.5px var(--display);display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;white-space:nowrap;transition:filter .15s,transform .1s,border-color .15s,background-color .15s}
+.btn-pill:hover{filter:brightness(1.08)}
+.btn-pill:active{transform:scale(.96)}
+.btn-pill svg{width:15px;height:15px;fill:currentColor}
+.btn-pill.ghost{background:var(--ov-08);color:var(--text);border:1px solid var(--border)}
+.btn-pill.ghost:hover{filter:none;border-color:var(--accent);color:var(--accent);background:var(--ov-12)}
+.lp-head .btn-pill{flex:none;margin-left:4px}
+/* Hero */
+.lp-hero{display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(28px,5vw,56px);align-items:center;padding:clamp(38px,6vw,76px) 0 clamp(34px,5vw,60px)}
+.lp-hero h1{font-size:clamp(31px,4.8vw,50px);line-height:1.13;letter-spacing:-.01em;margin-bottom:18px}
+.lp-hero h1 em{font-style:normal;color:var(--accent)}
+.lp-lead{color:var(--muted);font-size:clamp(14.5px,1.6vw,16.5px);line-height:1.7;margin:0 0 26px;max-width:52ch}
+.lp-actions{display:flex;gap:11px;flex-wrap:wrap}
+.lp-badge{display:inline-flex;align-items:center;gap:9px;padding:6px 14px;border-radius:999px;background:var(--ov-06);border:1px solid var(--border);font-size:12.5px;color:var(--muted);margin-bottom:20px}
+.lp-badge i{width:7px;height:7px;border-radius:50%;background:var(--good);flex:none;display:block}
+/* Hình minh hoạ hero: khung xương tư thế tự vẽ + thẻ kết quả nổi */
+.lp-art{position:relative;display:grid;place-items:center;min-height:clamp(290px,36vw,392px);padding:8px}
+.lp-art::before{content:"";position:absolute;inset:4%;border-radius:26px;background:radial-gradient(circle at 50% 40%,color-mix(in srgb,var(--accent) 15%,transparent),transparent 64%)}
+.lp-art::after{content:"";position:absolute;inset:4%;border-radius:26px;border:1px solid var(--border);background-image:radial-gradient(var(--ov-12) 1px,transparent 1px);background-size:22px 22px;-webkit-mask-image:radial-gradient(ellipse 72% 62% at 50% 44%,#000,transparent);mask-image:radial-gradient(ellipse 72% 62% at 50% 44%,#000,transparent)}
+.lp-fig{position:relative;z-index:1;width:min(100%,250px);height:auto;display:block}
+.lp-bone{stroke:var(--accent);stroke-width:5;stroke-linecap:round;stroke-linejoin:round;fill:none;opacity:.9}
+.lp-joint{fill:var(--text);transform-box:fill-box;transform-origin:center;animation:lpPulse 2.8s ease-in-out infinite}
+@keyframes lpPulse{0%,100%{opacity:.45;transform:scale(.86)}50%{opacity:1;transform:scale(1.1)}}
+.lp-chip{position:absolute;z-index:2;background:var(--bg2);border:1px solid var(--border);border-radius:13px;padding:10px 13px;box-shadow:0 14px 32px -16px rgba(0,0,0,.6),0 2px 6px rgba(0,0,0,.16);font-size:12.5px;display:flex;align-items:center;gap:10px;white-space:nowrap}
+.lp-chip .n{font:600 21px var(--display);line-height:1;font-variant-numeric:tabular-nums}
+.lp-chip .k{color:var(--muted);font-size:11.5px;display:block;margin-bottom:2px}
+.lp-chip.a{top:4%;right:-2px}
+.lp-chip.b{bottom:6%;left:-2px}
+.lp-chip svg{width:15px;height:15px;fill:var(--mid);flex:none}
+/* Dải số liệu */
+.lp-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(144px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+.lp-stat{background:var(--bg2);padding:19px 16px;text-align:center}
+.lp-stat b{display:block;font:600 clamp(19px,4.4vw,25px)/1.2 var(--display);margin-bottom:5px;font-variant-numeric:tabular-nums}
+.lp-stat span{font-size:12.5px;color:var(--muted);line-height:1.45;display:block}
+/* Khung mục */
+.lp-sec{padding:clamp(52px,7.5vw,100px) 0}
+.lp-sec.alt{background:var(--ov-04);border-block:1px solid var(--border)}
+.lp-eyebrow{display:inline-block;font:600 11.5px var(--display);letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:13px}
+.lp-sec-head{text-align:center;max-width:660px;margin:0 auto clamp(30px,4.5vw,52px)}
+.lp-sec-head h2{font-size:clamp(23px,3.2vw,33px);line-height:1.26;margin-bottom:12px}
+.lp-sec-head p{color:var(--muted);font-size:14.5px;margin:0;line-height:1.65}
+.lp-grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:17px}
+.lp-card{background:linear-gradient(180deg,var(--grad1),var(--grad2));border:1px solid var(--border);border-radius:16px;padding:23px 21px;box-shadow:0 8px 24px -10px rgba(0,0,0,.3)}
+.lp-card h3{font-size:16.5px;margin-bottom:9px}
+.lp-card p{color:var(--muted);font-size:13.5px;line-height:1.65;margin:0}
+.lp-step-n{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent) 15%,transparent);color:var(--accent);font:600 15px var(--display);margin-bottom:15px}
+/* Thẻ bài tập */
+.lp-ex{--c:var(--accent);position:relative;overflow:hidden;background:linear-gradient(180deg,var(--grad1),var(--grad2));border:1px solid var(--border);border-radius:16px;padding:22px 21px;box-shadow:0 8px 24px -10px rgba(0,0,0,.3)}
+.lp-ex::before{content:"";position:absolute;inset:0 0 auto;height:3px;background:var(--c)}
+/* Icon bài tập là hình người đầy đủ (lấy từ app kiosk) chứ không phải ký hiệu đơn giản,
+   nên để ô lớn hơn một chút — hình Plank/Push-up nằm ngang sẽ quá nhỏ nếu bó trong 22px */
+.lp-ex .ico{width:54px;height:54px;border-radius:15px;display:grid;place-items:center;background:color-mix(in srgb,var(--c) 15%,transparent);color:var(--c);margin-bottom:14px}
+.lp-ex .ico svg{width:38px;height:38px;fill:currentColor}
+.lp-ex h3{font-size:16.5px;margin-bottom:8px}
+.lp-ex > p{color:var(--muted);font-size:13.5px;line-height:1.6;margin:0 0 14px}
+.lp-ex ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:7px}
+.lp-ex li{font-size:12.5px;color:var(--muted);display:flex;gap:8px;align-items:flex-start;line-height:1.5}
+.lp-ex li svg{width:13px;height:13px;fill:var(--c);flex:none;margin-top:3px}
+/* Hai cột: tính năng + ảnh xem trước */
+.lp-split{display:grid;grid-template-columns:1fr 1fr;gap:clamp(26px,4.5vw,52px);align-items:center}
+.lp-split h2{font-size:clamp(23px,3.2vw,31px);line-height:1.26;margin-bottom:13px}
+.lp-split > div > p.lp-lead{margin-bottom:26px}
+.lp-feats{display:flex;flex-direction:column;gap:17px}
+.lp-feat{display:flex;gap:14px}
+.lp-feat .ico{width:38px;height:38px;border-radius:11px;background:var(--ov-08);color:var(--accent);display:grid;place-items:center;flex:none}
+.lp-feat .ico svg{width:18px;height:18px;fill:currentColor}
+.lp-feat h3{font-size:14.5px;margin-bottom:4px}
+.lp-feat p{color:var(--muted);font-size:13px;line-height:1.6;margin:0}
+/* Khung xem trước dạng bảng điều khiển thu nhỏ */
+.lp-prev{background:linear-gradient(180deg,var(--grad1),var(--grad2));border:1px solid var(--border);border-radius:18px;padding:18px;box-shadow:0 18px 44px -20px rgba(0,0,0,.55),0 2px 8px rgba(0,0,0,.18)}
+.lp-prev-top{display:flex;align-items:center;gap:7px;margin-bottom:14px}
+.lp-prev-top i{width:9px;height:9px;border-radius:50%;background:var(--ov-18);display:block}
+.lp-prev-top span{margin-left:auto;font-size:11px;color:var(--muted)}
+.lp-prev-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:12px}
+.lp-prev-kpi{background:var(--ov-06);border-radius:10px;padding:11px 12px}
+.lp-prev-kpi b{display:block;font:600 19px var(--display);font-variant-numeric:tabular-nums}
+.lp-prev-kpi span{font-size:10.5px;color:var(--muted)}
+.lp-prev-rows{display:flex;flex-direction:column;gap:7px}
+.lp-prev-row{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;background:var(--ov-06);border-radius:9px;padding:8px 11px;font-size:12px}
+.lp-prev-row .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* Khung đăng nhập cuối trang */
+.lp-login{padding:clamp(52px,7.5vw,96px) 0;display:grid;place-items:center}
+.lp-login .login-card{margin:0}
+.lp-login .lp-sec-head{margin-bottom:clamp(24px,3.5vw,36px)}
+.lp-foot{border-top:1px solid var(--border);padding:24px;color:var(--muted);font-size:12.5px;text-align:center;line-height:1.6}
+@media (max-width:860px){
+  .lp-hero,.lp-split{grid-template-columns:1fr}
+  .lp-grid3{grid-template-columns:1fr}
+  .lp-nav{display:none}
+  .lp-head{gap:10px;padding:10px 16px}
+  .lp-head .btn-pill{margin-left:auto}
+  .lp-hero{text-align:center;padding-top:26px}
+  .lp-hero .lp-lead{margin-inline:auto}
+  .lp-hero .lp-actions{justify-content:center}
+  .lp-art{order:-1;min-height:252px}
+  .lp-prev-kpis{grid-template-columns:1fr 1fr}
+}
+@media (max-width:420px){
+  .lp-chip{padding:8px 10px;font-size:11.5px}
+  .lp-chip .n{font-size:18px}
+}
 @media (max-width:900px){
   #topbar{justify-content:space-between;padding:10px 14px;gap:10px}
   .live{display:none}
@@ -1698,30 +1819,209 @@ async function bootData(user){
   }
 }
 
-/* ===== Đăng nhập ===== */
+/* ===== Trang giới thiệu + đăng nhập ===== */
+/* Biểu tượng riêng cho trang giới thiệu (không dùng lại ở bảng điều khiển) */
+/* Icon 3 bài tập lấy từ chính app kiosk trên Pi (static/squat|plank|pushup.svg):
+   đã bỏ nền/gradient gốc, gộp các phép biến hình thành một ma trận và chuẩn hoá về
+   khung vuông 100x100 để ba hình có tỉ lệ rất khác nhau vẫn hiện cùng cỡ thị giác.
+   Tô bằng currentColor nên tự ăn theo màu của từng thẻ bài tập. */
+const icoSquat='<svg viewBox="0 0 100 100" fill="currentColor" aria-hidden="true"><path transform="matrix(0.1685 0 0 0.1685 -338.501 -66.934)" d="M2305.89 549.611 2362.76 549.827C2374.65 551.123 2386.11 555.662 2396.27 562.794L2507.85 627.196C2519.95 634.112 2524.06 649.456 2517.14 661.56L2459.63 760.973C2452.71 773.076 2437.35 777.183 2425.24 770.266 2413.14 763.351 2409.03 748.006 2415.95 735.904L2460.93 658.102 2395.84 620.713C2394.75 620.064 2393.46 619.633 2392.16 619.633 2388.28 619.633 2385.03 622.875 2385.03 626.765L2385.03 786.475 2492.71 786.475C2512.6 786.475 2528.6 802.684 2528.17 822.351 2528.17 832.292 2524.28 841.153 2517.79 847.636L2410.33 955.043C2396.27 969.098 2373.57 969.098 2359.51 955.043 2345.46 940.997 2345.46 918.305 2359.51 904.259L2405.57 858.23 2305.67 858.23 2205.77 858.23 2251.84 904.259C2265.89 918.305 2265.89 940.997 2251.84 955.043 2237.78 969.098 2215.07 969.098 2201.02 955.043L2093.56 847.636C2087.07 841.153 2083.18 832.292 2083.18 822.351 2083.18 802.468 2099.18 786.475 2119.08 786.475L2226.75 786.475 2226.75 678.849 2226.75 626.765C2226.75 622.875 2223.51 619.633 2219.62 619.633 2218.32 619.633 2217.02 620.064 2215.94 620.713L2150.85 658.102 2195.83 735.904C2202.75 748.006 2198.64 763.351 2186.53 770.266 2174.43 777.183 2159.07 773.076 2152.15 760.973L2094.63 661.56C2087.72 649.456 2091.82 634.112 2103.93 627.196L2215.51 562.794C2225.67 555.662 2237.13 551.123 2249.03 549.827ZM2305.89 420.372C2337.65 420.372 2363.41 446.11 2363.41 477.86 2363.41 509.608 2337.65 535.347 2305.89 535.347 2274.13 535.347 2248.37 509.608 2248.37 477.86 2248.37 446.11 2274.13 420.372 2305.89 420.372Z"/></svg>';
+const icoPlank='<svg viewBox="0 0 100 100" fill="currentColor" aria-hidden="true"><path transform="matrix(0.14236 0 0 0.14236 -328.428 -55.052)" d="M2888.29 564.932C2846.05 575.145 2820.06 616.049 2828.22 659.461 2833.27 686.261 2850.47 709.199 2872.86 718.964 2886.46 724.896 2894.71 726.392 2908.58 725.44 2965.55 721.528 2997.43 656.05 2968.21 602.998 2962.02 591.769 2945.83 576.222 2935.07 571.18 2921.16 564.657 2900.71 561.927 2888.29 564.932M2728.87 639.593C2695.5 651.368 2618.79 687.534 2598.3 701.144 2578.28 714.446 2562.64 734.527 2554.31 757.622L2551.48 765.473 2453.94 798.937C2400.28 817.34 2354.4 833.66 2351.97 835.201 2345.14 839.529 2337.68 849.712 2335.29 857.978 2329.16 879.122 2338.8 900.762 2358.13 909.181 2372.02 915.234 2357.88 919.447 2569.24 846.216L2759.39 780.327 2760.98 791.403C2761.85 797.494 2763.87 814.859 2765.48 829.988 2768.78 861.024 2769.86 864.421 2779.34 873.481 2789.73 883.396 2787.9 883.259 2851.33 878.901 2905.77 875.16 2907.41 874.985 2912.34 872.122 2938.6 856.887 2935.82 816.455 2907.73 804.952 2902.67 802.883 2900 802.868 2868.04 804.684L2833.76 806.631 2832.72 800.334C2832.15 796.868 2829.97 781.129 2827.88 765.351 2818.64 695.333 2816.29 682.665 2810.22 669.876 2802.69 653.996 2791.48 642.852 2776.75 636.62 2769.75 633.656 2767.75 633.387 2756.29 633.869 2744.95 634.344 2741.98 634.965 2728.87 639.593"/></svg>';
+const icoPushup='<svg viewBox="0 0 100 100" fill="currentColor" aria-hidden="true"><path transform="matrix(0.09593 0 0 0.09593 -215.035 10.618)" d="M3165.86 313.738C3207.4 313.738 3241.09 347.431 3241.09 388.994 3241.09 430.556 3207.4 464.25 3165.86 464.25 3124.31 464.25 3090.62 430.556 3090.62 388.994 3090.62 347.431 3124.31 313.738 3165.86 313.738ZM2766.55 295.026C2765.63 316.127 2773.33 328.195 2782.79 347.382L2841.57 466.733 2692.37 444.082 2577.21 527.283C2569.55 532.818 2560.36 535.793 2550.91 535.793L2327.36 535.793C2302.53 535.793 2282.42 515.672 2282.42 490.845 2282.42 466.02 2302.53 445.895 2327.36 445.897L2536.37 445.897 2727.84 307.553C2738.09 300.151 2752.18 294.74 2766.55 295.026ZM2853.7 274.125C2857.8 274.43 2861.99 275.402 2866.2 277.143L2982.69 325.371 2954.55 302.857 3027.26 305.905C3049.23 306.826 3066.28 325.375 3065.34 347.343L3060.83 455.398C3059.93 476.532 3042.7 493.357 3021.3 493.477L2984.01 411.383C2981.11 410.532 2984.14 411.681 2933.01 390.513L2981.97 489.916C2991.63 509.53 2983.56 533.269 2963.96 542.936 2944.36 552.598 2920.61 544.539 2910.96 524.918L2815.56 331.231C2801.47 302.622 2825.05 272.002 2853.7 274.125Z"/></svg>';
+const icoChart='<svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="13" width="4" height="8" rx="1.2"/><rect x="10" y="8" width="4" height="13" rx="1.2"/><rect x="17" y="4" width="4" height="17" rx="1.2"/></svg>';
+const icoBolt='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg>';
+const icoShield='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 4 5.2v6.1c0 4.7 3.3 9.1 8 10.7 4.7-1.6 8-6 8-10.7V5.2Z"/></svg>';
+const icoDevice='<svg viewBox="0 0 24 24" fill="currentColor"><rect x="2" y="4" width="20" height="13" rx="2.2"/><rect x="8" y="19" width="8" height="2" rx="1"/></svg>';
+
 function renderLogin(prefillErr){
   if(channel){sb.removeChannel(channel);channel=null}
   if(pollTimer){clearInterval(pollTimer);pollTimer=null}
-  document.getElementById('root-outer').innerHTML=`<div class="center-screen"><div class="login-card">
-    <div class="brand">
-      <img class="brand-mark brand-mark-dark" src="img/logo.svg" alt="">
+  const brandImgs=`<img class="brand-mark brand-mark-dark" src="img/logo.svg" alt="">
       <img class="brand-mark brand-mark-light" src="img/logo-light.svg" alt="">
-    </div>
-    <form id="loginForm">
-      <label for="email">Email giáo viên</label>
-      <input id="email" type="email" required autocomplete="username">
-      <label for="pw">Mật khẩu</label>
-      <input id="pw" type="password" required autocomplete="current-password">
-      <div class="err" id="loginErr">${prefillErr?esc(prefillErr):''}</div>
-      <button type="submit" id="loginBtn" class="btn-primary">Đăng nhập</button>
-      <div style="text-align:right;margin-top:10px"><button type="button" id="forgotBtn" class="link-btn">Quên mật khẩu?</button></div>
-      <div class="field-msg" id="forgotMsg"></div>
-    </form>
-    <p class="hint">Tài khoản do quản trị viên cấp — liên hệ quản trị viên nếu bạn cần tài khoản mới.</p>
-    <button type="button" class="btn-ghost" data-install hidden style="margin-top:10px;display:flex;align-items:center;justify-content:center;gap:8px"><svg viewBox="0 0 24 24" fill="currentColor" width="15" height="15">${icoInstall.replace(/<svg[^>]*>|<\/svg>/g,'')}</svg>Cài đặt ứng dụng</button>
-  </div></div>`;
-  document.querySelector('[data-install]').addEventListener('click',doInstall);
+      <img class="brand-word brand-word-dark" src="img/logo-text.svg" alt="PoseAI">
+      <img class="brand-word brand-word-light" src="img/logo-text-light.svg" alt="PoseAI">`;
+  /* Khung xương tư thế tự vẽ — cùng ngôn ngữ hình với logo: khớp tròn + xương nối */
+  const figure=`<svg class="lp-fig" viewBox="0 0 200 232" role="img" aria-label="Minh hoạ khung xương tư thế">
+    <path class="lp-bone" d="M100 52 100 134"/><path class="lp-bone" d="M70 80 130 80"/>
+    <path class="lp-bone" d="M70 80 58 112 64 142"/><path class="lp-bone" d="M130 80 142 112 136 142"/>
+    <path class="lp-bone" d="M82 134 118 134"/>
+    <path class="lp-bone" d="M84 134 78 182 74 216"/><path class="lp-bone" d="M116 134 122 182 126 216"/>
+    <circle class="lp-joint" cx="100" cy="36" r="15"/>
+    <circle class="lp-joint" cx="70" cy="80" r="6" style="animation-delay:.2s"/><circle class="lp-joint" cx="130" cy="80" r="6" style="animation-delay:.35s"/>
+    <circle class="lp-joint" cx="58" cy="112" r="5.5" style="animation-delay:.5s"/><circle class="lp-joint" cx="142" cy="112" r="5.5" style="animation-delay:.65s"/>
+    <circle class="lp-joint" cx="64" cy="142" r="5.5" style="animation-delay:.8s"/><circle class="lp-joint" cx="136" cy="142" r="5.5" style="animation-delay:.95s"/>
+    <circle class="lp-joint" cx="84" cy="134" r="6" style="animation-delay:.3s"/><circle class="lp-joint" cx="116" cy="134" r="6" style="animation-delay:.45s"/>
+    <circle class="lp-joint" cx="78" cy="182" r="5.5" style="animation-delay:1.05s"/><circle class="lp-joint" cx="122" cy="182" r="5.5" style="animation-delay:1.2s"/>
+    <circle class="lp-joint" cx="74" cy="216" r="5.5" style="animation-delay:1.35s"/><circle class="lp-joint" cx="126" cy="216" r="5.5" style="animation-delay:1.5s"/>
+  </svg>`;
+  const step=(n,t,d)=>`<div class="lp-card"><div class="lp-step-n">${n}</div><h3>${t}</h3><p>${d}</p></div>`;
+  const exCard=(c,ico,name,desc,errs)=>`<div class="lp-ex" style="--c:${c}"><div class="ico">${ico}</div><h3>${name}</h3><p>${desc}</p>
+    <ul>${errs.map(e=>`<li>${icoCheck}${esc(e)}</li>`).join('')}</ul></div>`;
+  const feat=(ico,t,d)=>`<div class="lp-feat"><div class="ico">${ico}</div><div><h3>${t}</h3><p>${d}</p></div></div>`;
+
+  document.getElementById('root-outer').innerHTML=`<div class="lp">
+    <header class="lp-head">
+      <a class="brand" href="#top" aria-label="PoseAI">${brandImgs}</a>
+      <nav class="lp-nav" aria-label="Giới thiệu">
+        <a href="#tinh-nang">Tính năng</a>
+        <a href="#cach-hoat-dong">Cách hoạt động</a>
+        <a href="#bai-tap">Bài tập</a>
+        <a href="#giao-vien">Cho giáo viên</a>
+      </nav>
+      <a class="btn-pill" href="#dang-nhap">Đăng nhập</a>
+    </header>
+    <main class="lp-main" id="top">
+      <div class="lp-wrap">
+        <section class="lp-hero">
+          <div>
+            <span class="lp-badge"><i></i>Đang chạy tại phòng tập thể chất</span>
+            <h1>Chấm điểm <em>tư thế tập luyện</em> bằng AI, ngay tại chỗ</h1>
+            <p class="lp-lead">PoseAI quan sát học sinh qua camera, đếm số lần, phát hiện lỗi tư thế và chấm điểm từng buổi tập — rồi gửi thẳng kết quả lên bảng theo dõi của giáo viên.</p>
+            <div class="lp-actions">
+              <a class="btn-pill" href="#dang-nhap">Đăng nhập để xem lớp</a>
+              <a class="btn-pill ghost" href="#cach-hoat-dong">Xem cách hoạt động</a>
+            </div>
+          </div>
+          <div class="lp-art">
+            ${figure}
+            <div class="lp-chip a"><div><span class="k">Điểm buổi tập</span><span class="n" style="color:var(--good)">92</span></div></div>
+            <div class="lp-chip b">${icoAlert}<div><span class="k">Lỗi phát hiện</span><span style="font-weight:600">Lưng cong · 2 lần</span></div></div>
+          </div>
+        </section>
+        <section class="lp-stats" aria-label="Số liệu">
+          <div class="lp-stat"><b>3</b><span>bài tập được hỗ trợ</span></div>
+          <div class="lp-stat"><b>Tự động</b><span>chấm điểm ngay khi tập xong</span></div>
+          <div class="lp-stat"><b>Vài giây</b><span>kết quả hiện trên bảng theo dõi</span></div>
+          <div class="lp-stat"><b>0</b><span>video hay hình ảnh được lưu</span></div>
+        </section>
+      </div>
+
+      <section class="lp-sec alt" id="cach-hoat-dong">
+        <div class="lp-wrap">
+          <div class="lp-sec-head">
+            <span class="lp-eyebrow">Cách hoạt động</span>
+            <h2>Từ buổi tập đến bảng điểm, không cần thao tác thủ công</h2>
+            <p>Học sinh chỉ cần đứng trước máy và tập. Mọi việc ghi nhận, chấm điểm và đồng bộ đều tự động.</p>
+          </div>
+          <div class="lp-grid3">
+            ${step(1,'Chọn hồ sơ và bài tập','Học sinh chọn tên mình trên màn hình máy PoseAI, chọn Squat, Plank hay Push-up rồi bắt đầu.')}
+            ${step(2,'AI quan sát và chấm điểm','Camera nhận diện khung xương theo thời gian thực, đếm số lần, bắt lỗi tư thế và tính điểm cho cả buổi.')}
+            ${step(3,'Kết quả lên bảng theo dõi','Điểm, số lần, thời lượng và danh sách lỗi được gửi lên bảng của giáo viên ngay sau khi kết thúc.')}
+          </div>
+        </div>
+      </section>
+
+      <section class="lp-sec" id="bai-tap">
+        <div class="lp-wrap">
+          <div class="lp-sec-head">
+            <span class="lp-eyebrow">Bài tập</span>
+            <h2>Ba bài tập cơ bản, mỗi bài một bộ tiêu chí riêng</h2>
+            <p>Mỗi bài tập có cách tính điểm và nhóm lỗi tư thế riêng, bám theo những lỗi học sinh hay mắc nhất.</p>
+          </div>
+          <div class="lp-grid3">
+            ${exCard('var(--c-squat)',icoSquat,'Squat','Đếm số lần đứng lên ngồi xuống và kiểm tra độ sâu, độ thẳng của thân người.',['Lưng cong khi hạ người','Gối vượt quá mũi chân','Hạ chưa đủ sâu'])}
+            ${exCard('var(--c-plank)',icoPlank,'Plank','Tính thời lượng giữ tư thế và theo dõi đường thẳng từ vai đến gót chân.',['Hông võng xuống','Hông nhô quá cao','Lệch vai, mất cân bằng'])}
+            ${exCard('var(--c-pushup)',icoPushup,'Push-up','Đếm số lần chống đẩy hợp lệ dựa trên biên độ khuỷu tay và thân người.',['Khuỷu tay chưa gập đủ','Thân người không thẳng','Hạ xuống chưa đủ thấp'])}
+          </div>
+        </div>
+      </section>
+
+      <section class="lp-sec alt" id="giao-vien">
+        <div class="lp-wrap lp-split">
+          <div>
+            <span class="lp-eyebrow">Cho giáo viên</span>
+            <h2>Theo dõi cả lớp trên một màn hình</h2>
+            <p class="lp-lead">Bảng theo dõi cho biết em nào đang tiến bộ, em nào lâu chưa tập và lớp hay mắc lỗi tư thế nào nhất — không phải ghi chép tay.</p>
+            <div class="lp-feats">
+              ${feat(icoChart,'Thống kê theo lớp và theo từng em','Điểm trung bình, số buổi, xu hướng tiến bộ, bảng xếp hạng và lịch tập 12 tuần.')}
+              ${feat(icoBolt,'Nhắc em cần chú ý','Tự đánh dấu học sinh lâu chưa tập, điểm đang giảm hoặc điểm trung bình dưới 60.')}
+              ${feat(icoDownload,'Xuất báo cáo và in','Tải danh sách học sinh hoặc buổi tập ra CSV, in báo cáo riêng cho từng em.')}
+              ${feat(icoRefresh,'Sửa dữ liệu, máy tự đồng bộ','Thêm, đổi tên hay xoá học sinh trên web — máy PoseAI nhận lệnh ở lần đồng bộ kế tiếp.')}
+            </div>
+          </div>
+          <div class="lp-prev" aria-hidden="true">
+            <div class="lp-prev-top"><i></i><i></i><i></i><span>Tổng quan · 14 ngày</span></div>
+            <div class="lp-prev-kpis">
+              <div class="lp-prev-kpi"><b>128</b><span>buổi tập</span></div>
+              <div class="lp-prev-kpi"><b>74,5</b><span>điểm TB</span></div>
+              <div class="lp-prev-kpi"><b>18</b><span>em hoạt động</span></div>
+            </div>
+            <div class="lp-prev-rows">
+              <div class="lp-prev-row"><span class="nm">Nguyễn Văn An</span><span class="tag" style="--c:var(--c-squat)">Squat</span><span class="pill good">88</span></div>
+              <div class="lp-prev-row"><span class="nm">Trần Thị Bình</span><span class="tag" style="--c:var(--c-plank)">Plank</span><span class="pill mid">71</span></div>
+              <div class="lp-prev-row"><span class="nm">Lê Hoàng Cường</span><span class="tag" style="--c:var(--c-pushup)">Push-up</span><span class="pill good">83</span></div>
+              <div class="lp-prev-row"><span class="nm">Phạm Thị Dung</span><span class="tag" style="--c:var(--c-squat)">Squat</span><span class="pill low">58</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="lp-sec" id="tinh-nang">
+        <div class="lp-wrap">
+          <div class="lp-sec-head">
+            <span class="lp-eyebrow">Thiết bị và quyền riêng tư</span>
+            <h2>Một máy đặt tại phòng tập, dữ liệu gọn nhẹ</h2>
+          </div>
+          <div class="lp-grid3">
+            <div class="lp-card"><div class="lp-step-n">${icoDevice}</div><h3>Chạy trên máy tại chỗ</h3><p>PoseAI chạy trên một máy nhỏ đặt sẵn ở phòng tập, có màn hình cảm ứng để học sinh tự thao tác.</p></div>
+            <div class="lp-card"><div class="lp-step-n">${icoShield}</div><h3>Không lưu hình ảnh</h3><p>Camera chỉ dùng để nhận diện tư thế ngay tại máy. Hệ thống không lưu và không gửi đi video hay ảnh của học sinh.</p></div>
+            <div class="lp-card"><div class="lp-step-n">${icoBolt}</div><h3>Vẫn chạy khi mạng chập chờn</h3><p>Buổi tập được ghi lại ngay trên máy, khi có mạng sẽ tự đồng bộ lên bảng theo dõi.</p></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="lp-sec alt lp-login" id="dang-nhap">
+        <div class="lp-wrap">
+          <div class="lp-sec-head">
+            <span class="lp-eyebrow">Khu vực giáo viên</span>
+            <h2>Đăng nhập để xem bảng theo dõi</h2>
+            <p>Dành cho giáo viên phụ trách. Tài khoản do quản trị viên cấp.</p>
+          </div>
+          <div class="login-card" style="margin:0 auto">
+            <form id="loginForm">
+              <label for="email">Email giáo viên</label>
+              <input id="email" type="email" required autocomplete="username" inputmode="email" autocapitalize="none" spellcheck="false">
+              <label for="pw">Mật khẩu</label>
+              <input id="pw" type="password" required autocomplete="current-password">
+              <div class="err" id="loginErr">${prefillErr?esc(prefillErr):''}</div>
+              <button type="submit" id="loginBtn" class="btn-primary">Đăng nhập</button>
+              <div style="text-align:right;margin-top:10px"><button type="button" id="forgotBtn" class="link-btn">Quên mật khẩu?</button></div>
+              <div class="field-msg" id="forgotMsg"></div>
+            </form>
+            <p class="hint">Liên hệ quản trị viên nếu bạn cần tài khoản mới.</p>
+            <button type="button" class="btn-ghost" data-install hidden style="margin-top:10px;display:flex;align-items:center;justify-content:center;gap:8px"><svg viewBox="0 0 24 24" fill="currentColor" width="15" height="15">${icoInstall.replace(/<svg[^>]*>|<\/svg>/g,'')}</svg>Cài đặt ứng dụng</button>
+          </div>
+        </div>
+      </section>
+    </main>
+    <footer class="lp-foot">PoseAI · Hệ thống theo dõi và chấm điểm tư thế tập luyện dành cho trường học.</footer>
+  </div>`;
+  document.querySelectorAll('[data-install]').forEach(b=>b.addEventListener('click',doInstall));
   updateInstallUI();
+  /* Tự xử lý các liên kết neo thay vì để trình duyệt nhảy theo #hash:
+     - không làm bẩn URL bằng #tinh-nang… (hash còn sót lại sẽ bị bảng điều khiển
+       đọc nhầm thành tên màn hình sau khi đăng nhập),
+     - không kích hoạt sự kiện hashchange của phần bảng điều khiển,
+     - cuộn mượt có trừ sẵn chiều cao thanh điều hướng dính (qua scroll-margin-top). */
+  const lpRoot=document.querySelector('.lp');
+  lpRoot.addEventListener('click',e=>{
+    const a=e.target.closest('a[href^="#"]');
+    if(!a) return;
+    const id=a.getAttribute('href').slice(1);
+    const target=id?document.getElementById(id):null;
+    e.preventDefault();
+    if(!target) return;
+    const smooth=!window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    target.scrollIntoView({behavior:smooth?'smooth':'auto',block:'start'});
+    /* Tới khung đăng nhập thì đặt sẵn con trỏ vào ô email cho đỡ phải bấm thêm */
+    if(id==='dang-nhap'){
+      setTimeout(()=>{const i=document.getElementById('email'); if(i) i.focus({preventScroll:true})},smooth?500:0);
+    }
+  });
+  if(prefillErr){
+    const sec=document.getElementById('dang-nhap');
+    if(sec) sec.scrollIntoView({block:'center'});
+  }
   document.getElementById('loginForm').addEventListener('submit',async e=>{
     e.preventDefault();
     const btn=document.getElementById('loginBtn'), errEl=document.getElementById('loginErr');

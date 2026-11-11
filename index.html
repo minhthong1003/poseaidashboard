@@ -429,6 +429,23 @@ select{background:var(--bg2);color:var(--text);border:1px solid var(--border);bo
 .lp-art::before{content:"";position:absolute;inset:4%;border-radius:26px;background:radial-gradient(circle at 50% 40%,color-mix(in srgb,var(--accent) 15%,transparent),transparent 64%)}
 .lp-art::after{content:"";position:absolute;inset:4%;border-radius:26px;border:1px solid var(--border);background-image:radial-gradient(var(--ov-12) 1px,transparent 1px);background-size:22px 22px;-webkit-mask-image:radial-gradient(ellipse 72% 62% at 50% 44%,#000,transparent);mask-image:radial-gradient(ellipse 72% 62% at 50% 44%,#000,transparent)}
 .lp-fig{position:relative;z-index:1;width:min(100%,250px);height:auto;display:block}
+/* Mô hình 3D sản phẩm ở hero. Hiện mờ rồi mới rõ dần khi tải xong; trước đó vẫn là
+   hình khung xương SVG bên dưới, nên mạng chậm hay chặn CDN cũng không bị trống chỗ. */
+/* touch-action:pan-y đặt bằng CSS chứ không chỉ bằng thuộc tính của model-viewer —
+   thuộc tính đó không đổi thành CSS thật (kiểm tra thấy vẫn là "auto"), mà nếu để auto
+   thì trên điện thoại vuốt dọc ngay trên mô hình sẽ bị giữ lại để xoay, không cuộn được trang.
+   Đặt chồng tuyệt đối lên hình SVG (không nằm trong luồng) để lúc mô hình chưa hiện thì
+   hai thứ không xếp chồng nhau làm xô lệch bố cục.
+   Dùng visibility thay vì hiệu ứng mờ dần: opacity có transition sẽ kẹt ở 0 nếu đồng hồ
+   hoạt ảnh bị tạm dừng (tab ẩn/nền), còn visibility đổi tức thì nên luôn chắc chắn hiện ra. */
+.lp-model{position:absolute;inset:0;z-index:1;width:100%;height:100%;background:transparent;touch-action:pan-y;--poster-color:transparent;--progress-bar-color:var(--accent);--progress-mask:transparent;visibility:hidden}
+.lp-model.ready{visibility:visible}
+/* Nhãn gợi ý chỉ hiện khi mô hình 3D đã dựng xong (dùng bộ chọn anh em ~ nên thẻ này
+   phải nằm ngay sau <model-viewer> trong DOM) */
+/* Đặt ở góc dưới-phải: góc trên-phải đã có thẻ điểm, góc dưới-trái có thẻ lỗi */
+.lp-model-hint{position:absolute;z-index:2;bottom:0;right:0;display:none;align-items:center;gap:6px;background:var(--ov-06);border:1px solid var(--border);padding:4px 11px;border-radius:999px;font-size:11.5px;color:var(--muted);white-space:nowrap}
+.lp-model-hint svg{width:12px;height:12px;fill:currentColor}
+.lp-model.ready ~ .lp-model-hint{display:inline-flex}
 .lp-bone{stroke:var(--accent);stroke-width:5;stroke-linecap:round;stroke-linejoin:round;fill:none;opacity:.9}
 .lp-joint{fill:var(--text);transform-box:fill-box;transform-origin:center;animation:lpPulse 2.8s ease-in-out infinite}
 @keyframes lpPulse{0%,100%{opacity:.45;transform:scale(.86)}50%{opacity:1;transform:scale(1.1)}}
@@ -1833,6 +1850,28 @@ const icoBolt='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 3 14h
 const icoShield='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 4 5.2v6.1c0 4.7 3.3 9.1 8 10.7 4.7-1.6 8-6 8-10.7V5.2Z"/></svg>';
 const icoDevice='<svg viewBox="0 0 24 24" fill="currentColor"><rect x="2" y="4" width="20" height="13" rx="2.2"/><rect x="8" y="19" width="8" height="2" rx="1"/></svg>';
 
+/* Nạp thư viện <model-viewer> (chỉ ở trang giới thiệu, không đụng tới bảng điều khiển).
+   Tải theo yêu cầu bằng import động: nếu chặn CDN / mất mạng thì bắt được lỗi và
+   trang vẫn giữ nguyên hình khung xương SVG thay vì để trống một mảng lớn. */
+const MODEL_VIEWER_SRC='https://cdn.jsdelivr.net/npm/@google/model-viewer@4.4.0/dist/model-viewer.min.js';
+let modelLibLoading=null;
+function loadModelLib(){
+  if(window.customElements&&customElements.get('model-viewer')) return Promise.resolve();
+  if(!modelLibLoading) modelLibLoading=import(MODEL_VIEWER_SRC);
+  return modelLibLoading;
+}
+function initHeroModel(){
+  const mv=document.getElementById('heroModel');
+  if(!mv) return;
+  const fig=document.querySelector('.lp-fig');
+  mv.addEventListener('load',()=>{
+    mv.classList.add('ready');
+    if(fig) fig.style.display='none';
+  },{once:true});
+  /* CDN hỏng / mất mạng: gỡ thẻ 3D đi, hero giữ nguyên hình khung xương SVG */
+  loadModelLib().catch(()=>{ mv.remove() });
+}
+
 function renderLogin(prefillErr){
   if(channel){sb.removeChannel(channel);channel=null}
   if(pollTimer){clearInterval(pollTimer);pollTimer=null}
@@ -1884,6 +1923,27 @@ function renderLogin(prefillErr){
           </div>
           <div class="lp-art">
             ${figure}
+            <!-- Mô hình đã nén Draco (2,6MB -> 151KB), model-viewer tự tải bộ giải mã.
+                 camera-orbit 45deg: góc 3/4 thấy rõ màn hình và cạnh bên, mặt máy hướng về phía
+                 chữ bên trái. Mặt trước là 0deg, 135-225deg là lưng (chỉ có lưới tản nhiệt).
+                 Không bật auto-rotate: tự xoay thì quá nửa thời gian trang chủ hiện mặt lưng;
+                 người xem vẫn kéo xoay 360° được.
+                 Ánh sáng: ảnh HDR phòng chụp thật (studio_small_09 của Poly Haven, giấy phép CC0)
+                 đã thu nhỏ còn 192px/58KB — model-viewer tự lọc ảnh môi trường xuống độ phân giải
+                 thấp trước khi dùng, nên bản 192px cho kết quả GIỐNG HỆT bản gốc 1024px/1,5MB
+                 (đã đo: 0 điểm ảnh khác biệt). Có hướng sáng rõ nên khối máy nổi và thật hơn
+                 kiểu "neutral" phẳng của model-viewer.
+                 Bán kính 0.52m thay cho auto: kéo máy to lên; camera-target hạ xuống một chút để
+                 máy nhích lên giữa khung thay vì bị trĩu xuống đáy.
+                 touch-action="pan-y" để trên điện thoại vuốt dọc trên mô hình vẫn cuộn được trang. -->
+            <model-viewer id="heroModel" class="lp-model" src="model/poseai.glb"
+              alt="Mô hình 3D máy PoseAI" camera-controls
+              camera-orbit="45deg 75deg 0.52m" camera-target="0m 0.058m -0.02m" field-of-view="30deg"
+              environment-image="model/studio.hdr" tone-mapping="commerce" exposure="1.05"
+              shadow-intensity="1" shadow-softness="0.9"
+              interaction-prompt="none" loading="eager" reveal="auto"
+              touch-action="pan-y" disable-tap></model-viewer>
+            <span class="lp-model-hint">${icoRefresh}Kéo để xoay</span>
             <div class="lp-chip a"><div><span class="k">Điểm buổi tập</span><span class="n" style="color:var(--good)">92</span></div></div>
             <div class="lp-chip b">${icoAlert}<div><span class="k">Lỗi phát hiện</span><span style="font-weight:600">Lưng cong · 2 lần</span></div></div>
           </div>
@@ -1998,6 +2058,7 @@ function renderLogin(prefillErr){
   </div>`;
   document.querySelectorAll('[data-install]').forEach(b=>b.addEventListener('click',doInstall));
   updateInstallUI();
+  initHeroModel();
   /* Tự xử lý các liên kết neo thay vì để trình duyệt nhảy theo #hash:
      - không làm bẩn URL bằng #tinh-nang… (hash còn sót lại sẽ bị bảng điều khiển
        đọc nhầm thành tên màn hình sau khi đăng nhập),

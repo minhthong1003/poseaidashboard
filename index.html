@@ -459,24 +459,17 @@ select{background:var(--bg2);color:var(--text);border:1px solid var(--border);bo
    dời ngang là mô hình lệch ra khỏi khung và bị cắt (đã đo: lệch -0.04m là chạm mép phải).
    .lp-model-stage KHÔNG đặt z-index: để nó không tạo ngữ cảnh xếp lớp riêng, nhờ vậy thẻ
    nổi bên trong (z-index 3) vẫn nằm trên khối chữ (z-index 2) của hero. */
-.lp-model-stage{position:absolute;top:0;bottom:0;right:0;left:clamp(0px,30%,420px)}
+/* Tăng lề trái để đẩy mô hình lệch sang phải. Thu hẹp bề ngang khung KHÔNG làm máy nhỏ đi
+   (cỡ máy bám theo chiều cao khung), chỉ dời tâm khung sang phải — tâm dịch bằng một nửa
+   mức tăng của lề trái. */
+.lp-model-stage{position:absolute;top:0;bottom:0;right:0;left:clamp(0px,40%,540px)}
 .lp-model{position:absolute;inset:0;z-index:0;width:100%;height:100%;background:transparent;touch-action:pan-y;--poster-color:transparent;--progress-bar-color:var(--accent);--progress-mask:transparent;visibility:hidden}
 .lp-model.ready{visibility:visible}
 /* Nhãn gợi ý chỉ hiện khi mô hình 3D đã dựng xong (dùng bộ chọn anh em ~ nên thẻ này
    phải nằm ngay sau <model-viewer> trong DOM) */
-.lp-model-hint{position:absolute;z-index:3;bottom:14px;right:16px;display:none;align-items:center;gap:6px;background:var(--ov-06);border:1px solid var(--border);padding:4px 11px;border-radius:999px;font-size:11.5px;color:var(--muted);white-space:nowrap;pointer-events:none}
+.lp-model-hint{position:absolute;z-index:3;top:calc(50% + 172px);left:calc(50% + 52px);display:none;align-items:center;gap:6px;background:var(--ov-06);border:1px solid var(--border);padding:4px 11px;border-radius:999px;font-size:11.5px;color:var(--muted);white-space:nowrap;pointer-events:none}
 .lp-model-hint svg{width:12px;height:12px;fill:currentColor}
 .lp-model.ready ~ .lp-model-hint{display:inline-flex}
-.lp-chip{position:absolute;z-index:2;background:var(--bg2);border:1px solid var(--border);border-radius:13px;padding:10px 13px;box-shadow:0 14px 32px -16px rgba(0,0,0,.6),0 2px 6px rgba(0,0,0,.16);font-size:12.5px;display:flex;align-items:center;gap:10px;white-space:nowrap}
-.lp-chip .n{font:600 21px var(--display);line-height:1;font-variant-numeric:tabular-nums}
-.lp-chip .k{color:var(--muted);font-size:11.5px;display:block;margin-bottom:2px}
-/* Toạ độ tính theo vùng mô hình (.lp-model-stage), và không chặn thao tác kéo xoay */
-.lp-chip{z-index:3;pointer-events:none}
-.lp-chip.a{top:9%;right:4%}
-/* Đặt lệch về nửa phải: mép trái vùng mô hình nằm sát ngay cạnh hai nút CTA bên dưới
-   phần chữ, để thẻ ở đó là nó che mất nút. */
-.lp-chip.b{bottom:13%;right:32%;left:auto}
-.lp-chip svg{width:15px;height:15px;fill:var(--mid);flex:none}
 /* Dải số liệu */
 .lp-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(144px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:16px;overflow:hidden}
 .lp-stat{background:var(--bg2);padding:19px 16px;text-align:center}
@@ -543,8 +536,11 @@ select{background:var(--bg2);color:var(--text);border:1px solid var(--border);bo
      Mô hình là Ô LƯỚI (không còn định vị tuyệt đối theo % cố định) nên luôn nhận hết
      phần chiều cao còn thừa sau khi xếp chữ: màn hình nhỏ chữ xuống nhiều dòng thì hero
      tự cao lên, mô hình vẫn giữ được ít nhất 240px chứ không bị chữ ăn mất như trước. */
-  .lp-hero{min-height:clamp(600px,88vh,780px);text-align:center;
-           display:grid;grid-template-rows:minmax(240px,1fr) auto}
+  /* Hero cao hơn + hàng mô hình tối thiểu lớn hơn => máy hiện to hơn, vì cỡ máy tỉ lệ
+     thuận với chiều cao hàng 1 (góc nhìn dọc cố định, không thể kéo máy ảnh lại gần
+     mà không có nguy cơ cắt mép ở màn hình hẹp). */
+  .lp-hero{min-height:clamp(680px,97vh,900px);text-align:center;
+           display:grid;grid-template-rows:minmax(300px,1fr) auto}
   .lp-model-stage{position:relative;grid-row:1;inset:auto;left:auto;right:auto;width:100%;height:100%}
   /* Khối chữ kéo ngược lên đè khoảng 72px vào chân mô hình -> vẫn có hiệu ứng chồng lớp
      nhưng mức đè là CỐ ĐỊNH, không phụ thuộc chiều cao đoạn văn. */
@@ -560,15 +556,9 @@ select{background:var(--bg2);color:var(--text);border:1px solid var(--border);bo
     background:linear-gradient(180deg,transparent 0,color-mix(in srgb,var(--bg) 60%,transparent) 32%,color-mix(in srgb,var(--bg) 92%,transparent) 56%,var(--bg) 74%)}
   .lp-hero::before{background:radial-gradient(74% 34% at 50% 27%,color-mix(in srgb,var(--accent) 16%,transparent),transparent 72%)}
   .lp-hero::after{-webkit-mask-image:radial-gradient(ellipse 74% 30% at 50% 27%,#000,transparent);mask-image:radial-gradient(ellipse 74% 30% at 50% 27%,#000,transparent)}
-  /* Thẻ nổi neo theo px trong vùng mô hình (hàng 1), không bị chữ ở hàng 2 đẩy đi */
-  .lp-chip.a{top:14px;right:12px;bottom:auto;left:auto}
-  .lp-chip.b{top:88px;left:12px;bottom:auto;right:auto}
-  .lp-model-hint{top:14px;left:12px;right:auto;bottom:auto}
+  /* Hình máy chiếm y 24-74% của hàng 1 — đặt nhãn gợi ý vào dải trống bên dưới, canh giữa */
+  .lp-model-hint{top:80%;left:50%;right:auto;bottom:auto;transform:translateX(-50%)}
   .lp-prev-kpis{grid-template-columns:1fr 1fr}
-}
-@media (max-width:420px){
-  .lp-chip{padding:8px 10px;font-size:11.5px}
-  .lp-chip .n{font-size:18px}
 }
 /* Máy rất hẹp (<=360px): logo + nút "Đăng nhập" ở header cộng lại vượt quá bề ngang,
    gây cuộn ngang vài px. Thu nhỏ cả hai lại cho vừa. */
@@ -1920,7 +1910,7 @@ function loadModelLib(){
 }
 /* Lắc nhẹ qua lại quanh góc 3/4 mặt trước, thay cho auto-rotate xoay trọn vòng (xoay trọn
    vòng thì quá nửa thời gian trang chủ chỉ thấy lưng máy). Dừng hẳn khi người xem tự kéo. */
-const SWAY_CENTER=45, SWAY_RANGE=13, SWAY_PERIOD=9000;
+const SWAY_CENTER=45, SWAY_RANGE=13, SWAY_PERIOD=9000, SWAY_PHI=72;
 function startSway(mv){
   if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   let stop=false, t0=null;
@@ -1931,10 +1921,12 @@ function startSway(mv){
   function step(t){
     if(stop||!mv.isConnected) return;
     if(t0===null) t0=t;
-    const phi=mv.getCameraOrbit().phi*180/Math.PI;
-    const r=mv.getCameraOrbit().radius;
     const theta=SWAY_CENTER+SWAY_RANGE*Math.sin((t-t0)/SWAY_PERIOD*2*Math.PI);
-    mv.cameraOrbit=`${theta.toFixed(2)}deg ${phi.toFixed(2)}deg ${r}m`;
+    /* Góc dọc và bán kính phải là HẰNG SỐ, tuyệt đối không đọc lại từ getCameraOrbit().
+       Hàm đó trả về vị trí camera đang nội suy (luôn trễ hơn đích), nên lấy giá trị trễ
+       đó đặt làm đích mới sẽ tạo vòng lặp phản hồi khiến góc dọc trôi dần — đo thực tế
+       thấy tụt từ 75deg về 0deg, tức là cúi thẳng từ trên xuống. */
+    mv.cameraOrbit=`${theta.toFixed(2)}deg ${SWAY_PHI}deg auto`;
     requestAnimationFrame(step);
   }
   requestAnimationFrame(step);
@@ -1996,11 +1988,17 @@ function renderLogin(prefillErr){
                  chữ bên trái. Mặt trước là 0deg, 135-225deg là lưng (chỉ có lưới tản nhiệt).
                  Không bật auto-rotate: tự xoay trọn vòng thì quá nửa thời gian hiện mặt lưng —
                  thay bằng startSway() lắc nhẹ quanh 45deg, dừng khi người xem tự kéo.
-                 Ánh sáng: ảnh HDR phòng chụp thật (studio_small_09 của Poly Haven, giấy phép CC0)
-                 đã thu nhỏ còn 192px/58KB — model-viewer tự lọc ảnh môi trường xuống độ phân giải
-                 thấp trước khi dùng, nên bản 192px cho kết quả GIỐNG HỆT bản gốc 1024px/1,5MB
-                 (đã đo: 0 điểm ảnh khác biệt). Có hướng sáng rõ nên khối máy nổi và thật hơn
-                 kiểu "neutral" phẳng của model-viewer.
+                 Ánh sáng: ảnh HDR tự dựng (model/studio.hdr, 256x128, 66KB) pha theo đúng tông nền
+                 navy/teal của trang: đèn chính trắng ngả ấm chếch trên - trước - trái, đèn viền
+                 xanh lam phía sau - phải, đèn phụ lạnh bên phải và một chút sáng hất từ dưới lên.
+                 Bản HDR studio trắng dùng trước đó cho ánh sáng sạch nhưng lạc tông, khối máy bị
+                 bệt; bản này tách khối rõ hơn và ăn nhập với nền.
+                 Vật liệu: bản xuất từ Blockbench để mọi vật liệu roughness = 1 (tán xạ hoàn toàn)
+                 nên không bắt sáng; build-model đặt lại theo từng chất liệu (màn kính 0.10, vỏ
+                 0.45, chi tiết 0.50, viền sáng 0.55).
+                 shadow-intensity = 0: bóng dựng sẵn của model-viewer sẽ ẩn mất mặt phẳng nền ta
+                 tự thêm (đã kiểm chứng: bật lên thì mesh "ground" bị đặt visible = false). Mặt
+                 phẳng đã có sẵn bóng tiếp xúc bệt vào texture nên không cần bóng của thư viện.
                  Bán kính để "auto": model-viewer tự tính khoảng cách vừa khít mô hình ở MỌI góc
                  xoay và mọi tỉ lệ khung, nên không bao giờ bị cắt mép.
                  camera-target hạ xuống một chút để máy nhích lên giữa khung.
@@ -2011,14 +2009,12 @@ function renderLogin(prefillErr){
           <div class="lp-model-stage">
             <model-viewer id="heroModel" class="lp-model" src="model/poseai.glb"
               alt="Mô hình 3D máy PoseAI" camera-controls
-              camera-orbit="45deg 75deg auto" camera-target="0m 0.062m -0.02m" field-of-view="30deg"
-              environment-image="model/studio.hdr" tone-mapping="commerce" exposure="1.05"
-              shadow-intensity="1" shadow-softness="0.9"
+              camera-orbit="45deg 72deg auto" camera-target="0m 0.062m -0.02m" field-of-view="30deg"
+              environment-image="model/studio.hdr" tone-mapping="commerce" exposure="1.12"
+              shadow-intensity="0"
               interaction-prompt="none" loading="eager" reveal="auto"
               touch-action="pan-y" disable-tap></model-viewer>
             <span class="lp-model-hint">${icoRefresh}Kéo để xoay</span>
-            <div class="lp-chip a"><div><span class="k">Điểm buổi tập</span><span class="n" style="color:var(--good)">92</span></div></div>
-            <div class="lp-chip b">${icoAlert}<div><span class="k">Lỗi phát hiện</span><span style="font-weight:600">Lưng cong · 2 lần</span></div></div>
           </div>
           <!-- Lớp phủ tối để chữ đè lên mô hình vẫn đọc rõ -->
           <div class="lp-hero-scrim"></div>

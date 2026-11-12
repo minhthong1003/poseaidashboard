@@ -1,0 +1,33 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><title>cmp3</title>
+<style>
+:root{--bg:#080b13;--accent:#1BB4B4;--ov-12:rgba(255,255,255,.12)}
+body{margin:0;background:var(--bg);color:#F2FAFA;font:12px system-ui}
+.grid{display:grid;grid-template-columns:1fr;gap:2px}
+.cell{position:relative;height:330px;overflow:hidden;background:var(--bg)}
+/* tai dung nen that cua hero: quang accent + luoi cham */
+.cell::before{content:"";position:absolute;inset:0;z-index:0;
+  background:radial-gradient(60% 55% at 62% 45%,color-mix(in srgb,var(--accent) 14%,transparent),transparent 70%)}
+.cell::after{content:"";position:absolute;inset:0;z-index:0;
+  background-image:radial-gradient(var(--ov-12) 1px,transparent 1px);background-size:24px 24px;
+  -webkit-mask-image:radial-gradient(ellipse 62% 58% at 62% 46%,#000,transparent);
+  mask-image:radial-gradient(ellipse 62% 58% at 62% 46%,#000,transparent)}
+model-viewer{position:absolute;inset:0;z-index:1;width:100%;height:100%;background:transparent}
+b{position:absolute;z-index:3;left:8px;top:6px;font-size:11px;color:#8fe3e0;text-shadow:0 1px 3px #000}
+</style>
+<script type="module" src="https://cdn.jsdelivr.net/npm/@google/model-viewer@4.4.0/dist/model-viewer.min.js"></script>
+</head><body>
+<div class="grid" id="g"></div>
+<script>
+const items=[['0 · xanh lam hien tai','../model/poseai.glb','../model/studio.hdr'],
+             ['1 · teal sang','v1.glb','env-poseai.hdr']];
+const t=Date.now();
+document.getElementById('g').innerHTML=items.map(([lab,src,env],i)=>
+ `<div class="cell"><b>${lab}</b><model-viewer id="m${i}" src="${src}?b=${t}"
+   camera-orbit="45deg 72deg auto" camera-target="0m 0.062m -0.02m" field-of-view="30deg"
+   environment-image="${env}" tone-mapping="commerce" exposure="1.12"
+   shadow-intensity="0" loading="eager" reveal="auto" disable-tap></model-viewer></div>`).join('');
+window.__R__=null;
+(async()=>{const els=[...document.querySelectorAll('model-viewer')];
+ await Promise.all(els.map(e=>e.loaded?0:new Promise(r=>e.addEventListener('load',r,{once:true}))));
+ await new Promise(r=>setTimeout(r,1600)); window.__R__=els.map(e=>e.loaded);})();
+</script></body></html>

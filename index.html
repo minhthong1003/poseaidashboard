@@ -525,6 +525,32 @@ select{background:var(--bg2);color:var(--text);border:1px solid var(--border);bo
 .lp-login{padding:clamp(52px,7.5vw,96px) 0;display:grid;place-items:center}
 .lp-login .login-card{margin:0}
 .lp-login .lp-sec-head{margin-bottom:clamp(24px,3.5vw,36px)}
+/* Mục Facebook.
+   Hai khung nhúng của Facebook luôn có nền TRẮNG và không nhận được biến màu của trang,
+   nên để chúng trong thẻ nền trắng cố định cho ra vẻ chủ ý, thay vì để một mảng trắng
+   chói lạc lõng giữa nền tối. */
+.lp-fb{display:grid;grid-template-columns:minmax(0,380px) minmax(0,1fr);gap:clamp(18px,2.6vw,30px);align-items:start}
+.lp-fb-panel{background:linear-gradient(180deg,var(--grad1),var(--grad2));border:1px solid var(--border);border-radius:16px;padding:22px 21px;box-shadow:0 8px 24px -10px rgba(0,0,0,.3)}
+.lp-fb-brand{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.lp-fb-brand .ico{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;background:#1877F2;flex:none}
+.lp-fb-brand .ico svg{width:23px;height:23px;fill:#fff}
+.lp-fb-brand b{display:block;font-size:15px;line-height:1.3}
+.lp-fb-brand span{font-size:12.5px;color:var(--muted)}
+.lp-fb-panel > p{color:var(--muted);font-size:13.5px;line-height:1.65;margin:0 0 16px}
+.lp-fb-panel .btn-primary{width:100%;display:flex;align-items:center;justify-content:center;gap:9px;text-decoration:none}
+.lp-fb-panel .btn-primary svg{width:16px;height:16px;fill:currentColor}
+.lp-fb-embed{background:#fff;border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.lp-fb-embed iframe{display:block;border:0;width:100%}
+/* Khung bài đăng cao cố định (khung nhúng dạng iframe thuần không tự co giãn theo nội dung),
+   nên vuốt mờ ở đáy để chỗ bị cắt trông như cố ý, kèm liên kết mở bài đầy đủ. */
+.lp-fb-post{position:relative}
+.lp-fb-post::after{content:"";position:absolute;left:0;right:0;bottom:0;height:58px;pointer-events:none;background:linear-gradient(rgba(255,255,255,0),#fff)}
+.lp-fb-side-embed{margin-top:16px}
+.lp-fb-note{margin:12px 0 0;font-size:12px;color:var(--muted);line-height:1.6}
+.lp-fb-link{display:inline-flex;align-items:center;gap:6px;margin-top:13px;font-size:13px;color:var(--accent);text-decoration:none}
+.lp-fb-link:hover{text-decoration:underline}
+.lp-fb-link svg{width:13px;height:13px;fill:currentColor}
+@media (max-width:860px){ .lp-fb{grid-template-columns:1fr} }
 .lp-foot{border-top:1px solid var(--border);padding:24px;color:var(--muted);font-size:12.5px;text-align:center;line-height:1.6}
 @media (max-width:860px){
   .lp-split{grid-template-columns:1fr}
@@ -638,6 +664,8 @@ const Theme={
   apply(mode){
     document.documentElement.setAttribute('data-theme',mode);
     document.querySelectorAll('.theme-opt').forEach(b=>b.setAttribute('aria-pressed',b.dataset.theme===mode?'true':'false'));
+    /* Ánh sáng mô hình 3D ở trang giới thiệu cũng phải đổi theo (xem applyModelLighting) */
+    if(typeof applyModelLighting==='function') applyModelLighting();
   },
   set(mode){
     try{ localStorage.setItem(this.KEY,mode) }catch(e){}
@@ -1945,15 +1973,104 @@ function setupZoomGate(mv){
      đã bị preventDefault (đã kiểm chứng). */
   mv.addEventListener('wheel',e=>{ if(e.ctrlKey) e.preventDefault() },{passive:false});
 }
+/* Ánh sáng mô hình đổi theo theme.
+   Ảnh môi trường navy tối hợp với nền tối, nhưng ở giao diện sáng (nền #eef3f8) thì khối
+   máy xám xịt và vùng sáng dưới chân máy biến thành vệt tối bẩn. Nên ở theme sáng: đổi
+   sang ảnh phòng chụp nền trắng, và hạ hẳn mặt sàn xuống thành bóng đổ mờ (tắt phần tự
+   phát sáng, giảm độ đục) — trên nền sáng thì bóng đổ mới là thứ đọc ra "có mặt sàn",
+   chứ không phải quầng sáng. */
+let GROUND_EMISSIVE_DARK=[0.22,0.38,0.40];   // giá trị gốc trong file, đọc lại lúc load
+const MODEL_LIGHTING={
+  dark :{ env:'model/studio.hdr',       exposure:'1.12', groundAlpha:1.00, groundEmissive:null },
+  light:{ env:'model/studio-light.hdr', exposure:'1.00', groundAlpha:0.55, groundEmissive:[0,0,0] }
+};
+function effectiveTheme(){
+  const t=document.documentElement.getAttribute('data-theme');
+  if(t==='light'||t==='dark') return t;
+  return window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';
+}
+function applyModelLighting(){
+  const mv=document.getElementById('heroModel');
+  if(!mv) return;
+  const cfg=MODEL_LIGHTING[effectiveTheme()];
+  if(mv.getAttribute('environment-image')!==cfg.env) mv.setAttribute('environment-image',cfg.env);
+  mv.setAttribute('exposure',cfg.exposure);
+  /* Vật liệu chỉ truy cập được sau khi mô hình tải xong; hàm này được gọi lại ở sự kiện load. */
+  const mat=mv.model&&mv.model.materials&&mv.model.materials.find(m=>m.name==='ground');
+  if(!mat) return;
+  /* baseColorFactor NHÂN với texture nên chỉ làm tối/mờ đi được, không làm sáng lên —
+     vừa đủ để hạ độ đục của đĩa ở theme sáng mà không phải dựng thêm file mô hình thứ hai. */
+  mat.pbrMetallicRoughness.setBaseColorFactor([1,1,1,cfg.groundAlpha]);
+  mat.setEmissiveFactor(cfg.groundEmissive||GROUND_EMISSIVE_DARK);
+}
 function initHeroModel(){
   const mv=document.getElementById('heroModel');
   if(!mv) return;
   mv.addEventListener('load',()=>{
+    const mat=mv.model&&mv.model.materials&&mv.model.materials.find(m=>m.name==='ground');
+    /* Lưu lại giá trị gốc trong file để lúc quay về theme tối thì trả đúng như cũ */
+    if(mat) GROUND_EMISSIVE_DARK=mat.emissiveFactor.slice(0,3);
+    applyModelLighting();
     mv.classList.add('ready');
     startSway(mv);
   },{once:true});
   setupZoomGate(mv);
+  window.matchMedia('(prefers-color-scheme: light)').addEventListener('change',applyModelLighting);
   loadModelLib().catch(()=>{ mv.remove() });
+}
+
+/* ===== Mục Facebook ở trang giới thiệu =====
+   Không lấy được "bài đăng mới nhất" một cách tự động: việc đó cần Graph API kèm Page
+   Access Token, mà trang này là HTML tĩnh — nhúng token vào đây là lộ token. Khung
+   "dòng thời gian" của Page Plugin cũng không còn trả về bài đăng cho Trang kiểu mới
+   (đã thử, chờ 22 giây vẫn trống). Nên ở đây hiển thị MỘT bài chỉ định qua FB_POST_URL;
+   muốn đổi bài thì dán đường dẫn bài mới vào đúng hằng số này. */
+const FB_PAGE_URL='https://www.facebook.com/profile.php?id=61596450144170';
+const FB_POST_URL='https://www.facebook.com/permalink.php?story_fbid=pfbid0FMitFzCQAq2mMPwvXhmVrm4fRTavQQdtVmGtTisNXmnZi8CK6K4MUUS9LZiNgPzWl&id=61596450144170';
+const FB_POST_HEIGHT=520;
+const icoFacebook='<svg viewBox="0 0 24 24"><path d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06c0 5.02 3.66 9.18 8.44 9.94v-7.03H7.9v-2.91h2.54V9.85c0-2.52 1.5-3.91 3.77-3.91 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.78-1.63 1.57v1.89h2.78l-.45 2.91h-2.33V22c4.78-.76 8.44-4.92 8.44-9.94z"/></svg>';
+const icoExternal='<svg viewBox="0 0 24 24"><path d="M14 3h7v7h-2V6.41l-8.29 8.3-1.42-1.42 8.3-8.29H14V3z"/><path d="M5 5h5v2H7v10h10v-3h2v5H5V5z"/></svg>';
+
+/* Khung nhúng của Facebook dựng nội dung theo tham số width, KHÔNG co theo khung chứa,
+   nên phải tự tính bề rộng rồi mới gắn src — để iframe rộng 100% mà width sai thì bài
+   đăng bị lệch, chừa một dải trắng bên phải. Tính lại khi đổi kích thước cửa sổ, nhưng
+   chỉ khi lệch đáng kể, vì mỗi lần đổi src là tải lại cả khung. */
+function initFacebookEmbeds(){
+  const page=document.getElementById('fbPageEmbed');
+  const post=document.getElementById('fbPostEmbed');
+  if(!page||!post) return;
+  const enc=encodeURIComponent;
+  /* Giới hạn của chính Facebook: khung bài đăng 350-750px, khung trang 180-500px. */
+  const POST_MIN=350, POST_MAX=750, PAGE_MIN=180, PAGE_MAX=500;
+  let lastW=0;
+  const build=()=>{
+    const box=post.parentElement.clientWidth;
+    const w=Math.round(Math.max(POST_MIN,Math.min(POST_MAX,box)));
+    const pw=Math.round(Math.max(PAGE_MIN,Math.min(PAGE_MAX,page.parentElement.clientWidth)));
+    /* Màn hình hẹp hơn 350px: Facebook không dựng nhỏ hơn thế được, nên thu nhỏ cả khung
+       bằng transform rồi hạ chiều cao khung bọc theo đúng tỉ lệ — nếu không sẽ thò ra
+       ngoài mép phải và làm cả trang cuộn ngang. */
+    const k=box<POST_MIN?box/POST_MIN:1;
+    post.style.width=w+'px';
+    post.style.transformOrigin='top left';
+    post.style.transform=k<1?'scale('+k.toFixed(4)+')':'';
+    post.parentElement.style.height=k<1?Math.round(FB_POST_HEIGHT*k)+'px':'';
+    if(Math.abs(w-lastW)<24 && lastW) return;
+    lastW=w;
+    /* Kiểu đầu trang gọn (ảnh đại diện, nút Theo dõi và số người theo dõi trên CÙNG một
+       hàng) cần khoảng 320px mới đủ; hẹp hơn thì Facebook cắt mất chữ "người theo dõi".
+       Dưới ngưỡng đó chuyển sang kiểu xếp dọc — cao hơn nhưng không bị cụt chữ. */
+    const slim=pw>=320;
+    page.height=slim?70:150;
+    page.src='https://www.facebook.com/plugins/page.php?href='+enc(FB_PAGE_URL)+
+      '&tabs=&width='+pw+'&height='+(slim?70:150)+'&small_header='+slim+
+      '&adapt_container_width=true&hide_cover=true&show_facepile=false&locale=vi_VN';
+    post.src='https://www.facebook.com/plugins/post.php?href='+enc(FB_POST_URL)+
+      '&show_text=true&width='+w+'&locale=vi_VN';
+  };
+  build();
+  let t=null;
+  window.addEventListener('resize',()=>{ clearTimeout(t); t=setTimeout(build,300) });
 }
 
 function renderLogin(prefillErr){
@@ -1976,6 +2093,7 @@ function renderLogin(prefillErr){
         <a href="#cach-hoat-dong">Cách hoạt động</a>
         <a href="#bai-tap">Bài tập</a>
         <a href="#giao-vien">Cho giáo viên</a>
+        <a href="#facebook">Facebook</a>
       </nav>
       <a class="btn-pill" href="#dang-nhap">Đăng nhập</a>
     </header>
@@ -2113,7 +2231,39 @@ function renderLogin(prefillErr){
         </div>
       </section>
 
-      <section class="lp-sec alt lp-login" id="dang-nhap">
+      <section class="lp-sec alt" id="facebook">
+        <div class="lp-wrap">
+          <div class="lp-sec-head">
+            <span class="lp-eyebrow">Cộng đồng</span>
+            <h2>Theo dõi PoseAI trên Facebook</h2>
+            <p>Hoạt động tại phòng tập, mẹo tập đúng tư thế và tin tức về thiết bị đều được đăng trên trang Facebook của PoseAI.</p>
+          </div>
+          <div class="lp-fb">
+            <div class="lp-fb-panel">
+              <div class="lp-fb-brand">
+                <span class="ico">${icoFacebook}</span>
+                <span><b>Pose AI</b><span>Trang Facebook chính thức</span></span>
+              </div>
+              <p>Bấm theo dõi để nhận bài đăng mới ngay trên bảng tin của bạn.</p>
+              <a class="btn-primary" href="${FB_PAGE_URL}" target="_blank" rel="noopener noreferrer">${icoFacebook}Theo dõi trên Facebook</a>
+              <div class="lp-fb-embed lp-fb-side-embed">
+                <iframe id="fbPageEmbed" height="70" title="Trang Facebook của PoseAI" loading="lazy"
+                  scrolling="no" frameborder="0" allow="clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>
+              </div>
+              <p class="lp-fb-note">Khung theo dõi do Facebook cung cấp. Nếu bạn chặn nội dung của Facebook thì khung này có thể không hiện — dùng nút phía trên để mở trang.</p>
+            </div>
+            <div>
+              <div class="lp-fb-embed lp-fb-post">
+                <iframe id="fbPostEmbed" height="${FB_POST_HEIGHT}" title="Bài đăng trên trang Facebook của PoseAI" loading="lazy"
+                  scrolling="no" frameborder="0" allow="clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>
+              </div>
+              <a class="lp-fb-link" href="${FB_POST_URL}" target="_blank" rel="noopener noreferrer">${icoExternal}Xem bài đăng đầy đủ trên Facebook</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="lp-sec lp-login" id="dang-nhap">
         <div class="lp-wrap">
           <div class="lp-sec-head">
             <span class="lp-eyebrow">Khu vực giáo viên</span>
@@ -2137,11 +2287,12 @@ function renderLogin(prefillErr){
         </div>
       </section>
     </main>
-    <footer class="lp-foot">PoseAI · Hệ thống theo dõi và chấm điểm tư thế tập luyện dành cho trường học.</footer>
+    <footer class="lp-foot">PoseAI · Thiết bị huấn luyện tư thế vận động ứng dụng AI phòng ngừa chấn thương và huấn luyện thể chất.</footer>
   </div>`;
   document.querySelectorAll('[data-install]').forEach(b=>b.addEventListener('click',doInstall));
   updateInstallUI();
   initHeroModel();
+  initFacebookEmbeds();
   /* Tự xử lý các liên kết neo thay vì để trình duyệt nhảy theo #hash:
      - không làm bẩn URL bằng #tinh-nang… (hash còn sót lại sẽ bị bảng điều khiển
        đọc nhầm thành tên màn hình sau khi đăng nhập),

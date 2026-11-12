@@ -541,9 +541,19 @@ select{background:var(--bg2);color:var(--text);border:1px solid var(--border);bo
 .lp-fb-panel .btn-primary svg{width:16px;height:16px;fill:currentColor}
 .lp-fb-embed{background:#fff;border:1px solid var(--border);border-radius:14px;overflow:hidden}
 .lp-fb-embed iframe{display:block;border:0;width:100%}
+/* Cột phải PHẢI có min-width:0. Khung bài đăng của Facebook rộng cố định 350px (mức nhỏ
+   nhất họ cho phép), mà kích thước tối thiểu tự động của một ô lưới là min-content — nên
+   nếu không đặt min-width:0 thì cái 350px đó ép cả trang rộng ra, máy hẹp hơn ~376px bị
+   giãn ngang toàn trang. */
+.lp-fb > *{min-width:0}
 /* Khung bài đăng cao cố định (khung nhúng dạng iframe thuần không tự co giãn theo nội dung),
    nên vuốt mờ ở đáy để chỗ bị cắt trông như cố ý, kèm liên kết mở bài đầy đủ. */
 .lp-fb-post{position:relative}
+/* Máy hẹp hơn 350px thì thu nhỏ bằng transform. Phải thu nhỏ LỚP BỌC chứ không phải
+   iframe: transform không làm giảm chỗ chiếm trong bố cục, nên nếu thu nhỏ thẳng iframe
+   thì nó vẫn chiếm 350px — vừa chừa dải trắng bên phải, vừa làm trang rộng ra. Lớp bọc
+   bị cắt bởi overflow:hidden của .lp-fb-embed, còn chiều cao do JS đặt lại theo tỉ lệ. */
+.lp-fb-scale{transform-origin:top left}
 .lp-fb-post::after{content:"";position:absolute;left:0;right:0;bottom:0;height:58px;pointer-events:none;background:linear-gradient(rgba(255,255,255,0),#fff)}
 .lp-fb-side-embed{margin-top:16px}
 .lp-fb-note{margin:12px 0 0;font-size:12px;color:var(--muted);line-height:1.6}
@@ -2043,18 +2053,20 @@ function initFacebookEmbeds(){
   /* Giới hạn của chính Facebook: khung bài đăng 350-750px, khung trang 180-500px. */
   const POST_MIN=350, POST_MAX=750, PAGE_MIN=180, PAGE_MAX=500;
   let lastW=0;
+  const scaler=post.parentElement;            // .lp-fb-scale
+  const frame=scaler.parentElement;           // .lp-fb-embed.lp-fb-post
   const build=()=>{
-    const box=post.parentElement.clientWidth;
+    const box=frame.clientWidth;
+    if(!box) return;                          // chưa dựng xong bố cục thì chưa tính
     const w=Math.round(Math.max(POST_MIN,Math.min(POST_MAX,box)));
     const pw=Math.round(Math.max(PAGE_MIN,Math.min(PAGE_MAX,page.parentElement.clientWidth)));
-    /* Màn hình hẹp hơn 350px: Facebook không dựng nhỏ hơn thế được, nên thu nhỏ cả khung
-       bằng transform rồi hạ chiều cao khung bọc theo đúng tỉ lệ — nếu không sẽ thò ra
-       ngoài mép phải và làm cả trang cuộn ngang. */
+    /* Facebook không dựng khung hẹp hơn 350px, nên máy nhỏ hơn thế thì thu nhỏ cả lớp bọc
+       rồi hạ chiều cao khung theo đúng tỉ lệ cho khỏi hụt/thừa khoảng trắng. */
     const k=box<POST_MIN?box/POST_MIN:1;
     post.style.width=w+'px';
-    post.style.transformOrigin='top left';
-    post.style.transform=k<1?'scale('+k.toFixed(4)+')':'';
-    post.parentElement.style.height=k<1?Math.round(FB_POST_HEIGHT*k)+'px':'';
+    post.height=FB_POST_HEIGHT;
+    scaler.style.transform=k<1?'scale('+k.toFixed(4)+')':'';
+    frame.style.height=k<1?Math.round(FB_POST_HEIGHT*k)+'px':'';
     if(Math.abs(w-lastW)<24 && lastW) return;
     lastW=w;
     /* Kiểu đầu trang gọn (ảnh đại diện, nút Theo dõi và số người theo dõi trên CÙNG một
@@ -2254,8 +2266,8 @@ function renderLogin(prefillErr){
             </div>
             <div>
               <div class="lp-fb-embed lp-fb-post">
-                <iframe id="fbPostEmbed" height="${FB_POST_HEIGHT}" title="Bài đăng trên trang Facebook của PoseAI" loading="lazy"
-                  scrolling="no" frameborder="0" allow="clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>
+                <div class="lp-fb-scale"><iframe id="fbPostEmbed" height="${FB_POST_HEIGHT}" title="Bài đăng trên trang Facebook của PoseAI" loading="lazy"
+                  scrolling="no" frameborder="0" allow="clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe></div>
               </div>
               <a class="lp-fb-link" href="${FB_POST_URL}" target="_blank" rel="noopener noreferrer">${icoExternal}Xem bài đăng đầy đủ trên Facebook</a>
             </div>
